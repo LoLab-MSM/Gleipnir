@@ -7,8 +7,8 @@ import numpy as np
 from numpy import exp, log, pi
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
-from Gleipnir.sampled_parameter import SampledParameter
-from Gleipnir.polychord import PolyChordNestedSampling
+from gleipnir.sampled_parameter import SampledParameter
+from gleipnir.polychord import PolyChordNestedSampling
 
 # Number of paramters to sample is 1
 ndim = 1

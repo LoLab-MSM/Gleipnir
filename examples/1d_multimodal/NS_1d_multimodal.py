@@ -7,10 +7,10 @@ import numpy as np
 from numpy import exp, log, pi
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
-from Gleipnir.samplers import MetropolisComponentWiseHardNSRejection
-from Gleipnir.sampled_parameter import SampledParameter
-from Gleipnir.stopping_criterion import NumberOfIterations
-from Gleipnir.nested_sampling import NestedSampling
+from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.sampled_parameter import SampledParameter
+from gleipnir.stopping_criterion import NumberOfIterations
+from gleipnir.nested_sampling import NestedSampling
 
 # Number of paramters to sample is 1
 ndim = 1
