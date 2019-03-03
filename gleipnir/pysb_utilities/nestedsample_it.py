@@ -181,7 +181,7 @@ if __name__ == '__main__':
             out_file.write("sampled_parameters.append({})\n".format(ps_name))
 
     out_file.write("# Setup the Nested Sampling run\n")
-    out_file.write("n_params = len(sampled_parameters\n")
+    out_file.write("n_params = len(sampled_parameters)\n")
     out_file.write("population_size = 10*n_params\n")
     out_file.write("# Setup the sampler to use when updating points during the NS run --\n")
     out_file.write("# Here we are using an implementation of the Metropolis Monte Carlo algorithm\n")
