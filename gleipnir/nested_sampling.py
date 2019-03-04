@@ -29,7 +29,7 @@ class NestedSampling(object):
         #quit()
         return
 
-    def run(self):
+    def run(self, verbose=False):
 
         # zeroth iteration -- generate all the random samples
         live_points = dict()
@@ -112,13 +112,23 @@ class NestedSampling(object):
                                            'weight': self.current_weight,
                                            'param_vec': param_vec}))
             self._previous_weight = self.current_weight
+            if verbose:
+                print("Iteration: {} Evidence estimate: {} Remaining prior mass: {}".format(self._n_iterations, self._evidence, self._alpha**self._n_iterations))
+                print("Dead Point:")
+                print(self._dead_points[-1])
         # accumulate the final bit for remaining surviving points
         weight = self._alpha**(self._n_iterations)
         likelihoods = np.exp(log_likelihoods)
         likelihoods_surv = np.array([likelihood for i,likelihood in enumerate(likelihoods) if i != ndx])
         l_m = likelihoods_surv.mean()
         self._evidence += weight*l_m
-
+        n_left = len(likelihoods_surv)
+        a_weight = weight/n_left
+        for i,l_likelihood in enumerate(log_likelihoods):
+            if i != ndx:
+                self._dead_points.append(dict({'log_l':l_likelihood,
+                                               'weight':a_weight,
+                                               'param_vec':self.live_points.value[i]}))
         return
 
     def stopping_criterion(self):
