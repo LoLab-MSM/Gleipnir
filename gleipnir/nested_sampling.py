@@ -32,18 +32,23 @@ class NestedSampling(object):
     def run(self, verbose=False):
 
         # zeroth iteration -- generate all the random samples
+        if verbose:
+            print("Generating the initial set of live points with population size {}...".format(self.population_size))
         live_points = dict()
         for i in range(self.population_size):
             for sampled_parameter_name in self.sampled_parameters_dict:
                 name = sampled_parameter_name
-                rs = self.sampled_parameters_dict[sampled_parameter_name].rvs(1)
+                rs = self.sampled_parameters_dict[sampled_parameter_name].rvs(1)[0]
                 if name not in live_points.keys():
                     live_points[name] = list([rs])
                 else:
                     live_points[name].append(rs)
 
         self.live_points = pd.DataFrame(live_points)
+        print(self.live_points)
         # evaulate the log likelihood function for each live point
+        if verbose:
+            print("Evaluating the loglikelihood function for each live point...")
         log_likelihoods = np.array([self.loglikelihood(sampled_parameter_vector) for sampled_parameter_vector in self.live_points.values])
 
         # first iteration
@@ -72,7 +77,10 @@ class NestedSampling(object):
                                        'weight': self.current_weight,
                                        'param_vec': param_vec}))
 
-
+        if verbose:
+            print("Iteration: {} Evidence estimate: {} Remaining prior mass: {}".format(self._n_iterations, self._evidence, self._alpha**self._n_iterations))
+            print("Dead Point:")
+            print(self._dead_points[-1])
         # subseqent iterations
         while not self.stopping_criterion():
             self._n_iterations += 1
@@ -86,6 +94,8 @@ class NestedSampling(object):
             #print(r_p_ndx)
             # now make a new point from the survivor via the sampler
             r_p_param_vec = self.live_points.values[r_p_ndx]
+            if verbose:
+                print("Replacing the new dead point with a survivor modifed via MCMC...")
             updated_point_param_vec, u_log_l = self.sampler(self.sampled_parameters, self.loglikelihood, r_p_param_vec, log_l, self._alpha**self._n_iterations)
             log_likelihoods[ndx] = u_log_l
             self.live_points.values[ndx] = updated_point_param_vec
@@ -128,7 +138,7 @@ class NestedSampling(object):
             if i != ndx:
                 self._dead_points.append(dict({'log_l':l_likelihood,
                                                'weight':a_weight,
-                                               'param_vec':self.live_points.value[i]}))
+                                               'param_vec':self.live_points.values[i]}))
         return
 
     def stopping_criterion(self):
