@@ -18,6 +18,10 @@ class NestedSampling(object):
         # NS accumulators
 
         self._evidence = 0.0
+        self._evidence_error = 0.0
+        self._logevidence = 0.0
+        self._information = 0.0
+        self._H = 0.0
         self._previous_evidence = 0.0
         self.current_weight = 1.0
         self._previous_weight = 1.0
@@ -71,6 +75,12 @@ class NestedSampling(object):
         #print(dZ, log_l)
         #quit()
         self._evidence += dZ
+        self._logevidence += np.log(self.current_weight)+log_l
+        # accumulate the information
+        dH = dZ*log_l
+        self._H += dH
+        self._information = -np.log(self._evidence)+self._H/self._evidence
+
         self._previous_weight = self.current_weight
         # add the lowest likelihood live point to dead points
         self._dead_points.append(dict({'log_l': log_l,
@@ -94,8 +104,8 @@ class NestedSampling(object):
             #print(r_p_ndx)
             # now make a new point from the survivor via the sampler
             r_p_param_vec = self.live_points.values[r_p_ndx]
-            if verbose:
-                print("Replacing the new dead point with a survivor modifed via MCMC...")
+            #if verbose and (self._n_iterations%10==0):
+            #    print("Replacing the new dead point with a survivor modifed via MCMC...")
             updated_point_param_vec, u_log_l = self.sampler(self.sampled_parameters, self.loglikelihood, r_p_param_vec, log_l, self._alpha**self._n_iterations)
             log_likelihoods[ndx] = u_log_l
             self.live_points.values[ndx] = updated_point_param_vec
@@ -112,7 +122,11 @@ class NestedSampling(object):
             dZ = self.current_weight*np.exp(log_l)
             #print(dZ, log_l)
             self._evidence += dZ
-
+            self._logevidence += np.log(self.current_weight)+log_l
+            # accumulate the information
+            dH = dZ*log_l
+            self._H += dH
+            self._information = -np.log(self._evidence)+self._H/self._evidence
             # print(self._n_iterations,self._alpha**self._n_iterations, self.current_weight, self._previous_weight, self._evidence)
             #if self.current_weight < 0.0:
             #    quit()
@@ -122,8 +136,10 @@ class NestedSampling(object):
                                            'weight': self.current_weight,
                                            'param_vec': param_vec}))
             self._previous_weight = self.current_weight
-            if verbose:
-                print("Iteration: {} Evidence estimate: {} Remaining prior mass: {}".format(self._n_iterations, self._evidence, self._alpha**self._n_iterations))
+            if verbose and (self._n_iterations%10==0):
+                logZ_err = np.sqrt(self._information/self.population_size)
+                ev_err = np.exp(logZ_err)
+                print("Iteration: {} Evidence estimate: {} +- {} Remaining prior mass: {}".format(self._n_iterations, self._evidence, ev_err, self._alpha**self._n_iterations))
                 print("Dead Point:")
                 print(self._dead_points[-1])
         # accumulate the final bit for remaining surviving points
@@ -132,6 +148,11 @@ class NestedSampling(object):
         likelihoods_surv = np.array([likelihood for i,likelihood in enumerate(likelihoods) if i != ndx])
         l_m = likelihoods_surv.mean()
         self._evidence += weight*l_m
+        self._logevidence += np.log(weight)+log_likelihoods.mean()
+        # accumulate the information
+        dH = weight*l_m*np.log(l_m)
+        self._H += dH
+        self._information = -np.log(self._evidence)+self._H/self._evidence
         n_left = len(likelihoods_surv)
         a_weight = weight/n_left
         for i,l_likelihood in enumerate(log_likelihoods):
@@ -139,6 +160,9 @@ class NestedSampling(object):
                 self._dead_points.append(dict({'log_l':l_likelihood,
                                                'weight':a_weight,
                                                'param_vec':self.live_points.values[i]}))
+        logZ_err = np.sqrt(self._information/self.population_size)
+        ev_err = np.exp(logZ_err)
+        self._evidence_error = ev_err
         return
 
     def stopping_criterion(self):
@@ -146,5 +170,11 @@ class NestedSampling(object):
 
     def evidence(self):
         return self._evidence
+
+    def evidence_error(self):
+        return self._evidence_error
+
+    def information(self):
+        return self._information
 
     #def information(self):
