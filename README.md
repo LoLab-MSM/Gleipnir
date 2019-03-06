@@ -13,6 +13,10 @@ Gleipnir has the following major dependencies:
 ##### To use PolyChord
    * pypolychord - https://github.com/PolyChord/PolyChordLite
 
+##### To use MultiNest
+   * PyMultiNest - https://github.com/JohannesBuchner/PyMultiNest
+   * MultiNest -  https://github.com/JohannesBuchner/MultiNest
+
 
 Gleipnir is compatible with Python 3.6
 
@@ -48,6 +52,10 @@ https://github.com/PolyChord/PolyChordLite
 Notes:
     * Installs into your .local/lib python site-packages.
     * Requires gfortran (f77 compiler) and lipopenmpi-dev (development libraries for MPI) to build the code.
+
+If you want to use the MultiNestNestedSampling object for Nested Sampling download, build, and install PyMultiNest and MultiNest following the instructions at:
+http://johannesbuchner.github.io/PyMultiNest/install.html
+
 
 ## Generate the run script for a PySB model using the nestedsample_it utility.
 If you have new pysb model that you want to run Nested Sampling on you can use the nestedsample_it utility script to build a run file. nestedsample_it read the model file and imports and pulls out all the kinetic parameters and writes out a run_NS script for that model. You wil still need to edit the output script to load any data and modify the loglikelihood function, but nestedsample_it should give a good starting point. Run from the command line:
