@@ -1,32 +1,38 @@
 import numpy as np
 
-
 class MetropolisComponentWiseHardNSRejection(object):
 
     def __init__(self, iterations=100, burn_in=0):
         self.iterations = iterations
         self.burn_in = burn_in
+        self._first = True
+        self.widths = []
         return
 
     def __call__(self, sampled_parameters, loglikelihood, start_param_vec, ns_boundary, compression_factor):
 
-        priors = [sampled_parameters[i].logprior(param) for i,param in enumerate(start_param_vec)]
-        priors = np.array(priors)
-        joint_prior = priors.prod()
-        thinning = 50
+        # priors = [sampled_parameters[i].logprior(param) for i,param in enumerate(start_param_vec)]
+        # priors = np.array(priors)
+        # joint_prior = priors.prod()
+        # thinning = 50
         ndim = len(sampled_parameters)
-        steps = list([])
-        for sampled_parameter in sampled_parameters:
-            rs = sampled_parameter.rvs(100)
-            mirs = min(rs)
-            mars = max(rs)
-            width = mars - mirs
-            #print(width)
-            steps.append(2.0*width*compression_factor)
-        steps = np.array(steps)
+        #steps = list([])
+        if self._first:
+            for sampled_parameter in sampled_parameters:
+                rs = sampled_parameter.rvs(100)
+                mirs = np.min(rs)
+                mars = np.max(rs)
+                width = mars - mirs
+                #print(width)
+                self.widths.append(0.5*width)
+            #steps.append(0.5*width)
+            self.widths = np.array(self.widths)
+            self._first = False
+        steps = self.widths
+        #steps = np.array(steps)
         acceptance = []
         cur_point = start_param_vec.copy()
-        cur_jprior = joint_prior
+        #cur_jprior = joint_prior
         cur_likelihood = loglikelihood(cur_point)
         #accepted_points = list([])
         for i in range(self.iterations+self.burn_in):
