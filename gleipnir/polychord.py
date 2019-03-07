@@ -99,7 +99,9 @@ class PolyChordNestedSampling(object):
             # plt.hist(self._dead_points[0], weights=norm_weights)
             # plt.show()
             # print(parms)
-            nbins = int(np.sqrt(len(log_likelihoods)))
+            # nbins = int(np.sqrt(len(log_likelihoods)))
+            # Rice bin count selection
+            nbins = 2 * int(np.cbrt(len(log_likelihoods)))
             JP, edges = np.histogramdd(samples.values[:,2:], density=True, bins=nbins)
             nd = len(JP.shape)
             self._posteriors = dict()

@@ -97,7 +97,9 @@ class MultiNestNestedSampling(object):
             # plt.hist(self._dead_points[0], weights=norm_weights)
             # plt.show()
             # print(parms)
-            nbins = int(np.sqrt(len(samples)))
+            # nbins = int(np.sqrt(len(samples)))
+            # Rice bin count selection
+            nbins = 2 * int(np.cbrt(len(samples)))
             JP, edges = np.histogramdd(samples, density=True, bins=nbins)
             nd = len(JP.shape)
             self._posteriors = dict()

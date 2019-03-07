@@ -255,7 +255,9 @@ class NestedSampling(object):
             # plt.hist(self._dead_points[0], weights=norm_weights)
             # plt.show()
             # print(parms)
-            nbins = int(np.sqrt(len(norm_weights)))
+            #nbins = int(np.sqrt(len(norm_weights)))
+            # Rice bin count selection
+            nbins = 2 * int(np.cbrt(len(norm_weights)))
             JP, edges = np.histogramdd(self._dead_points.values[:,2:], weights=norm_weights, density=True, bins=nbins)
             nd = len(JP.shape)
             self._posteriors = dict()
