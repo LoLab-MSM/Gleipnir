@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import warnings
 
 class NestedSampling(object):
 
@@ -19,6 +20,7 @@ class NestedSampling(object):
 
         self._evidence = 0.0
         self._evidence_error = 0.0
+        self._logZ_err = 0.0
         self._logevidence = 0.0
         self._information = 0.0
         self._H = 0.0
@@ -29,6 +31,15 @@ class NestedSampling(object):
         self._n_iterations = 0
         self._dead_points = list()
         self._live_points = None
+        self._post_eval = False
+        self._posteriors = None
+
+        # public vars
+        # self.evidence = None
+        # self.evidence_error = None
+        # self.log_evidence = None
+        # self.log_evidence_error = None
+        # self.information = None
         # print(self._alpha)
         #quit()
         return
@@ -83,9 +94,13 @@ class NestedSampling(object):
 
         self._previous_weight = self.current_weight
         # add the lowest likelihood live point to dead points
-        self._dead_points.append(dict({'log_l': log_l,
-                                       'weight': self.current_weight,
-                                       'param_vec': param_vec}))
+        dpd = dict({'log_l': log_l, 'weight':self.current_weight})
+        for k,val in enumerate(param_vec):
+            dpd[self.sampled_parameters[k].name] = val
+        #self._dead_points.append(dict({'log_l': log_l,
+        #                               'weight': self.current_weight,
+        #                               'param_vec': param_vec}))
+        self._dead_points.append(dpd)
 
         if verbose:
             print("Iteration: {} Evidence estimate: {} Remaining prior mass: {}".format(self._n_iterations, self._evidence, self._alpha**self._n_iterations))
@@ -132,9 +147,13 @@ class NestedSampling(object):
             #    quit()
 
             # add the lowest likelihood live point to dead points
-            self._dead_points.append(dict({'log_l': log_l,
-                                           'weight': self.current_weight,
-                                           'param_vec': param_vec}))
+            dpd = dict({'log_l': log_l, 'weight':self.current_weight})
+            for k,val in enumerate(param_vec):
+                dpd[self.sampled_parameters[k].name] = val
+            #self._dead_points.append(dict({'log_l': log_l,
+            #                               'weight': self.current_weight,
+            #                               'param_vec': param_vec}))
+            self._dead_points.append(dpd)
             self._previous_weight = self.current_weight
             if verbose and (self._n_iterations%10==0):
                 logZ_err = np.sqrt(self._information/self.population_size)
@@ -157,24 +176,109 @@ class NestedSampling(object):
         a_weight = weight/n_left
         for i,l_likelihood in enumerate(log_likelihoods):
             if i != ndx:
-                self._dead_points.append(dict({'log_l':l_likelihood,
-                                               'weight':a_weight,
-                                               'param_vec':self.live_points.values[i]}))
+                dpd = dict({'log_l': l_likelihood, 'weight':a_weight})
+                for k,val in enumerate(self.live_points.values[i]):
+                    dpd[self.sampled_parameters[k].name] = val
+                #self._dead_points.append(dict({'log_l': log_l,
+                #                               'weight': self.current_weight,
+                #                               'param_vec': param_vec}))
+                self._dead_points.append(dpd)
+                #self._dead_points.append(dict({'log_l':l_likelihood,
+                #                               'weight':a_weight,
+                #                               'param_vec':self.live_points.values[i]}))
         logZ_err = np.sqrt(self._information/self.population_size)
+        self._logZ_err = logZ_err
         ev_err = np.exp(logZ_err)
         self._evidence_error = ev_err
-        return
+        self._log_evidence = np.log(self._evidence)
+        self._dead_points = pd.DataFrame(self._dead_points)
+        #print(pd.DataFrame(self._dead_points))
+        #self.posteriors()
+        return self._logevidence, logZ_err
 
     def stopping_criterion(self):
         return self._stopping_criterion(self)
 
+    @property
     def evidence(self):
+        """Returns the estimate of the Bayesian evidence, or Z.
+        """
         return self._evidence
+    @evidence.setter
+    def evidence(self, value):
+        warnings.warn("evidence is not settable")
 
+    @property
     def evidence_error(self):
+        """Returns the (rough) estimate of the error in the evidence, or Z.
+
+        The error in the evidence is computed as the approximation:
+            exp(sqrt(information/population_size))
+        """
         return self._evidence_error
+    @evidence_error.setter
+    def evidence_error(self, value):
+        warnings.warn("evidence_error is not settable")
+
+    @property
+    def log_evidence(self):
+        """Returns the estimate of the natural logarithm of the Bayesian evidence, or ln(Z).
+        """
+        return self._log_evidence
+    @log_evidence.setter
+    def log_evidence(self, value):
+        warnings.warn("log_evidence is not settable")
+    @property
+    def log_evidence_error(self):
+        return self._logZ_err
+    @log_evidence_error.setter
+    def log_evidence_error(self, value):
+        warnings.warn("log_evidence_error is not settable")
 
     def information(self):
         return self._information
-
+    @information.setter
+    def information(self, value):
+        warnings.warn("information is not settable")
     #def information(self):
+
+    def posteriors(self):
+        if not self._post_eval:
+            log_likelihoods = self._dead_points['log_l'].to_numpy()
+            weights = self._dead_points['weight'].to_numpy()
+            likelihoods = np.exp(log_likelihoods)
+            norm_weights = (weights*likelihoods)/self.evidence
+            parms = self._dead_points.columns[2:]
+            # print(len(self._dead_points[0]))
+            # print(norm_weights)
+            # import matplotlib.pyplot as plt
+            # plt.hist(self._dead_points[0], weights=norm_weights)
+            # plt.show()
+            # print(parms)
+            nbins = int(np.sqrt(len(norm_weights)))
+            JP, edges = np.histogramdd(self._dead_points.values[:,2:], weights=norm_weights, density=True, bins=nbins)
+            nd = len(JP.shape)
+            self._posteriors = dict()
+            for ii in range(nd):
+                others = tuple(jj for jj in range(nd) if jj!=ii)
+                marginal = np.sum(JP, axis=others)
+                edge = edges[ii]
+                center = (edge[:-1] + edge[1:])/2.
+                self._posteriors[parms[ii]] = (marginal, center)
+            #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
+            self._post_eval = True
+        #print(post[0])
+        return self._posteriors
+
+    @property
+    def dead_points(self):
+        return self._dead_points
+    @dead_points.setter
+    def dead_points(self, value):
+            warnings.warn("dead_points is not settable")
+    # @property
+    # def samples(self):
+    #     return self._dead_points
+    # @samples.setter
+    # def samples(self, value):
+    #     warnings.warn("samples is not settable")

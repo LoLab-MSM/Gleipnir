@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 import pypolychord
 from pypolychord.settings import PolyChordSettings
 
@@ -12,6 +13,8 @@ class PolyChordNestedSampling(object):
         self.nDims = len(sampled_parameters)
         self.nDerived = 0
         self.population_size = population_size
+        self._post_eval = False
+        self._posteriors = None
         if self.population_size is None:
             self.population_size = 25*self.nDims
         # make the likelihood function for polychord
@@ -40,4 +43,73 @@ class PolyChordNestedSampling(object):
 
     def run(self):
         output = pypolychord.run_polychord(self.likelihood, self.nDims, self.nDerived, self.settings, self.prior, self.dumper)
-        self.output = output
+        self._output = output
+        return output.logZ, output.logZerr
+
+    @property
+    def evidence(self):
+        return np.exp(self._output.logZ)
+    @evidence.setter
+    def evidence(self, value):
+        warnings.warn("evidence is not settable")
+
+    @property
+    def evidence_error(self):
+        return np.exp(self._output.logZerr)
+    @evidence_error.setter
+    def evidence_error(self, value):
+        warnings.warn("evidence_error is not settable")
+
+    @property
+    def log_evidence(self):
+        return self._output.logZ
+    @log_evidence.setter
+    def log_evidence(self, value):
+        warnings.warn("log_evidence is not settable")
+
+    @property
+    def log_evidence_error(self):
+        return self._output.logZerr
+    @log_evidence_error.setter
+    def log_evidence_error(self, value):
+        warnings.warn("log_evidence_error is not settable")
+
+    @property
+    def information(self):
+        return None
+    @information.setter
+    def information(self, value):
+        warnings.warn("information is not settable")
+
+
+    def posteriors(self):
+        # lazy evaluation of posteriors on first call to function.
+        if not self._post_eval:
+            samples = self._output.samples
+            log_likelihoods = samples['loglike'].to_numpy()
+            #weights = samples['weight'].to_numpy()
+            #likelihoods = np.exp(log_likelihoods)
+            #weight_times_likelihood = weights*likelihoods
+            #norm_weights = weight_times_likelihood/weight_times_likelihood.sum()
+
+            parms = samples.columns[2:]
+            # print(len(self._dead_points[0]))
+            # print(norm_weights)
+            # import matplotlib.pyplot as plt
+            # plt.hist(self._dead_points[0], weights=norm_weights)
+            # plt.show()
+            # print(parms)
+            nbins = int(np.sqrt(len(log_likelihoods)))
+            JP, edges = np.histogramdd(samples.values[:,2:], density=True, bins=nbins)
+            nd = len(JP.shape)
+            self._posteriors = dict()
+            for ii in range(nd):
+                others = tuple(jj for jj in range(nd) if jj!=ii)
+                marginal = np.sum(JP, axis=others)
+                edge = edges[ii]
+                center = (edge[:-1] + edge[1:])/2.
+                self._posteriors[parms[ii]] = (marginal, center)
+            #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
+            self._post_eval = True
+        #print(post[0])
+        return self._posteriors
