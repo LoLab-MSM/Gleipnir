@@ -10,13 +10,14 @@ except ImportError as err:
 
 class MultiNestNestedSampling(object):
 
-    def __init__(self, sampled_parameters, loglikelihood, population_size=None):
+    def __init__(self, sampled_parameters, loglikelihood, population_size=None, **multinest_kwargs):
 
         self._sampled_parameters = sampled_parameters
         self._loglikelihood = loglikelihood
         self.nDims = len(sampled_parameters)
         self.nDerived = 0
         self.population_size = population_size
+        self._multinest_kwargs = multinest_kwargs
         self._output = None
         self._post_eval = False
         if self.population_size is None:
@@ -38,8 +39,10 @@ class MultiNestNestedSampling(object):
     def run(self, verbose=False):
         output = solve(LogLikelihood = self.likelihood, Prior=self.prior,
                        n_dims = self.nDims,
+                       n_live_points=self.population_size,
                        outputfiles_basename=self.file_root,
-                       verbose=verbose)
+                       verbose=verbose,
+                       **self._multinest_kwargs)
         self._output = output
         return self.log_evidence, self.log_evidence_error
 
