@@ -235,6 +235,7 @@ class NestedSampling(object):
     def log_evidence_error(self, value):
         warnings.warn("log_evidence_error is not settable")
 
+    @property    
     def information(self):
         return self._information
     @information.setter
