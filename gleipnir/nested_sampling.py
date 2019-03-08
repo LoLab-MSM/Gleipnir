@@ -21,7 +21,7 @@ class NestedSampling(object):
         self._evidence = 0.0
         self._evidence_error = 0.0
         self._logZ_err = 0.0
-        self._logevidence = 0.0
+        self._log_evidence = 0.0
         self._information = 0.0
         self._H = 0.0
         self._previous_evidence = 0.0
@@ -60,7 +60,7 @@ class NestedSampling(object):
                     live_points[name].append(rs)
 
         self.live_points = pd.DataFrame(live_points)
-        print(self.live_points)
+        # print(self.live_points)
         # evaulate the log likelihood function for each live point
         if verbose:
             print("Evaluating the loglikelihood function for each live point...")
@@ -83,14 +83,15 @@ class NestedSampling(object):
         #dZ = self.current_weight*joint_prior*np.exp(log_l)
         joint_prior = 1.0
         dZ = self.current_weight*np.exp(log_l)
-        #print(dZ, log_l)
+        # print(dZ, log_l)
         #quit()
         self._evidence += dZ
-        self._logevidence += np.log(self.current_weight)+log_l
         # accumulate the information
         dH = dZ*log_l
+        if np.isnan(dH): dH = 0.0
         self._H += dH
-        self._information = -np.log(self._evidence)+self._H/self._evidence
+        if self._evidence > 0.0:
+            self._information = -np.log(self._evidence)+self._H/self._evidence
 
         self._previous_weight = self.current_weight
         # add the lowest likelihood live point to dead points
@@ -137,11 +138,14 @@ class NestedSampling(object):
             dZ = self.current_weight*np.exp(log_l)
             #print(dZ, log_l)
             self._evidence += dZ
-            self._logevidence += np.log(self.current_weight)+log_l
             # accumulate the information
+            # print(dZ, log_l)
             dH = dZ*log_l
+            if np.isnan(dH): dH = 0.0
             self._H += dH
-            self._information = -np.log(self._evidence)+self._H/self._evidence
+
+            if self._evidence > 0.0:
+                self._information = -np.log(self._evidence)+self._H/self._evidence
             # print(self._n_iterations,self._alpha**self._n_iterations, self.current_weight, self._previous_weight, self._evidence)
             #if self.current_weight < 0.0:
             #    quit()
@@ -167,11 +171,12 @@ class NestedSampling(object):
         likelihoods_surv = np.array([likelihood for i,likelihood in enumerate(likelihoods) if i != ndx])
         l_m = likelihoods_surv.mean()
         self._evidence += weight*l_m
-        self._logevidence += np.log(weight)+log_likelihoods.mean()
         # accumulate the information
         dH = weight*l_m*np.log(l_m)
+        if np.isnan(dH): dH = 0.0
         self._H += dH
-        self._information = -np.log(self._evidence)+self._H/self._evidence
+        if self._evidence > 0.0:
+            self._information = -np.log(self._evidence)+self._H/self._evidence
         n_left = len(likelihoods_surv)
         a_weight = weight/n_left
         for i,l_likelihood in enumerate(log_likelihoods):
@@ -194,7 +199,7 @@ class NestedSampling(object):
         self._dead_points = pd.DataFrame(self._dead_points)
         #print(pd.DataFrame(self._dead_points))
         #self.posteriors()
-        return self._logevidence, logZ_err
+        return self._log_evidence, logZ_err
 
     def stopping_criterion(self):
         return self._stopping_criterion(self)
@@ -259,7 +264,7 @@ class NestedSampling(object):
             #nbins = int(np.sqrt(len(norm_weights)))
             # Rice bin count selection
             nbins = 2 * int(np.cbrt(len(norm_weights)))
-            print(nbins)
+            # print(nbins)
             self._posteriors = dict()
             for parm in parms:
                 marginal, edge = np.histogram(self._dead_points[parm], weights=norm_weights, density=True, bins=nbins)
