@@ -254,6 +254,7 @@ class NestedSampling(object):
             weights = self._dead_points['weight'].to_numpy()
             likelihoods = np.exp(log_likelihoods)
             norm_weights = (weights*likelihoods)/self.evidence
+            gt_mask = norm_weights > 0.0
             parms = self._dead_points.columns[2:]
             # print(len(self._dead_points[0]))
             # print(norm_weights)
@@ -263,11 +264,11 @@ class NestedSampling(object):
             # print(parms)
             #nbins = int(np.sqrt(len(norm_weights)))
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(norm_weights)))
+            nbins = 2 * int(np.cbrt(len(norm_weights[gt_mask])))
             # print(nbins)
             self._posteriors = dict()
             for parm in parms:
-                marginal, edge = np.histogram(self._dead_points[parm], weights=norm_weights, density=True, bins=nbins)
+                marginal, edge = np.histogram(self._dead_points[parm][gt_mask], weights=norm_weights[gt_mask], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
                 self._posteriors[parm] = (marginal, center)
             #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
