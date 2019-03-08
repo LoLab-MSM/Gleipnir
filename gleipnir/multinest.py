@@ -103,15 +103,12 @@ class MultiNestNestedSampling(object):
             # nbins = int(np.sqrt(len(samples)))
             # Rice bin count selection
             nbins = 2 * int(np.cbrt(len(samples)))
-            JP, edges = np.histogramdd(samples, density=True, bins=nbins)
-            nd = len(JP.shape)
+            nd = samples.shape[1]
             self._posteriors = dict()
             for ii in range(nd):
-                others = tuple(jj for jj in range(nd) if jj!=ii)
-                marginal = np.sum(JP, axis=others)
-                edge = edges[ii]
+                marginal, edge = np.histogram(samples[:,ii], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[ii] = (marginal, center)
+                self._posteriors[self._sampled_parameters[ii].name] = (marginal, center)
             #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
             self._post_eval = True
         #print(post[0])

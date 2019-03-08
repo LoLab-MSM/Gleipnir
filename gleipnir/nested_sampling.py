@@ -235,7 +235,7 @@ class NestedSampling(object):
     def log_evidence_error(self, value):
         warnings.warn("log_evidence_error is not settable")
 
-    @property    
+    @property
     def information(self):
         return self._information
     @information.setter
@@ -259,15 +259,12 @@ class NestedSampling(object):
             #nbins = int(np.sqrt(len(norm_weights)))
             # Rice bin count selection
             nbins = 2 * int(np.cbrt(len(norm_weights)))
-            JP, edges = np.histogramdd(self._dead_points.values[:,2:], weights=norm_weights, density=True, bins=nbins)
-            nd = len(JP.shape)
+            print(nbins)
             self._posteriors = dict()
-            for ii in range(nd):
-                others = tuple(jj for jj in range(nd) if jj!=ii)
-                marginal = np.sum(JP, axis=others)
-                edge = edges[ii]
+            for parm in parms:
+                marginal, edge = np.histogram(self._dead_points[parm], weights=norm_weights, density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[parms[ii]] = (marginal, center)
+                self._posteriors[parm] = (marginal, center)
             #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
             self._post_eval = True
         #print(post[0])
