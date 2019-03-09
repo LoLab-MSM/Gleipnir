@@ -8,7 +8,7 @@ from numpy import exp, log, pi
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
 from gleipnir.sampled_parameter import SampledParameter
-from gleipnir.dnest import DNest4NestedSampling
+from gleipnir.dnest4 import DNest4NestedSampling
 
 
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=0.0,scale=10.0*np.pi)) for i in range(ndim)]
 
     # Set the active point population size
-    population_size = 200
+    population_size = 500
     #DNest4 has additional parameters we probably want to set
     # Number of iterations -- num_steps
     num_steps = 1000

@@ -6,15 +6,6 @@ except ImportError as err:
     #print(err)
     raise err
 
-import numpy as np
-import warnings
-
-try:
-    import pymultinest
-    from pymultinest.solve import solve
-except ImportError as err:
-    #print(err)
-    raise err
 
 class DNest4Model(object):
 
