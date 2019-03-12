@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # Here we are using an implementation of the Metropolis Monte Carlo algorithm
     # with component-wise trial moves and augmented acceptance criteria that adds a
     # hard rejection constraint for the NS likelihood boundary.
-    sampler = MetropolisComponentWiseHardNSRejection(iterations=100, burn_in=100)
+    sampler = MetropolisComponentWiseHardNSRejection(iterations=50, burn_in=50, tuning_cycles=2)
     # Setup the stopping criterion for the NS run -- We'll use a fixed number of
     # iterations: 10*population_size
     stopping_criterion = NumberOfIterations(1000)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
                         population_size=500,
                         stopping_criterion=stopping_criterion)
     # run it
-    log_evidence, log_evidence_error = NS.run(verbose=False)
+    log_evidence, log_evidence_error = NS.run(verbose=True)
     # Retrieve the evidence
     evidence = NS.evidence
     # Evidence should be 1/2

@@ -122,7 +122,7 @@ class NestedSampling(object):
             r_p_param_vec = self.live_points.values[r_p_ndx]
             #if verbose and (self._n_iterations%10==0):
             #    print("Replacing the new dead point with a survivor modifed via MCMC...")
-            updated_point_param_vec, u_log_l = self.sampler(self.sampled_parameters, self.loglikelihood, r_p_param_vec, log_l, self._alpha**self._n_iterations)
+            updated_point_param_vec, u_log_l = self.sampler(self.sampled_parameters, self.loglikelihood, r_p_param_vec, log_l)
             log_likelihoods[ndx] = u_log_l
             self.live_points.values[ndx] = updated_point_param_vec
             # get the lowest likelihood live point
