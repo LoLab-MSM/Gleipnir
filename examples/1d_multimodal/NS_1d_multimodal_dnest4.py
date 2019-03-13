@@ -1,0 +1,65 @@
+"""
+Implementation of the One-dimensional multi-modal problem (Example1) from the
+PyMultiNest tutorial at:
+http://johannesbuchner.github.io/pymultinest-tutorial/example1.html
+"""
+import numpy as np
+from numpy import exp, log, pi
+from scipy.stats import uniform
+import matplotlib.pyplot as plt
+from gleipnir.sampled_parameter import SampledParameter
+from gleipnir.dnest4 import DNest4NestedSampling
+
+# Number of paramters to sample is 1
+ndim = 1
+# Set up the list of sampled parameters: the prior is Uniform(0:2) --
+# we are using a fixed uniform prior from scipy.stats
+sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=0.0,scale=2.0)) for i in range(ndim)]
+# Mode positions for the multi-modal likelihood
+positions = np.array([0.1, 0.2, 0.5, 0.55, 0.9, 1.1])
+# its width
+width = 0.01
+
+# Define the loglikelihood function
+def loglikelihood(sampled_parameter_vector):
+    diff = sampled_parameter_vector[0] - positions
+    diff_scale = diff / width
+    l = np.exp(-0.5 * diff_scale**2) / (2.0*pi*width**2)**0.5
+    logl = log(l.mean())
+    if logl < -1000.0:
+        logl = -1000.0
+    return logl
+
+
+# Construct the Nested Sampler
+DNS = DNest4NestedSampling(sampled_parameters=sampled_parameters,
+                    loglikelihood=loglikelihood, population_size=500,
+                    n_diffusive_levels=10, dnest4_backend="memory",
+                    num_steps=1000, num_per_step=100)
+#print(PCNS.likelihood(np.array([1.0])))
+#quit()
+# run it
+log_evidence, log_evidence_error = DNS.run(verbose=True)
+# Print the output
+#print(PCNS.output)
+# Evidence should be 1/2
+print("log_evidence: ", log_evidence)
+print("evidence: ", DNS.evidence)
+
+#try plotting a marginal distribution
+try:
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    # Get the posterior distributions -- the posteriors are return as dictionary
+    # keyed to the names of the sampled paramters. Each element is a histogram
+    # estimate of the marginal distribution, including the heights and centers.
+    posteriors = DNS.posteriors()
+    # Lets look at the first paramter
+    marginal, centers = posteriors[list(posteriors.keys())[0]]
+    # Plot with seaborn
+    sns.distplot(centers, bins=centers, hist_kws={'weights':marginal})
+    # Uncomment next line to plot with plt.hist:
+    # plt.hist(centers, bins=centers, weights=marginal)
+    plt.show()
+except ImportError:
+    pass
