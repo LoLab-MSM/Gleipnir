@@ -26,12 +26,12 @@ if __name__ == '__main__':
     sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=0.0,scale=10.0*np.pi)) for i in range(ndim)]
 
     # Set the active point population size
-    population_size = 500
+    population_size = 200
     # Setup the sampler to use when updated points during the NS run --
     # Here we are using an implementation of the Metropolis Monte Carlo algorithm
     # with component-wise trial moves and augmented acceptance criteria that adds a
     # hard rejection constraint for the NS likelihood boundary.
-    sampler = MetropolisComponentWiseHardNSRejection(iterations=50)
+    sampler = MetropolisComponentWiseHardNSRejection(iterations=10, burn_in=10, tuning_cycles=1)
     # Setup the stopping criterion for the NS run -- We'll use a fixed number of
     # iterations: 10*population_size
     stopping_criterion = NumberOfIterations(10*population_size)
