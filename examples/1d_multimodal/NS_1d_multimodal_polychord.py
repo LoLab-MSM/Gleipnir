@@ -37,7 +37,27 @@ PCNS = PolyChordNestedSampling(sampled_parameters=sampled_parameters,
 #print(PCNS.likelihood(np.array([1.0])))
 #quit()
 # run it
-PCNS.run()
+log_evidence, log_evidence_error = PCNS.run()
 # Print the output
-print(PCNS.output)
+#print(PCNS.output)
 # Evidence should be 1/2
+print("log_evidence: ", log_evidence)
+print("evidence: ", PCNS.evidence)
+
+#try plotting a marginal distribution
+try:
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    # Get the posterior distributions -- the posteriors are return as dictionary
+    # keyed to the names of the sampled paramters. Each element is a histogram
+    # estimate of the marginal distribution, including the heights and centers.
+    posteriors = PCNS.posteriors()
+    # Lets look at the first paramter
+    marginal, centers = posteriors[list(posteriors.keys())[0]]
+    # Plot with seaborn
+    sns.distplot(centers, bins=centers, hist_kws={'weights':marginal})
+    # Uncomment next line to plot with plt.hist:
+    # plt.hist(centers, bins=centers, weights=marginal)
+    plt.show()
+except ImportError:
+    pass

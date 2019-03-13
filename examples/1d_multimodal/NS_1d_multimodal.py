@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # Here we are using an implementation of the Metropolis Monte Carlo algorithm
     # with component-wise trial moves and augmented acceptance criteria that adds a
     # hard rejection constraint for the NS likelihood boundary.
-    sampler = MetropolisComponentWiseHardNSRejection(iterations=100, burn_in=100)
+    sampler = MetropolisComponentWiseHardNSRejection(iterations=20, burn_in=20)
     # Setup the stopping criterion for the NS run -- We'll use a fixed number of
     # iterations: 10*population_size
     stopping_criterion = NumberOfIterations(1000)
@@ -55,3 +55,20 @@ if __name__ == '__main__':
     # Evidence should be 1/2
     print("evidence: ",evidence)
     print("log_evidence: ", log_evidence)
+    #try plotting a marginal distribution
+    try:
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        # Get the posterior distributions -- the posteriors are return as dictionary
+        # keyed to the names of the sampled paramters. Each element is a histogram
+        # estimate of the marginal distribution, including the heights and centers.
+        posteriors = NS.posteriors()
+        # Lets look at the first paramter
+        marginal, centers = posteriors[list(posteriors.keys())[0]]
+        # Plot with seaborn
+        sns.distplot(centers, bins=centers, hist_kws={'weights':marginal})
+        # Uncomment next line to plot with plt.hist:
+        # plt.hist(centers, bins=centers, weights=marginal)
+        plt.show()
+    except ImportError:
+        pass
