@@ -9,10 +9,11 @@ except ImportError as err:
 
 class DNest4Model(object):
 
-    def __init__(self, log_likelihood_func, from_prior_func, widths):
+    def __init__(self, log_likelihood_func, from_prior_func, widths, centers):
         self._log_likelihood = log_likelihood_func
         self._from_prior = from_prior_func
         self._widths = widths
+        self._centers = centers
         self._n_dim = len(widths)
         return
 
@@ -24,10 +25,14 @@ class DNest4Model(object):
 
     def perturb(self, coords):
         idx = np.random.randint(self._n_dim)
-        # print(idx)
-        coords[idx] += (self._widths[idx]*(np.random.uniform(size=1)-0.5))*0.5
-        # Note: use the return value of wrap, unlike in C++
-        #coords[i] = dnest4.wrap(coords[i], -0.5*self.width, 0.5*self.width)
+        coords[idx] += (self._widths[idx]*(np.random.uniform(size=1)-0.5))
+        cw = self._widths[idx]
+        cc = self._centers[idx]
+        # Note: wrapping like this effectively truncates soft priors, which
+        # may or may not be problematic; I'm not entirely sure either way.
+        # However, DNest4 seems to have trouble if you don't wrap. -- Blake
+        # DNest4 Note: use the return value of wrap, unlike in C++
+        coords[idx] = dnest4.wrap(coords[idx], (cc-0.5*cw), cc+0.5*cw)
         return 0.0
 
 
@@ -58,13 +63,20 @@ class DNest4NestedSampling(object):
 
         self._from_prior = from_prior
         widths = []
+        centers = []
         for sampled_parameter in sampled_parameters:
-            rv = sampled_parameter.rvs(100)
-            width = rv.max() - rv.min()
+            rv = sampled_parameter.rvs(10000)
+            low = rv.min()
+            high = rv.max()
+            width = high - low
+            center = (high+low)/2.0
             widths.append(width)
+            centers.append(center)
         widths = np.array(widths)
+        centers = np.array(centers)
         self._widths = widths
-        self._dnest4_model = DNest4Model(loglikelihood, self._from_prior, widths)
+        self._centers = centers
+        self._dnest4_model = DNest4Model(loglikelihood, self._from_prior, widths, centers)
 
         return
 
@@ -86,7 +98,7 @@ class DNest4NestedSampling(object):
         for i, sample in enumerate(output):
             if verbose and ((i + 1) % 100 == 0):
                 stats = sampler.postprocess()
-                print("Iteration: {0} log(Z): {1}".format(i,stats['log_Z']))
+                print("Iteration: {0} log(Z): {1}".format(i+1,stats['log_Z']))
         stats = sampler.postprocess(resample=1)
         self._log_evidence = stats['log_Z']
         self._information = stats['H']
