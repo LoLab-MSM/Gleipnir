@@ -8,7 +8,7 @@ from numpy import exp, log, pi
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
 from gleipnir.sampled_parameter import SampledParameter
-from gleipnir.polychord import PolyChordNestedSampling
+from gleipnir.dnest4 import DNest4NestedSampling
 
 # Number of paramters to sample is 1
 ndim = 1
@@ -32,17 +32,19 @@ def loglikelihood(sampled_parameter_vector):
 
 
 # Construct the Nested Sampler
-PCNS = PolyChordNestedSampling(sampled_parameters=sampled_parameters,
-                    loglikelihood=loglikelihood, population_size=500)
+DNS = DNest4NestedSampling(sampled_parameters=sampled_parameters,
+                    loglikelihood=loglikelihood, population_size=500,
+                    n_diffusive_levels=10, dnest4_backend="memory",
+                    num_steps=1000, num_per_step=100)
 #print(PCNS.likelihood(np.array([1.0])))
 #quit()
 # run it
-log_evidence, log_evidence_error = PCNS.run()
+log_evidence, log_evidence_error = DNS.run(verbose=True)
 # Print the output
 #print(PCNS.output)
 # Evidence should be 1/2
 print("log_evidence: ", log_evidence)
-print("evidence: ", PCNS.evidence)
+print("evidence: ", DNS.evidence)
 
 #try plotting a marginal distribution
 try:
@@ -51,7 +53,7 @@ try:
     # Get the posterior distributions -- the posteriors are return as dictionary
     # keyed to the names of the sampled paramters. Each element is a histogram
     # estimate of the marginal distribution, including the heights and centers.
-    posteriors = PCNS.posteriors()
+    posteriors = DNS.posteriors()
     # Lets look at the first paramter
     marginal, centers = posteriors[list(posteriors.keys())[0]]
     # Plot with seaborn
