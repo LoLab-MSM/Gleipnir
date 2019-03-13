@@ -34,7 +34,8 @@ class DNest4Model(object):
 class DNest4NestedSampling(object):
 
     def __init__(self, sampled_parameters, loglikelihood, population_size=None,
-                 n_diffusive_levels=20, **dnest4_kwargs):
+                 n_diffusive_levels=20, dnest4_backend="memory",
+                 **dnest4_kwargs):
 
         self._log_evidence = None
         self._information = None
@@ -42,6 +43,7 @@ class DNest4NestedSampling(object):
         self._loglikelihood = loglikelihood
         self._n_dims = len(sampled_parameters)
         self.population_size = population_size
+        self.dnest4_backend = dnest4_backend
         self._n_levels = n_diffusive_levels
         self._dnest4_kwargs = dnest4_kwargs
         self._output = None
@@ -68,29 +70,25 @@ class DNest4NestedSampling(object):
 
 
     def run(self, verbose=False):
-        a = self._dnest4_model.from_prior()
-        print(a)
-        a_l = self._dnest4_model.log_likelihood(a)
-        print(a_l)
-        self._dnest4_model.perturb(a)
-        print(a)
-        # quit()
+
+        if self.dnest4_backend == 'csv':
+            # for CSVBackend, which is output data to disk
+            backend = dnest4.backends.CSVBackend(".", sep=" ")
+        else:
+            # for the MemoryBackend, which is output data to memory
+            backend = dnest4.backends.MemoryBackend()
         sampler = dnest4.DNest4Sampler(self._dnest4_model,
-                                       backend=dnest4.backends.CSVBackend(".", sep=" "))
+                                       backend=backend)
         output = sampler.sample(self._n_levels,
                                 num_particles=self.population_size,
                                 **self._dnest4_kwargs)
-        #sampler.run(20, 20, new_level_interval=10000,
-        #             num_per_step=10000, thread_steps=100,
-        #             num_particles=5, lam=5, beta=100, seed=1234)
-        #quit()
         self._output = output
         # print(self._output)
         for i, sample in enumerate(output):
-            if verbose and ((i + 1) % 10 == 0):
+            if verbose and ((i + 1) % 100 == 0):
                 stats = sampler.postprocess()
                 print("Iteration: {0} log(Z): {1}".format(i,stats['log_Z']))
-        stats = sampler.postprocess()
+        stats = sampler.postprocess(resample=1)
         self._log_evidence = stats['log_Z']
         self._information = stats['H']
         logZ_err = np.sqrt(self._information/self.population_size)
@@ -98,6 +96,14 @@ class DNest4NestedSampling(object):
         ev_err = np.exp(logZ_err)
         self._evidence_error = ev_err
         self._evidence = np.exp(self._log_evidence)
+        #print(sampler.backend.posterior_samples)
+        print(len(sampler.backend.posterior_samples))
+        self._samples = np.array(sampler.backend.posterior_samples)
+        #self._samples = sampler.backend.samples
+        #self._sample_info = sampler.backend.sample_info
+        #print(samples)
+        #print(sampler.backend.sample_info)
+        #print(len(samples))
         return self.log_evidence, self.log_evidence_error
 
     @property
@@ -136,13 +142,13 @@ class DNest4NestedSampling(object):
         warnings.warn("information is not settable")
 
     def posteriors(self):
-        warnings.warn("Posteriors not yet implemented for DNest4 NS.")
-        pass
+        #warnings.warn("Posteriors not yet implemented for DNest4 NS.")
+        #pass
         # lazy evaluation of posteriors on first call to function.
         if not self._post_eval:
             # Here the samples are samples directly from the posterior
             # (i.e. equal weights)
-            samples = self._output['samples']
+            samples = self._samples
             #log_likelihoods = samples['loglike'].to_numpy()
             #weights = samples['weight'].to_numpy()
             #likelihoods = np.exp(log_likelihoods)

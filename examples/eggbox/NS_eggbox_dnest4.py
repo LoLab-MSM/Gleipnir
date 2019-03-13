@@ -53,11 +53,9 @@ if __name__ == '__main__':
     #print(PCNS.likelihood(np.array([1.0])))
     #quit()
     # run it
-    log_evidence, log_evidence_error = DNS.run()
+    log_evidence, log_evidence_error = DNS.run(verbose=True)
     # Print the output -- logZ should be approximately 236
     print("log_evidence: {} +- {} ".format(log_evidence, log_evidence_error))
-    quit()
-    # COMPUTATION OF POSTERIORS NOT IMPLEMENTED YET!
     #try plotting a marginal distribution
     try:
         import seaborn as sns
@@ -67,7 +65,7 @@ if __name__ == '__main__':
         # estimate of the marginal distribution, including the heights and centers.
         posteriors = DNS.posteriors()
         # Lets look at the first paramter
-        marginal, centers = posteriors[list(posteriors.keys())[0]]
+        marginal, centers = posteriors[list(posteriors.keys())[1]]
         # Plot with seaborn
         sns.distplot(centers, bins=centers, hist_kws={'weights':marginal})
         # Uncomment next line to plot with plt.hist:
