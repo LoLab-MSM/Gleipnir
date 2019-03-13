@@ -98,10 +98,10 @@ class MetropolisComponentWiseHardNSRejection(object):
                     widthj = self._widths[j]
                     # Generate the appropriate proposal distribution
                     if self.proposal == 'normal':
-                        prop = norm(loc=cur_pointj, scale=widthj)
+                        new_pointj = norm.ppf(rsteps[j],loc=cur_pointj, scale=widthj)
                     else:
-                        prop = uniform(loc=cur_pointj-(widthj/2.0), scale=widthj)
-                    new_pointj = prop.ppf(rsteps[j])
+                        new_pointj = uniform.ppf(rsteps[j],loc=cur_pointj-(widthj/2.0), scale=widthj)
+                    
                     new_point[j] = new_pointj
                     cur_priorj = sampled_parameters[j].prior(cur_pointj)
                     new_priorj = sampled_parameters[j].prior(new_point[j])
@@ -134,10 +134,10 @@ class MetropolisComponentWiseHardNSRejection(object):
                     widthj = self._widths[j]
                     # Generate the appropriate proposal distribution
                     if self.proposal == 'normal':
-                        prop = norm(loc=cur_pointj, scale=widthj)
+                        new_pointj = norm.ppf(rsteps[j],loc=cur_pointj, scale=widthj)
                     else:
-                        prop = uniform(loc=cur_pointj-(widthj/2.0), scale=widthj)
-                    new_pointj = prop.ppf(rsteps[j])
+                        new_pointj = uniform.ppf(rsteps[j],loc=cur_pointj-(widthj/2.0), scale=widthj)
+
                     cur_priorj = sampled_parameters[j].prior(cur_pointj)
                     new_priorj = sampled_parameters[j].prior(new_point[j])
                     ratio = new_priorj/cur_priorj
