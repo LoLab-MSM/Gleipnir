@@ -83,7 +83,6 @@ class DNest4NestedSampling(object):
                                 num_particles=self.population_size,
                                 **self._dnest4_kwargs)
         self._output = output
-        # print(self._output)
         for i, sample in enumerate(output):
             if verbose and ((i + 1) % 100 == 0):
                 stats = sampler.postprocess()
@@ -96,14 +95,8 @@ class DNest4NestedSampling(object):
         ev_err = np.exp(logZ_err)
         self._evidence_error = ev_err
         self._evidence = np.exp(self._log_evidence)
-        #print(sampler.backend.posterior_samples)
-        print(len(sampler.backend.posterior_samples))
         self._samples = np.array(sampler.backend.posterior_samples)
-        #self._samples = sampler.backend.samples
-        #self._sample_info = sampler.backend.sample_info
-        #print(samples)
-        #print(sampler.backend.sample_info)
-        #print(len(samples))
+
         return self.log_evidence, self.log_evidence_error
 
     @property
