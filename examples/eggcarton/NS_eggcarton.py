@@ -1,8 +1,15 @@
 """
-Implementation of the 2-dimensional eggbox/eggcrate problem adapted from the
-pymultinest_demo.py at:
+Implementation of the 2-dimensional 'Egg Carton' problem and its sampling
+using an implementation of classic Nested Sampling.
+
+Adapted from the pymultinest_demo.py at:
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest_demo.py
+
+The likelihood landscape has an egg carton-like shape; see slide 15 from:
+http://www.nbi.dk/~koskinen/Teaching/AdvancedMethodsInAppliedStatistics2016/Lecture14_MultiNest.pdf
+
 """
+
 import numpy as np
 from scipy.stats import uniform
 from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
