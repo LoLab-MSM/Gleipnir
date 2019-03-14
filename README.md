@@ -1,13 +1,13 @@
 # Gleipnir  
 
 Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to calibration tools such as [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization).
-In addition to its built-in implementation of the classic Nested Sampling algorithm, Gleipnir provides a common interface to the major Nested Sampling implementations such as MultiNest, PolyChord, and DNest4.
+In addition to its built-in implementation of the classic Nested Sampling algorithm, Gleipnir provides a common interface to the major Nested Sampling implementations: MultiNest, PolyChord, and DNest4.
 
-Gleipnir can be used to compute the Bayesian evidence of models with respect to the parameter priors and the likelilood of parameter vectors dictated by the (calibration) data, allowing users to perform model selection. As a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration.
+Gleipnir can be used to compute the Bayesian evidence of models with respect to the parameter priors and the likelihood of parameter vectors dictated by the (calibration) data, allowing users to perform model selection. As a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration.
 
 ### What is Nested Sampling?
 
-Nested Sampling is a numerical integration scheme to estimate the Bayesian evidence (i.e., the normalization factor or denominator in Bayes formula for probability distributions).
+Nested Sampling is a numerical integration scheme for estimating Bayesian evidence (i.e., the normalization factor or denominator in Bayes formula for probability distributions) integrals.
 
 In particular, Nested Sampling was
 designed to handle cases where the evidence integral is high-dimensional and the likelihood is exponentially localized in the probability mass of the prior distribution of the sampled dimensions. In the Nested Sampling approach, the evidence is first converted from a (possibly) multi-dimensional integral into a one-dimensional integral taken over a mapping of the likelihood function to elements of the unit prior probability mass (X). In principle, this is achieved by using a top-down
@@ -67,7 +67,11 @@ Then install all the run dependencies:
 ```
 conda install numpy scipy pandas
 ```
-There is currently no installer for Gleipnir, so just add the repo to your PYTHONPATH.
+There is currently no installer for Gleipnir, so just add the repo to your PYTHONPATH environment variable:
+```
+export PYTHONPATH=path_to_Gleipnir:$PYTHONPATH
+```
+You can add the previous command to your .bashrc to have Gleipnir automatically added to your PYTHONPATH for new shells.
 
 If you want to run pysb models:
 ```
@@ -105,6 +109,7 @@ Checkout the [examples](Gleipnir/examples) to see how to setup Nested Sampling r
 ------
 
 # Utilities
+
 ## nestedsample_it
 
 nestedsample_it is a utility that helps generate a template Nested Sampling run script for a PySB model. nestedsample_it reads the model file, imports and pulls out all the kinetic parameters, and then writes out a run_NS script for that model. nestedsample_it currently writes out a run script for classic Nested Sampling via Gleipnir, so you'll need to modify it to use one of the other Nested Samplers (MultiNest, PolyChord, or DNest4). And you will need to edit the run script to load any data and modify the loglikelihood function, but nestedsample_it should give you a good starting point.
