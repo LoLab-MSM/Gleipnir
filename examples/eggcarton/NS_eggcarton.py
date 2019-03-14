@@ -1,6 +1,6 @@
 """
 Implementation of the 2-dimensional 'Egg Carton' problem and its sampling
-using an implementation of classic Nested Sampling.
+using an implementation of classic Nested Sampling via Gleipnir.
 
 Adapted from the pymultinest_demo.py at:
 https://github.com/JohannesBuchner/PyMultiNest/blob/master/pymultinest_demo.py
