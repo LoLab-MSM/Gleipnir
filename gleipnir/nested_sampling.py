@@ -2,6 +2,13 @@
 
 This module defines the class used for Nested Sampling.
 
+References:
+    1. Skilling, John. "Nested sampling." AIP Conference Proceedings. Vol.
+        735. No. 1. AIP, 2004.
+    2. Skilling, John. "Nested sampling for general Bayesian computation."
+        Bayesian analysis 1.4 (2006): 833-859.
+    3. Skilling, John. "Nested sampling’s convergence." AIP Conference
+        Proceedings. Vol. 1193. No. 1. AIP, 2009.
 """
 
 import numpy as np
@@ -27,7 +34,12 @@ class NestedSampling(object):
             that should be used to determine when to stop the Nested Sampling
             run.
     References:
-        None
+        1. Skilling, John. "Nested sampling." AIP Conference Proceedings. Vol.
+            735. No. 1. AIP, 2004.
+        2. Skilling, John. "Nested sampling for general Bayesian computation."
+            Bayesian analysis 1.4 (2006): 833-859.
+        3. Skilling, John. "Nested sampling’s convergence." AIP Conference
+            Proceedings. Vol. 1193. No. 1. AIP, 2009.
     """
 
     def __init__(self, sampled_parameters, loglikelihood, sampler,
@@ -45,7 +57,7 @@ class NestedSampling(object):
         # estimate of NS constriction factor
         self._alpha = population_size/(population_size+1)
 
-        # NS accumulators
+        # NS accumulators and other private attributes
         self._evidence = 0.0
         self._evidence_error = 0.0
         self._logZ_err = 0.0
@@ -63,8 +75,13 @@ class NestedSampling(object):
         return
 
     def run(self, verbose=False):
-        """Initiate the Nested Sampling run."""
-        # zeroth iteration -- generate all the random samples
+        """Initiate the Nested Sampling run.
+        Returns:
+            tuple of (float, float): Tuple containing the natural logarithm
+            of the evidence and its error estimate as computed from the
+            Nested Sampling run: (log_evidence, log_evidence_error)
+        """
+        # Zeroth iteration -- generate all the random samples
         if verbose:
             print("Generating the initial set of live points with population size {}...".format(self.population_size))
         live_points = dict()
@@ -78,8 +95,8 @@ class NestedSampling(object):
                     live_points[name].append(rs)
 
         self._live_points = pd.DataFrame(live_points)
-        # print(self._live_points)
-        # evaulate the log likelihood function for each live point
+
+        # Evaulate the log likelihood function for each live point
         if verbose:
             print("Evaluating the loglikelihood function for each live point...")
         log_likelihoods = np.array([self.loglikelihood(sampled_parameter_vector) for sampled_parameter_vector in self._live_points.values])
@@ -87,24 +104,14 @@ class NestedSampling(object):
         # first iteration
         self._n_iterations += 1
         self._current_weights = 1.0 - self._alpha**self._n_iterations
-        #print(self._current_weights)
-        #quit()
-        # get the lowest likelihood live point
+
+        # Get the lowest likelihood live point
         ndx = np.argmin(log_likelihoods)
         log_l = log_likelihoods[ndx]
         param_vec = self._live_points.values[ndx]
-        # evaluate the priors
-        #priors = [self.sampled_parameters_dict[name].prior(param) for name, param in zip(self._live_points.columns, param_vec)]
-        #prior = np.array(priors)
-        #joint_prior = prior.prod()
-        # accumulate the evidence
-        #dZ = self._current_weights*joint_prior*np.exp(log_l)
-        joint_prior = 1.0
         dZ = self._current_weights*np.exp(log_l)
-        # print(dZ, log_l)
-        #quit()
         self._evidence += dZ
-        # accumulate the information
+        # Accumulate the information
         dH = dZ*log_l
         if np.isnan(dH): dH = 0.0
         self._H += dH
