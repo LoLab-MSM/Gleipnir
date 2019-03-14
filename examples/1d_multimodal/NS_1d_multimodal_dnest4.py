@@ -1,8 +1,11 @@
 """
-Implementation of the One-dimensional multi-modal problem (Example1) from the
-PyMultiNest tutorial at:
+Implementation of a 1-dimensional multi-modal likelihood problem and its
+sampling using DNest4 via Gleipnir.
+
+Adapted from Example1 of the PyMultiNest tutorial:
 http://johannesbuchner.github.io/pymultinest-tutorial/example1.html
 """
+
 import numpy as np
 from numpy import exp, log, pi
 from scipy.stats import uniform

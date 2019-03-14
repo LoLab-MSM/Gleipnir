@@ -1,3 +1,32 @@
+"""Implementation on top of MultiNest via PyMultiNest.
+
+This module defines the class for Nested Sampling using the MultiNest
+program via its Python wrapper PyMultiNest. Note that PyMultiNest and MultiNest
+have to be built and installed separately (from gleipnir) before this module
+can be used.
+
+PyMultiNest: https://github.com/JohannesBuchner/PyMultiNest
+MultiNest: https://github.com/JohannesBuchner/MultiNest
+
+References:
+    MultiNest:
+    1. Feroz, Farhan, and M. P. Hobson. "Multimodal nested sampling: an
+        efficient and robust alternative to Markov Chain Monte Carlo
+        methods for astronomical data analyses." Monthly Notices of the
+        Royal Astronomical Society 384.2 (2008): 449-463.
+    2. Feroz, F., M. P. Hobson, and M. Bridges. "MultiNest: an efficient
+        and robust Bayesian inference tool for cosmology and particle
+        physics." Monthly Notices of the Royal Astronomical Society 398.4
+        (2009): 1601-1614.
+    3. Feroz, F., et al. "Importance nested sampling and the MultiNest
+        algorithm." arXiv preprint arXiv:1306.2144 (2013).
+    PyMultiNest:
+    4. Buchner, J., et al. "X-ray spectral modelling of the AGN obscuring
+        region in the CDFS: Bayesian model selection and catalogue."
+        Astronomy & Astrophysics 564 (2014): A125.
+
+"""
+
 import numpy as np
 import warnings
 
@@ -9,45 +38,77 @@ except ImportError as err:
     raise err
 
 class MultiNestNestedSampling(object):
+    """Nested Sampling using MultiNest.
+    PyMultiNest: https://github.com/JohannesBuchner/PyMultiNest
+    MultiNest: https://github.com/JohannesBuchner/MultiNest
 
-    def __init__(self, sampled_parameters, loglikelihood, population_size=None, **multinest_kwargs):
+    Attributes:
+        sampled_parameters (list of :obj:gleipnir.sampled_parameter.SampledParameter):
+            The parameters that are being sampled during the Nested Sampling
+            run.
+        loglikelihood (function): The log-likelihood function to use for
+            assigning a likelihood to parameter vectors during the sampling.
+        population_size (int): The number of points to use in the Nested
+            Sampling active population. Default: None -> gets set to
+            25*(number of sampled parameters) if left at default.
+        multinest_kwargs (dict): Additional keyword arguments that should be
+            passed to the PyMultiNest MultiNest solver.
+    References:
+        1. Feroz, Farhan, and M. P. Hobson. "Multimodal nested sampling: an
+            efficient and robust alternative to Markov Chain Monte Carlo
+            methods for astronomical data analyses." Monthly Notices of the
+            Royal Astronomical Society 384.2 (2008): 449-463.
+        2. Feroz, F., M. P. Hobson, and M. Bridges. "MultiNest: an efficient
+            and robust Bayesian inference tool for cosmology and particle
+            physics." Monthly Notices of the Royal Astronomical Society 398.4
+            (2009): 1601-1614.
+        3. Feroz, F., et al. "Importance nested sampling and the MultiNest
+            algorithm." arXiv preprint arXiv:1306.2144 (2013).
+        4. Buchner, J., et al. "X-ray spectral modelling of the AGN obscuring
+            region in the CDFS: Bayesian model selection and catalogue."
+            Astronomy & Astrophysics 564 (2014): A125.
+    """
 
-        self._sampled_parameters = sampled_parameters
-        self._loglikelihood = loglikelihood
-        self.nDims = len(sampled_parameters)
-        self.nDerived = 0
+    def __init__(self, sampled_parameters, loglikelihood, population_size=None,
+                 **multinest_kwargs):
+        """Initialize the MultiNest Nested Sampler."""
+        self.sampled_parameters = sampled_parameters
+        self.loglikelihood = loglikelihood
         self.population_size = population_size
-        self._multinest_kwargs = multinest_kwargs
+        self.multinest_kwargs = multinest_kwargs
+
+        self._nDims = len(sampled_parameters)
+        self._nDerived = 0
         self._output = None
         self._post_eval = False
         if self.population_size is None:
-            self.population_size = 25*self.nDims
-        # make the likelihood function for polychord
-        self.likelihood = loglikelihood
-        # make the prior for polychord
+            self.population_size = 25*self._nDims
+
+        # Make the prior function for PyMultiNest.
         def prior(hypercube):
-            return np.array([self._sampled_parameters[i].invcdf(value) for i,value in enumerate(hypercube)])
+            return np.array([self.sampled_parameters[i].invcdf(value) for i,value in enumerate(hypercube)])
 
-        self.prior = prior
+        self._prior = prior
         # multinest settings
-
-        self.file_root = 'multinest_run' #string
+        self._file_root = 'multinest_run' #string
 
         return
 
 
     def run(self, verbose=False):
-        output = solve(LogLikelihood = self.likelihood, Prior=self.prior,
-                       n_dims = self.nDims,
+        """Initiate the MultiNest Nested Sampling run."""
+        output = solve(LogLikelihood=self.loglikelihood, Prior=self._prior,
+                       n_dims = self._nDims,
                        n_live_points=self.population_size,
-                       outputfiles_basename=self.file_root,
+                       outputfiles_basename=self._file_root,
                        verbose=verbose,
-                       **self._multinest_kwargs)
+                       **self.multinest_kwargs)
         self._output = output
         return self.log_evidence, self.log_evidence_error
 
     @property
     def evidence(self):
+        """float: Estimate of the Bayesian evidence, or Z."""
         return np.exp(self._output['logZ'])
     @evidence.setter
     def evidence(self, value):
@@ -55,6 +116,7 @@ class MultiNestNestedSampling(object):
 
     @property
     def evidence_error(self):
+        """float: Estimate (rough) of the error in the evidence, or Z."""
         return np.exp(self._output['logZerr'])
     @evidence_error.setter
     def evidence_error(self, value):
@@ -62,6 +124,8 @@ class MultiNestNestedSampling(object):
 
     @property
     def log_evidence(self):
+        """float: Estimate of the natural logarithm of the Bayesian evidence, or ln(Z).
+        """
         return self._output['logZ']
     @log_evidence.setter
     def log_evidence(self, value):
@@ -69,6 +133,8 @@ class MultiNestNestedSampling(object):
 
     @property
     def log_evidence_error(self):
+        """float: Estimate of the error in the natural logarithm of the evidence.
+        """
         return self._output['logZerr']
     @log_evidence_error.setter
     def log_evidence_error(self, value):
@@ -76,31 +142,26 @@ class MultiNestNestedSampling(object):
 
     @property
     def information(self):
+        """None: Not implemented yet->Estimate of the Bayesian information, or H."""
         return None
     @information.setter
     def information(self, value):
         warnings.warn("information is not settable")
 
     def posteriors(self):
-        # lazy evaluation of posteriors on first call to function.
+        """Estimates of the posterior marginal probability distributions of each parameter.
+        Returns:
+            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
+                estimates of the posterior marginal probability distributions.
+                The returned dict is keyed by the sampled parameter names and
+                each element is a tuple with (marginal_weights, bin_centers).
+        """
+        # Lazy evaluation at first call of the function and store results
+        # so that subsequent calls don't have to recompute.
         if not self._post_eval:
             # Here the samples are samples directly from the posterior
-            # (i.e. equal weights)
+            # (i.e. equal weights).
             samples = self._output['samples']
-            #log_likelihoods = samples['loglike'].to_numpy()
-            #weights = samples['weight'].to_numpy()
-            #likelihoods = np.exp(log_likelihoods)
-            #weight_times_likelihood = weights*likelihoods
-            #norm_weights = weight_times_likelihood/weight_times_likelihood.sum()
-
-            #parms = samples.columns[2:]
-            # print(len(self._dead_points[0]))
-            # print(norm_weights)
-            # import matplotlib.pyplot as plt
-            # plt.hist(self._dead_points[0], weights=norm_weights)
-            # plt.show()
-            # print(parms)
-            # nbins = int(np.sqrt(len(samples)))
             # Rice bin count selection
             nbins = 2 * int(np.cbrt(len(samples)))
             nd = samples.shape[1]
@@ -108,8 +169,7 @@ class MultiNestNestedSampling(object):
             for ii in range(nd):
                 marginal, edge = np.histogram(samples[:,ii], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self._sampled_parameters[ii].name] = (marginal, center)
-            #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
+                self._posteriors[self.sampled_parameters[ii].name] = (marginal, center)
             self._post_eval = True
-        #print(post[0])
+
         return self._posteriors

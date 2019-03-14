@@ -1,53 +1,100 @@
+"""Implementation on top of PolyChord via its python wrapper pypolychord.
+
+This module defines the class for Nested Sampling using using the PolyChord
+(i.e., PolyChordLite) program via its Python wrapper pypolychord. Note that
+pypolychord has to be built and installed separately (from gleipnir) before
+this module can be used.
+
+PolyChordLite: https://github.com/PolyChord/PolyChordLite
+
+References:
+    1. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "PolyChord: nested
+        sampling for cosmology." Monthly Notices of the Royal Astronomical
+        Society: Letters 450.1 (2015): L61-L65.
+    2. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "POLYCHORD:
+        next-generation nested sampling." Monthly Notices of the Royal
+        Astronomical Society 453.4 (2015): 4384-4398.
+
+"""
+
 import numpy as np
 import warnings
-import pypolychord
-from pypolychord.settings import PolyChordSettings
-
+try:
+    import pypolychord
+    from pypolychord.settings import PolyChordSettings
+except ImportError as err:
+    #print(err)
+    raise err
 
 class PolyChordNestedSampling(object):
+    """Nested Sampling using PolyChord.
+    PolyChord and pypolychord: https://github.com/PolyChord/PolyChordLites
+    Attributes:
+        sampled_parameters (list of :obj:gleipnir.sampled_parameter.SampledParameter):
+            The parameters that are being sampled during the Nested Sampling
+            run.
+        loglikelihood (function): The log-likelihood function to use for
+            assigning a likelihood to parameter vectors during the sampling.
+        population_size (int): The number of points to use in the Nested
+            Sampling active population. Default: None -> gets set to
+            25*(number of sampled parameters) if left at default.
+    References:
+        1. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "PolyChord: nested
+            sampling for cosmology." Monthly Notices of the Royal Astronomical
+            Society: Letters 450.1 (2015): L61-L65.
+        2. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "POLYCHORD:
+            next-generation nested sampling." Monthly Notices of the Royal
+            Astronomical Society 453.4 (2015): 4384-4398.
+    """
 
     def __init__(self, sampled_parameters, loglikelihood, population_size=None):
-
-        self._sampled_parameters = sampled_parameters
-        self._loglikelihood = loglikelihood
-        self.nDims = len(sampled_parameters)
-        self.nDerived = 0
+        """Initialize the PolyChord Nested Sampler."""
+        self.sampled_parameter = sampled_parameters
+        self.loglikelihood = loglikelihood
         self.population_size = population_size
+
+        self._nDims = len(sampled_parameters)
+        self._nDerived = 0
         self._post_eval = False
         self._posteriors = None
         if self.population_size is None:
-            self.population_size = 25*self.nDims
+            self.population_size = 25*self._nDims
         # make the likelihood function for polychord
         def likelihood(theta):
             r2 = 0
             return loglikelihood(theta), [r2]
-        self.likelihood = likelihood
+        self._likelihood = likelihood
         # make the prior for polychord
         def prior(hypercube):
-            return np.array([self._sampled_parameters[i].invcdf(value) for i,value in enumerate(hypercube)])
+            return np.array([self.sampled_parameter[i].invcdf(value) for i,value in enumerate(hypercube)])
 
-        self.prior = prior
-        # polychord settings
-        self.settings = PolyChordSettings(self.nDims, self.nDerived, nlive=self.population_size) #settings is an object
-        self.settings.file_root = 'polychord_run' #string
-        self.settings.do_clustering = True
-        self.settings.read_resume = False
-        # make the polychord dumper function
+        self._prior = prior
+        # PolyChord settings object
+        self._settings = PolyChordSettings(self._nDims, self._nDerived,
+                                           nlive=self.population_size)
+        self._settings.file_root = 'polychord_run' #string
+        self._settings.do_clustering = True
+        self._settings.read_resume = False
+        # Make the polychord dumper function
         # param : array, array, array, float, float
         def dumper(live, dead, logweights, logZ, logZerr):
             print("Last dead point:", dead[-1]) # prints last element of dead (wich is an array)
 
-        self.dumper = dumper
+        self._dumper = dumper
         return
 
 
     def run(self):
-        output = pypolychord.run_polychord(self.likelihood, self.nDims, self.nDerived, self.settings, self.prior, self.dumper)
+        """Initiate the PolyChord Nested Sampling run."""
+        output = pypolychord.run_polychord(self._likelihood, self._nDims,
+                                           self._nDerived, self._settings,
+                                           self._prior, self._dumper)
         self._output = output
         return output.logZ, output.logZerr
 
     @property
     def evidence(self):
+        """float: Estimate of the Bayesian evidence, or Z."""
         return np.exp(self._output.logZ)
     @evidence.setter
     def evidence(self, value):
@@ -55,6 +102,7 @@ class PolyChordNestedSampling(object):
 
     @property
     def evidence_error(self):
+        """float: Estimate (rough) of the error in the evidence, or Z."""
         return np.exp(self._output.logZerr)
     @evidence_error.setter
     def evidence_error(self, value):
@@ -62,6 +110,8 @@ class PolyChordNestedSampling(object):
 
     @property
     def log_evidence(self):
+        """float: Estimate of the natural logarithm of the Bayesian evidence, or ln(Z).
+        """
         return self._output.logZ
     @log_evidence.setter
     def log_evidence(self, value):
@@ -69,6 +119,8 @@ class PolyChordNestedSampling(object):
 
     @property
     def log_evidence_error(self):
+        """float: Estimate of the error in the natural logarithm of the evidence.
+        """
         return self._output.logZerr
     @log_evidence_error.setter
     def log_evidence_error(self, value):
@@ -76,6 +128,7 @@ class PolyChordNestedSampling(object):
 
     @property
     def information(self):
+        """None: Not implemented yet->Estimate of the Bayesian information, or H."""
         return None
     @information.setter
     def information(self, value):
@@ -83,32 +136,29 @@ class PolyChordNestedSampling(object):
 
 
     def posteriors(self):
-        # lazy evaluation of posteriors on first call to function.
+        """Estimates of the posterior marginal probability distributions of each parameter.
+        Returns:
+            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
+                estimates of the posterior marginal probability distributions.
+                The returned dict is keyed by the sampled parameter names and
+                each element is a tuple with (marginal_weights, bin_centers).
+        """
+        # Lazy evaluation at first call of the function and store results
+        # so that subsequent calls don't have to recompute.
         if not self._post_eval:
+            # Here the samples are samples directly from the posterior
+            # (i.e. equal weights). - The samples from the PolyChord output
+            # is a pandas DataFrame.
             samples = self._output.samples
             log_likelihoods = samples['loglike'].to_numpy()
-            #weights = samples['weight'].to_numpy()
-            #likelihoods = np.exp(log_likelihoods)
-            #weight_times_likelihood = weights*likelihoods
-            #norm_weights = weight_times_likelihood/weight_times_likelihood.sum()
-
             parms = samples.columns[2:]
-            # print(len(self._dead_points[0]))
-            # print(norm_weights)
-            # import matplotlib.pyplot as plt
-            # plt.hist(self._dead_points[0], weights=norm_weights)
-            # plt.show()
-            # print(parms)
-            # nbins = int(np.sqrt(len(log_likelihoods)))
             # Rice bin count selection
             nbins = 2 * int(np.cbrt(len(log_likelihoods)))
-
             self._posteriors = dict()
             for ii,parm in enumerate(parms):
                 marginal, edge = np.histogram(samples[parm], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self._sampled_parameters[ii].name] = (marginal, center)
-            #self._posteriors = {parm:(self._dead_points[parm], norm_weights) for parm in parms}
+                self._posteriors[self.sampled_parameter[ii].name] = (marginal, center)
             self._post_eval = True
-        #print(post[0])
+
         return self._posteriors
