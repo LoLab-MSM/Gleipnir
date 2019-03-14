@@ -205,7 +205,7 @@ class NestedSampling(object):
 
     @property
     def evidence(self):
-        """Estimate of the Bayesian evidence, or Z.
+        """float: Estimate of the Bayesian evidence, or Z.
         """
         return self._evidence
     @evidence.setter
@@ -214,7 +214,7 @@ class NestedSampling(object):
 
     @property
     def evidence_error(self):
-        """Estimate (rough) of the error in the evidence, or Z.
+        """float: Estimate (rough) of the error in the evidence, or Z.
 
         The error in the evidence is computed as the approximation:
             exp(sqrt(information/population_size))
@@ -226,15 +226,17 @@ class NestedSampling(object):
 
     @property
     def log_evidence(self):
-        """Estimate of the natural logarithm of the Bayesian evidence, or ln(Z).
+        """float: Estimate of the natural logarithm of the Bayesian evidence, or ln(Z).
         """
         return self._log_evidence
     @log_evidence.setter
     def log_evidence(self, value):
         warnings.warn("log_evidence is not settable")
+
     @property
     def log_evidence_error(self):
-        """Estimate (rough) of the error in the natural logarithm of the evidence"""
+        """float: Estimate (rough) of the error in the natural logarithm of the evidence.
+        """
         return self._logZ_err
     @log_evidence_error.setter
     def log_evidence_error(self, value):
@@ -242,15 +244,22 @@ class NestedSampling(object):
 
     @property
     def information(self):
-        """Estimate of the Bayesian information, or H."""
+        """float: Estimate of the Bayesian information, or H."""
         return self._information
     @information.setter
     def information(self, value):
         warnings.warn("information is not settable")
 
     def posteriors(self):
-        """Histogram estimates of the posterior marginal probability distributions of each parameter."""
-        # Lazy evaluation.
+        """Estimates of the posterior marginal probability distributions of each parameter.
+        Returns:
+            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
+                estimates of the posterior marginal probability distributions.
+                The returned dict is keyed by the sampled parameter names and
+                each element is a tuple with (marginal_weights, bin_centers).
+        """
+        # Lazy evaluation at first call of the function and store results
+        # so that subsequent calls don't have to recompute.
         if not self._post_eval:
             log_likelihoods = self._dead_points['log_l'].to_numpy()
             weights = self._dead_points['weight'].to_numpy()
