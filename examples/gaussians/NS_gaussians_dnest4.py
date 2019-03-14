@@ -1,8 +1,11 @@
 """
-Implementation of the 5-dimensional gaussian example adapted from the
-the DNest4 python examples:
+Implementation of a 5-dimensional Gaussian problem and its Nested Sampling
+using DNest4 via Gleipnir.
+
+Adapted from the DNest4 python gaussian example:
 https://github.com/eggplantbren/DNest4/blob/master/python/examples/gaussian/gaussian.py
 """
+
 import numpy as np
 from numpy import exp, log, pi
 from scipy.stats import uniform
