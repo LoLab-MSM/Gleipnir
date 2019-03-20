@@ -1,3 +1,15 @@
+"""
+Example use of HypSelector with a grouped reactions set of model hyptheses with
+Nested Sampling using Gleipnir's built-in implenmation of classic Nested
+Sampling.
+
+Adapted from the grouped_reactions_example from HypBuilder:
+https://github.com/LoLab-VU/HypBuilder/blob/master/grouped_reactions_example.csv
+
+The data used in this example is synthetic data generated from model_0 with the default
+parameters defined in the csv file; they are the last 10 timepoints.
+"""
+
 import numpy as np
 try:
     import pysb
@@ -35,7 +47,7 @@ if __name__ == '__main__':
     # Append the needed observable to the model files
     obs_line = "Observable(\'AB_complex\',A(B=1)%B(A=1))"
     selector.append_to_models(obs_line)
-    # quit()
+
     # Now let's construct the Nested Samplers for the models.
     # ns_version='gleipnir-classic' will use Gleipnir's built-in implementation
     # of the classic Nested Sampling algorithm.
@@ -47,11 +59,10 @@ if __name__ == '__main__':
                                  ns_version='gleipnir-classic',
                                  ns_population_size=1000,
                                  log_likelihood_type='mse')
-    #print(selector.nested_samplers[0])
-    #print(selector.nested_sample_its[0]._data_mask)
-    #quit()
-    #selector.nested_samplers[0].run(verbose=True)
-    #quit()
+
     # Do the Nested Sampling runs. -- The output is a pandas DataFrame.
     selections = selector.run_nested_sampling(nprocs=1)
+    # model_0 is the correct model (i.e., the data comes from a simulaiton of
+    # of model_0. However, the order should be: model_0, model_2, and then
+    # model_1.
     print(selections)

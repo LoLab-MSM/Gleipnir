@@ -1,3 +1,14 @@
+"""
+Example use of HypSelector with a grouped reactions set of model hyptheses with
+Nested Sampling using MultiNest via Gleipnir.
+
+Adapted from the grouped_reactions_example from HypBuilder:
+https://github.com/LoLab-VU/HypBuilder/blob/master/grouped_reactions_example.csv
+
+The data used in this example is synthetic data generated from model_0 with the default
+parameters defined in the csv file; they are the last 10 timepoints.
+"""
+
 import numpy as np
 try:
     import pysb
@@ -42,7 +53,7 @@ if __name__ == '__main__':
     # Sampling runs to 100.
     # log_likelihood_type='mse' will use the minus of the Mean Squared Error (mse)
     # as the log_likelihood estimator.
-    # Input dictionary of additional keyword arguments to be passed to the 
+    # Input dictionary of additional keyword arguments to be passed to the
     # Nested Samplers.
     ns_kwargs = dict()
     # Let's set the sampling efficiency for MultiNest to 0.3 which is
@@ -60,4 +71,7 @@ if __name__ == '__main__':
     #quit()
     # Do the Nested Sampling runs. -- The output is a pandas DataFrame.
     selections = selector.run_nested_sampling(nprocs=1)
+    # model_0 is the correct model (i.e., the data comes from a simulaiton of
+    # of model_0. However, the order should be: model_0, model_2, and then
+    # model_1.
     print(selections)
