@@ -13,7 +13,7 @@ try:
 except ImportError as err:
     raise err
 import pysb
-from ..nestedsample_it import NestedSampleIt
+from .nestedsample_it import NestedSampleIt
 
 _hypb_dir = os.path.dirname(HypBuilder.__file__)
 library_file = os.path.join(_hypb_dir, "HB_library.txt")
@@ -95,11 +95,15 @@ class HypSelector(object):
                         log_likelihood_type='logpdf'):
         """
         """
+        print(ns_version)
         if self.models is None:
             self.load_models()
+        if ns_version == 'multinest':
+            if 'sampling_efficiency' not in list(ns_kwargs.keys()):
+                ns_kwargs['sampling_efficiency'] = 0.3    
         ns_sample_its = list()
         ns_samplers = list()
-        for model in self.models:
+        for i,model in enumerate(self.models):
             sample_it = NestedSampleIt(model, observable_data, timespan,
                                        solver=solver,
                                        solver_kwargs=solver_kwargs)
@@ -107,6 +111,17 @@ class HypSelector(object):
                                    ns_population_size=ns_population_size,
                                    ns_kwargs=ns_kwargs,
                                    log_likelihood_type=log_likelihood_type)
+            # Guard patch for multinest and polychord file outputs, so
+            # each model run has its own file names.
+            if ns_version == 'multinest':
+                ns_sampler._file_root="multinest_run_model_{}_".format(i)
+                # print(ns_sampler._file_root)
+            elif ns_version == 'polychord':
+                ns_sampler._settings.file_root="polychord_run_model_{}_".format(i)
+            #elif ns_sampler:
+            # if ns_version == 'multinest':
+            #     print(ns_sampler._file_root)
+            # quit()
             ns_sample_its.append(sample_it)
             ns_samplers.append(ns_sampler)
         self.nested_sample_its = ns_sample_its
