@@ -77,7 +77,7 @@ class NestedSampleIt(object):
         self.solver = solver
         self.solver_kwargs = solver_kwargs
         # self.ns_version = None
-
+        self._ns_kwargs = None
         self._like_data = dict()
         self._data = dict()
         self._data_mask = dict()
@@ -108,7 +108,7 @@ class NestedSampleIt(object):
         # print(rate_mask)
         # print(model.parameters[rate_mask])
 
-        self._sampled_parameters = [SampledParameter(param.name, uniform(loc=np.log10(param.value)-1.0, scale=2.0)) for i,param in enumerate(model.parameters) if i in rate_mask]
+        self._sampled_parameters = [SampledParameter(param.name, uniform(loc=np.log10(param.value)-2.0, scale=4.0)) for i,param in enumerate(model.parameters) if i in rate_mask]
         self._rate_mask = rate_mask
         self._param_values = np.array([param.value for param in model.parameters])
         return
@@ -157,6 +157,7 @@ class NestedSampleIt(object):
                  ns_population_size=1000, ns_kwargs=dict(),
                  log_likelihood_type='logpdf'):
         # self.ns_version = ns_version
+        self._ns_kwargs = ns_kwargs
         population_size = ns_population_size
         if log_likelihood_type == 'mse':
             loglikelihood = self.mse_loglikelihood
@@ -189,7 +190,7 @@ class NestedSampleIt(object):
             nested_sampler = MultiNestNestedSampling(sampled_parameters=self._sampled_parameters,
                                            loglikelihood=loglikelihood,
                                            population_size=population_size,
-                                           **self.ns_kwargs)
+                                           **self._ns_kwargs)
             #self._nested_sampler = MNNS
         elif ns_version == 'polychord':
             from gleipnir.polychord import PolyChordNestedSampling
@@ -198,13 +199,13 @@ class NestedSampleIt(object):
                                            population_size=population_size)
         elif ns_version == 'dnest4':
             from gleipnir.dnest4 import DNest4NestedSampling
-            if not ('num_steps' in list(self.ns_kwargs.keys())):
-                self.ns_kwargs['num_steps'] = 100*population_size
+            if not ('num_steps' in list(self._ns_kwargs.keys())):
+                self._ns_kwargs['num_steps'] = 100*population_size
                 # num_steps = 100*population_size
             nested_sampler = DNest4NestedSampling(sampled_parameters=sampled_parameters,
                                            loglikelihood=loglikelihood,
                                            population_size=population_size,
-                                           **self.ns_kwargs)
+                                           **self._ns_kwargs)
 
         return nested_sampler
 
