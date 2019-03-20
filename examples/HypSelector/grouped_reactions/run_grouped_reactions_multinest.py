@@ -19,6 +19,7 @@ from gleipnir.pysb_utilities import HypSelector
 
 
 if __name__ == '__main__':
+
     # The HypBuilder format model csv file.
     model_csv = 'grouped_reactions.csv'
     # The timespan of the simulations.
@@ -46,7 +47,7 @@ if __name__ == '__main__':
     # Append the needed observable to the model files
     obs_line = "Observable(\'AB_complex\',A(B=1)%B(A=1))"
     selector.append_to_models(obs_line)
-    # quit()
+
     # Now let's construct the Nested Samplers for the models.
     # ns_version='multinest' will use the MulitNest code.
     # ns_population_size=100 will set the active population size for the Nested
@@ -64,11 +65,7 @@ if __name__ == '__main__':
                                  ns_version='multinest',
                                  ns_population_size=1000, ns_kwargs=ns_kwargs,
                                  log_likelihood_type='mse')
-    #print(selector.nested_samplers[0])
-    #print(selector.nested_sample_its[0]._data_mask)
-    #quit()
-    #selector.nested_samplers[0].run(verbose=True)
-    #quit()
+
     # Do the Nested Sampling runs. -- The output is a pandas DataFrame.
     selections = selector.run_nested_sampling(nprocs=1)
     # model_0 is the correct model (i.e., the data comes from a simulaiton of
