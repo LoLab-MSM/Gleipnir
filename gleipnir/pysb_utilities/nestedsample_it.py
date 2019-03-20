@@ -64,13 +64,35 @@ def write_uniform_param(p_name, p_val):
     return line
 
 class NestedSampleIt(object):
-    """
+    """Create instances of Nested Samling objects for PySB models.
+
+    Args:
+        model (pysb.Model): The instance of the PySB model that you want to run
+            Nested Sampling on.
+        observable_data (dict of tuple): Defines the observable data to
+            use when computing the loglikelihood function. It is a dictionary
+            keyed to the model Observables (or species names) that the
+            data corresponds to. Each element is a 3 item tuple of format:
+            (:numpy.array:data, None or :numpy.array:data_standard_deviations,
+            None or :list like:time_idxs or :list like:time_mask).
+        timespan (numpy.array): The timespan for model simulations.
+        solver (:obj:): The ODE solver to use when running model simulations.
+            Defaults to pysb.simulator.ScipyOdeSimulator.
+        solver_kwargs (dict): Dictionary of optional keyword arguments to
+            pass to the solver when it is initialized. Defaults to dict().
+
+    Attributes:
+        model
+        observable_data
+        timespan
+        solver
+        solver_kwargs
+
     """
     def __init__(self, model, observable_data, timespan,
                  solver=pysb.simulator.ScipyOdeSimulator,
                  solver_kwargs=dict()):
-        """
-        """
+        """Inits the NestedSampleIt."""
         self.model = model
         self.observable_data = observable_data
         self.timespan = timespan
@@ -115,6 +137,16 @@ class NestedSampleIt(object):
 
 
     def logpdf_loglikelihood(self, position):
+        """Compute the loglikelihood using the normal distribution estimator.
+
+        Args:
+            position (numpy.array): The parameter vector the compute loglikelihood
+                of.
+
+        Returns:
+            float: The natural logarithm of the likelihood estimate.
+
+        """
         Y = np.copy(position)
         params = self._param_values.copy()
         params[self._rate_mask] = 10**Y
@@ -128,6 +160,15 @@ class NestedSampleIt(object):
         return logl
 
     def mse_loglikelihood(self, position):
+        """Compute the loglikelihood using the negative mean squared error estimator.
+
+        Args:
+            position (numpy.array): The parameter vector the compute loglikelihood of.
+
+        Returns:
+            float: The natural logarithm of the likelihood estimate.
+
+        """
         Y = np.copy(position)
         params = self._param_values.copy()
         params[self._rate_mask] = 10**Y
@@ -141,6 +182,16 @@ class NestedSampleIt(object):
         return logl
 
     def sse_loglikelihood(self, position):
+        """Compute the loglikelihood using the negative sum of squared errors estimator.
+
+        Args:
+            position (numpy.array): The parameter vector the compute loglikelihood
+                of.
+
+        Returns:
+            float: The natural logarithm of the likelihood estimate.
+
+        """
         Y = np.copy(position)
         params = self._param_values.copy()
         params[self._rate_mask] = 10**Y
@@ -156,6 +207,32 @@ class NestedSampleIt(object):
     def __call__(self, ns_version='gleipnir-classic',
                  ns_population_size=1000, ns_kwargs=dict(),
                  log_likelihood_type='logpdf'):
+    """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
+
+    Args:
+            ns_version (str): Defines which version of Nested Sampling to use.
+                Options are 'gleipnir-classic'=>Gleipnir's built-in implementation
+                of the classic Nested Sampling algorithm, 'multinest'=>Use the
+                MultiNest code via Gleipnir, 'polychord'=>Use the PolyChord code
+                via Gleipnir, or 'dnest4'=>Use the DNest4 program via Gleipnir.
+                Defaults to 'gleipnir-classic'.
+            ns_population_size (int): Set the size of the active population
+                of sample points to use during Nested Sampling runs.
+                Defaults to 1000.
+            ns_kwargs (dict): Dictionary of any additional optional keyword
+                arguments to pass to NestedSampling object constructor.
+                Defaults to dict().
+            log_likelihood_type (str): Define the type of loglikelihood estimator
+                to use. Options are 'logpdf'=>Compute the loglikelihood using
+                the normal distribution estimator, 'mse'=>Compute the
+                loglikelihood using the negative mean squared error estimator,
+                'sse'=>Compute the loglikelihood using the negative sum of
+                 squared errors estimator. Defaults to 'logpdf'.
+
+    Returns:
+        type: Description of returned object.
+
+    """
         # self.ns_version = ns_version
         self._ns_kwargs = ns_kwargs
         population_size = ns_population_size
