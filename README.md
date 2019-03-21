@@ -47,6 +47,9 @@ Gleipnir has the following core dependencies:
 ### To use DNest4
    * DNest4 - https://github.com/eggplantbren/DNest4
 
+### To use the HypSelector tool (see the PySB Utilities section)
+   * HypBuilder - https://github.com/LoLab-VU/HypBuilder
+
 Gleipnir is compatible with Python 3.6
 
 The following section describes the process for setting up the dependencies using a conda environment.
