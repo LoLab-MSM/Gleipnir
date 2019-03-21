@@ -47,6 +47,9 @@ Gleipnir has the following core dependencies:
 ### To use DNest4
    * DNest4 - https://github.com/eggplantbren/DNest4
 
+### To use the HypSelector tool (see the PySB Utilities section)
+   * HypBuilder - https://github.com/LoLab-VU/HypBuilder
+
 Gleipnir is compatible with Python 3.6
 
 The following section describes the process for setting up the dependencies using a conda environment.
@@ -104,17 +107,79 @@ Notes:
 
 # Usage
 
-Checkout the [examples](Gleipnir/examples) to see how to setup Nested Sampling runs using Gleipnir.
+Checkout the [examples](./examples) to see how to setup Nested Sampling runs using Gleipnir.
 
 ------
 
-# Utilities
+# PySB Utilities
 
 ## nestedsample_it
+nestedsample_it is a utility that helps generate a Nested Sampling run script or NestedSampling objects for a PySB model.
 
-nestedsample_it is a utility that helps generate a template Nested Sampling run script for a PySB model. nestedsample_it reads the model file, imports and pulls out all the kinetic parameters, and then writes out a run_NS script for that model. nestedsample_it currently writes out a run script for classic Nested Sampling via Gleipnir, so you'll need to modify it to use one of the other Nested Samplers (MultiNest, PolyChord, or DNest4). And you will need to edit the run script to load any data and modify the loglikelihood function, but nestedsample_it should give you a good starting point.
+### Commmand line use
+nestedsample_it can be used as a command line utility to generate a template Nested Sampling run script for a PySB model. nestedsample_it reads the model file, imports and pulls out all the kinetic parameters, and then writes out a run_NS script for that model. nestedsample_it currently writes out a run script for classic Nested Sampling via Gleipnir, so you'll need to modify it to use one of the other Nested Samplers (MultiNest, PolyChord, or DNest4). And you will need to edit the run script to load any data and modify the loglikelihood function, but nestedsample_it should give you a good starting point.
 
 Run nestedsample_it from the command line:
 ```
 python -m glepnir.pysb_utilities.nestedsample_it model.py
 ```      
+
+The command line version of nestedsample_it also has support for a limited set of #NESTEDSAMPLE_IT directives which can be added to model files. The current directives are:
+  * #NESTEDSAMPLE_IT prior [param_name, param_index] [norm, uniform]  
+    * Specify the type of prior to assign to a parameter. The parameter can either be specified by its name or its index (in model.parameters). The priors that can be assigned are either norm or uniform; note that uniform is the default for all parameters.  
+  * #NESTEDSAMPLE_IT no-sample [param_name, param_index]
+     * Specify a fixed parameter (i.e., not to included in sampling). The parameter can either be specified by its name or its index (in model.parameters).          
+
+
+### Progammatic use via the NestedSampleIt class
+The nestedsample_it utility can be used progammatically via the NestedSampleIt
+class. It's importable from the pysb_utilities module:
+```python
+from gleipnir.pysb_utilities import NestedSampleIt
+```
+The NestedSampleIt class can build an instance of a NestedSampling object.  
+ Here's a minimal example:
+```python
+from my_pysb_model import model as my_model
+from gleipnir.pysb_utilities import NestedSampleIt
+import numpy as np
+
+timespan = np.linspace(0., 10., 10)
+data = np.load('my_data.npy')
+data_sd = np.load('my_data_sd.npy')
+observable_data = dict()
+time_idxs = list(range(len(timespan)))
+observable_data['my_observable'] = (data, data_sd, time_idxs)
+# Initialize the NestedSampleIt instance with the model details.
+sample_it = NestedSampleIt(my_model, observable_data, timespan)
+# Now build the NestedSampling object. -- All inputs are
+# optional keyword arguments.
+nested_sampler = sample_it(ns_version='gleipnir-classic'
+                           ns_population_size=100,
+                           ns_kwargs=dict(),
+                           log_likelihood_type='logpdf')
+# Then you can run the nested sampler.
+log_evidence, log_evidence_error = nested_sampler.run()
+```
+
+NestedSampleIt constructs the NestedSampling object to sample all of a model's kinetic rate parameters. It assumes that the priors are uniform with size 4 orders of magnitude and centered on the values defined in the model. Currently there is no way to change the parameters that are sampled, or the priors used by NestedSampleIt; if these are features you would like to have then please open an [issue](https://github.com/LoLab-VU/Gleipnir/issues) and let me know.
+
+In addition, NestedSampleIt crrently has three pre-defined loglikelihood functions with different estimators. They can be specified with the keyword parameter log_likelihood_type:
+```python
+# Now build the NestedSampling object.
+nested_sampler = sample_it(log_likelihood_type='logpdf')
+```
+The options are
+  * 'logpdf'=>Compute the loglikelihood using the
+normal distribution estimator
+  * 'mse'=>Compute the loglikelihood using the
+negative mean squared error estimator
+  * 'sse'=>Compute the loglikelihood using
+the negative sum of squared errors estimator.
+The default is 'logpdf'.
+Each of these functions computes the loglikelihood estimate using the timecourse output of a model simulation for each observable defined in the `observable_data` dictionary.
+If you want to use a different or more complicated likelihood function with NestedSampleIt then you'll need to subclass it and override one of the existing loglikelihood functions.  
+
+## HypSelector
+
+HypSelector is a tool for hypothesis selection using [HypBuilder](https://github.com/LoLab-VU/HypBuilder) and Nested Sampling-based model selection. Models embodying different hypotheses (e.g., optional reactions) can be defined using the HypBuilder csv syntax. HypSelector then allows users to easily compare all the hypothetical model variants generated by HypBuilder by performing Nested Sampling to compute their evidences  and thereby do model selection. See the [grouped reactions example](./examples/HypSelector/grouped_reactions) to see an example use of HypSelector.
