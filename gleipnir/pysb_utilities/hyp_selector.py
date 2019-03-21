@@ -248,3 +248,26 @@ class HypSelector(object):
         selection.sort_values(by=['log_evidence'], ascending=False, inplace=True)
         self.selection = selection
         return selection
+
+    def bayes_factors(self):
+        """Compute the Bayes factors of models using evidence ratios.
+
+        Returns:
+            pandas.DataFrame: Returns a symmetric DataFrame with the Bayes
+                factors of each model combination.
+
+        """
+        n_models = self.number_of_models()
+        mod_list = []
+        for i in range(n_models):
+            mod_list.append("model_{}".format(i))
+        bayes_factors = np.ones((n_models,n_models))
+        for i,nsi in enumerate(self.nested_samplers):
+            loge_i = nsi.log_evidence
+            for j,nsj in enumerate(self.nested_samplers):
+                loge_j = nsj.log_evidence
+                if i != j:
+                    bf = np.exp(loge_i - loge_j)
+                    bayes_factors[i,j] = bf
+        return pd.DataFrame(bayes_factors, index=mod_list,
+                                columns=mod_list)

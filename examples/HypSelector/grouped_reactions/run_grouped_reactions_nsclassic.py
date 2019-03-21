@@ -64,8 +64,11 @@ if __name__ == '__main__':
 
     # Do the Nested Sampling runs. -- The output is a pandas DataFrame.
     # Note that the output is already sorted from highest to lowest log evidence.
-    selections = selector.run_nested_sampling()
+    sorted_log_evidences = selector.run_nested_sampling()
     # model_0 is the correct model (i.e., the data comes from a simulaiton of
     # of model_0. However, the order should be: model_0, model_2, and then
     # model_1.
-    print(selections)
+    print(sorted_log_evidences)
+    print(" ")
+    bayes_factors = selector.bayes_factors()
+    print(bayes_factors)
