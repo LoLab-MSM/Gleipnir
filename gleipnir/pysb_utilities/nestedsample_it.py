@@ -207,32 +207,32 @@ class NestedSampleIt(object):
     def __call__(self, ns_version='gleipnir-classic',
                  ns_population_size=1000, ns_kwargs=dict(),
                  log_likelihood_type='logpdf'):
-    """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
+        """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
 
-    Args:
-            ns_version (str): Defines which version of Nested Sampling to use.
-                Options are 'gleipnir-classic'=>Gleipnir's built-in implementation
-                of the classic Nested Sampling algorithm, 'multinest'=>Use the
-                MultiNest code via Gleipnir, 'polychord'=>Use the PolyChord code
-                via Gleipnir, or 'dnest4'=>Use the DNest4 program via Gleipnir.
-                Defaults to 'gleipnir-classic'.
-            ns_population_size (int): Set the size of the active population
-                of sample points to use during Nested Sampling runs.
-                Defaults to 1000.
-            ns_kwargs (dict): Dictionary of any additional optional keyword
-                arguments to pass to NestedSampling object constructor.
-                Defaults to dict().
-            log_likelihood_type (str): Define the type of loglikelihood estimator
-                to use. Options are 'logpdf'=>Compute the loglikelihood using
-                the normal distribution estimator, 'mse'=>Compute the
-                loglikelihood using the negative mean squared error estimator,
-                'sse'=>Compute the loglikelihood using the negative sum of
-                 squared errors estimator. Defaults to 'logpdf'.
+        Args:
+                ns_version (str): Defines which version of Nested Sampling to use.
+                    Options are 'gleipnir-classic'=>Gleipnir's built-in implementation
+                    of the classic Nested Sampling algorithm, 'multinest'=>Use the
+                    MultiNest code via Gleipnir, 'polychord'=>Use the PolyChord code
+                    via Gleipnir, or 'dnest4'=>Use the DNest4 program via Gleipnir.
+                    Defaults to 'gleipnir-classic'.
+                ns_population_size (int): Set the size of the active population
+                    of sample points to use during Nested Sampling runs.
+                    Defaults to 1000.
+                ns_kwargs (dict): Dictionary of any additional optional keyword
+                    arguments to pass to NestedSampling object constructor.
+                    Defaults to dict().
+                log_likelihood_type (str): Define the type of loglikelihood estimator
+                    to use. Options are 'logpdf'=>Compute the loglikelihood using
+                    the normal distribution estimator, 'mse'=>Compute the
+                    loglikelihood using the negative mean squared error estimator,
+                    'sse'=>Compute the loglikelihood using the negative sum of
+                     squared errors estimator. Defaults to 'logpdf'.
 
-    Returns:
-        type: Description of returned object.
+        Returns:
+            type: Description of returned object.
 
-    """
+        """
         # self.ns_version = ns_version
         self._ns_kwargs = ns_kwargs
         population_size = ns_population_size
