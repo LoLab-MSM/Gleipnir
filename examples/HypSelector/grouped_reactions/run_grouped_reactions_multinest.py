@@ -74,7 +74,16 @@ if __name__ == '__main__':
     # model_0 is the correct model (i.e., the data comes from a simulaiton of
     # of model_0. However, the order should be: model_0, model_2, and then
     # model_1.
+    print("The models and their log_evidence values-sorted:")
     print(sorted_log_evidences)
     print(" ")
+    # We can now also look at the Bayes factors which are computed as ratio of
+    # evidence values; i.e., evidence_model_column/evidence_model_row
     bayes_factors = selector.bayes_factors()
+    print("DataFrame of the Bayes factor matrix:")
     print(bayes_factors)
+    print(" ")
+    # Let's look at the Bayes factors for model_0; i.e.,
+    # evidence_model_0/evidence_other_model
+    print("Bayes factors for the model_0 numerator ratios:")
+    print(bayes_factors['model_0'])

@@ -268,6 +268,6 @@ class HypSelector(object):
                 loge_j = nsj.log_evidence
                 if i != j:
                     bf = np.exp(loge_i - loge_j)
-                    bayes_factors[i,j] = bf
+                    bayes_factors[j,i] = bf
         return pd.DataFrame(bayes_factors, index=mod_list,
                                 columns=mod_list)
