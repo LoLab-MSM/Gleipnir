@@ -13,6 +13,15 @@ try:
 except ImportError as err:
     raise err
 import pysb
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+# try:
+#     import dill
+# except ImportError as err:
+#     raise err
+
 from .nestedsample_it import NestedSampleIt
 
 _hypb_dir = os.path.dirname(HypBuilder.__file__)
@@ -208,12 +217,8 @@ class HypSelector(object):
         self.nested_samplers = ns_samplers
         return
 
-    def run_nested_sampling(self, nprocs=1):
+    def run_nested_sampling(self):
         """Run Nested Sampling on each model.
-
-        Args:
-            nprocs (int, optional): The number of processor cores to run
-                divide the Nested Sampling runs among. Defaults to 1.
 
         Returns:
             pandas.DataFrame: The sorted models with their log_evidence and
@@ -221,22 +226,20 @@ class HypSelector(object):
                 order by the log_evidence.
 
         """
+        nprocs = 1
         if self.nested_samplers is None:
             warnings.warn("Unable to run. Must call the 'gen_nested_samplers' function first!")
             return
         ns_samplers = self.nested_samplers
-        if nprocs > 1:
-            def run_ns(nested_sampler):
-                nested_sampler.run()
-                return nested_sampler
-
-            p = Pool(nprocs)
-            ns_runs = p.map(run_ns, ns_samplers)
-            p.close()
-            self.nested_samplers = ns_runs
-        else:
-            for i in range(len(self.nested_samplers)):
-                self.nested_samplers[i].run()
+        # if nprocs > 1:
+        #
+        #     p = Pool(nprocs)
+        #     ns_runs = p.map(_run_ns, ns_samplers)
+        #     p.close()
+        #     self.nested_samplers = ns_runs
+        # else:
+        for i in range(len(self.nested_samplers)):
+            self.nested_samplers[i].run()
         frame = list()
         for i,ns in enumerate(self.nested_samplers):
             data_d = dict()
@@ -271,3 +274,7 @@ class HypSelector(object):
                     bayes_factors[j,i] = bf
         return pd.DataFrame(bayes_factors, index=mod_list,
                                 columns=mod_list)
+
+def _run_ns(nested_sampler):
+    nested_sampler.run()
+    return nested_sampler
