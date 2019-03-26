@@ -1,4 +1,7 @@
-# Gleipnir  
+<p align="center">
+  <img width="100" height="100" src="./images/gleipnir_logo_2.png">
+</p>
+# Gleipnir
 
 Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to calibration tools such as [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization).
 In addition to its built-in implementation of the classic Nested Sampling algorithm, Gleipnir provides a common interface to the major Nested Sampling implementations: MultiNest, PolyChord, and DNest4.
