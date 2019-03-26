@@ -5,10 +5,9 @@
 </p>
 
 
-Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to calibration tools such as [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization).
-In addition to its built-in implementation of the classic Nested Sampling algorithm, Gleipnir provides a common interface to the major Nested Sampling implementations: MultiNest, PolyChord, and DNest4.
+Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to the calibration tools [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization). Gleipnir has a built-in implementation of the classic Nested Sampling algorithm, and the toolkit provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, and DNest4. Gleipnir also has some PySB model-specific utilities, including nestedsample_it/NestedSampleIt and HypSelector (read more under the PySB Utilities section).
 
-Gleipnir can be used to compute the Bayesian evidence of models with respect to the parameter priors and the likelihood of parameter vectors dictated by the (calibration) data, allowing users to perform model selection. As a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration.
+Through Nested Sampling simulations, Gleipnir can be used to compute the Bayesian evidence (or marginal likelihood) of models. The Bayesian evidence can in turn be used for model selection; i.e., users can select between competing models and determine which one is best supported by the data. And as a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration. 
 
 ### What is Nested Sampling?
 
@@ -52,6 +51,12 @@ Gleipnir has the following core dependencies:
 ### To use DNest4
    * DNest4 - https://github.com/eggplantbren/DNest4
 
+### To use PySB models
+   * PySB - http://pysb.org/
+
+### To run the Jupyter notebooks
+   * Jupyter - https://jupyter.org/     
+
 ### To use the HypSelector tool (see the PySB Utilities section)
    * HypBuilder - https://github.com/LoLab-VU/HypBuilder
 
@@ -84,6 +89,11 @@ You can add the previous command to your .bashrc to have Gleipnir automatically 
 If you want to run pysb models:
 ```
 conda install -c alubbock pysb
+```
+
+If you want to run the Jupyter notebooks:
+```
+conda install jupyter
 ```
 
 ### PolyChord
