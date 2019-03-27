@@ -7,7 +7,7 @@
 
 Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to the calibration tools [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization). Gleipnir has a built-in implementation of the classic Nested Sampling algorithm, and the toolkit provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, and DNest4. Gleipnir also has some PySB model-specific utilities, including nestedsample_it/NestedSampleIt and HypSelector (read more under the PySB Utilities section).
 
-Through Nested Sampling simulations, Gleipnir can be used to compute the Bayesian evidence (or marginal likelihood) of models. The Bayesian evidence can in turn be used for model selection; i.e., users can select between competing models and determine which one is best supported by the data. And as a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration. 
+Through Nested Sampling simulations, Gleipnir can be used to compute the Bayesian evidence (or marginal likelihood) of models. The Bayesian evidence can in turn be used for model selection; i.e., users can select between competing models and determine which one is best supported by the data. And as a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration.
 
 ### What is Nested Sampling?
 
@@ -55,45 +55,53 @@ Gleipnir has the following core dependencies:
    * PySB - http://pysb.org/
 
 ### To run the Jupyter notebooks
-   * Jupyter - https://jupyter.org/     
+   * Jupyter - https://jupyter.org/   
+
+### Recommended packages for plotting
+   * matplotlib - https://matplotlib.org/
+   * seaborn - https://seaborn.pydata.org/        
 
 ### To use the HypSelector tool (see the PySB Utilities section)
    * HypBuilder - https://github.com/LoLab-VU/HypBuilder
 
 Gleipnir is compatible with Python 3.6
 
-The following section describes the process for setting up the dependencies using a conda environment.
+The following section describes the process for setting up the dependencies using a conda environment (https://conda.io/en/latest/).
 
-## Setup and install using Anaconda's conda tool
+## Setup and install using conda
 
 First, clone or download the GitHub repo
 ```
 git clone https://github.com/LoLab-VU/Gleipnir.git
 ```
-Then create a new conda environment for Gleipnir and activate it:
+Then create a new conda environment for gleipnir using the environment.yml file
+(which includes the core dependencies):
 ```
-conda create --name gleipnir python=3.6
+conda env create -f Gleipnir/environment.yml
+```
+Activate the environment
+```
 conda activate gleipnir
 ```
+Then from the Gleipnir directory/folder you can install gleipnir into the environment using the setup.py script:
+```
+python setup.py install
+```
+## Optional package installation
 
-Then install all the run dependencies:
-```
-conda install numpy scipy pandas
-```
-There is currently no installer for Gleipnir, so just add the repo to your PYTHONPATH environment variable:
-```
-export PYTHONPATH=path_to_Gleipnir:$PYTHONPATH
-```
-You can add the previous command to your .bashrc to have Gleipnir automatically added to your PYTHONPATH for new shells.
-
-If you want to run pysb models:
+### To run pysb models (and use gleipnir.pysb_utilities):
 ```
 conda install -c alubbock pysb
 ```
 
-If you want to run the Jupyter notebooks:
+### To run Jupyter notebooks:
 ```
 conda install jupyter
+```
+
+### Recommended plotting packages:
+```
+conda install matplotlib seaborn
 ```
 
 ### PolyChord
@@ -117,6 +125,15 @@ https://github.com/eggplantbren/DNest4
 Notes:
  * Requires a c++ compiler with c++11 standard libraries.
  * Requires Cython and numba for python bindings to compile and install
+
+### HypBuilder
+If you want use the HypSelector tool from gleipnir.pysb_utilities then you
+need to have HypBuilder:
+```
+git clone https://github.com/LoLab-VU/HypBuilder
+```
+Then you will need to add the HypBuilder directory/folder to your PYTHONPATH
+environment variable to be able to import from HypBuilder.
 
 ------
 
