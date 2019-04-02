@@ -162,3 +162,10 @@ class PolyChordNestedSampling(object):
             self._post_eval = True
 
         return self._posteriors
+
+    def akaike_ic(self):
+        samples = self._output.samples
+        mx = samples.max()
+        ml = mx['loglike']
+        k = len(self.sampled_parameter)
+        return  2.*k - 2.*ml

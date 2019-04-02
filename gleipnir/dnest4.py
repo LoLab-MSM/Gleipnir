@@ -17,6 +17,7 @@ References:
 """
 
 import numpy as np
+import pandas as pd
 import warnings
 try:
     import dnest4
@@ -174,8 +175,16 @@ class DNest4NestedSampling(object):
         ev_err = np.exp(logZ_err)
         self._evidence_error = ev_err
         self._evidence = np.exp(self._log_evidence)
+        # To compute posterior distributions
         self._samples = np.array(sampler.backend.posterior_samples)
-
+        # To compute AIC estimate
+        # print(sampler.backend.sample_info)
+        # print(len(sampler.backend.sample_info))
+        # print(sampler.backend.sample_info[-1])
+        # print(len(sampler.backend.sample_info[-1]))
+        # print(pd.DataFrame(sampler.backend.sample_info[-1]))
+        # quit()
+        self._last_live_sample_info = pd.DataFrame(sampler.backend.sample_info[-1])
         return self.log_evidence, self.log_evidence_error
 
     @property
@@ -250,3 +259,10 @@ class DNest4NestedSampling(object):
             self._post_eval = True
 
         return self._posteriors
+
+    def akaike_ic(self):
+
+        mx = self._last_live_sample_info.max()
+        ml = mx['log_likelihood']
+        k = len(self.sampled_parameters)
+        return  2.*k - 2.*ml

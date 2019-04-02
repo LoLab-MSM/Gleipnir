@@ -284,6 +284,12 @@ class NestedSampling(object):
             self._post_eval = True
         return self._posteriors
 
+    def akaike_ic(self):
+        mx = self._dead_points.max()
+        ml = mx['log_l']
+        k = len(self.sampled_parameters)
+        return  2.*k - 2.*ml
+
     @property
     def dead_points(self):
         """The set of dead points collected during the Nested Sampling run."""
