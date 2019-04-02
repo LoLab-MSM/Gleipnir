@@ -1,0 +1,23 @@
+
+# a model for each combination of optional reactions will be constructed
+# if reactions are grouped in a disjoint set then other reactions, aside
+# from required reactions, cannot be present along side them
+
+model components
+
+A, 200000
+B, 50000
+C, 20000
+D, 10000
+E, 10000
+
+required reactions
+
+inhibition, A()[inhibitor], B()[inh_target], 0.000015, 0.00012
+
+optional reactions
+
+inhibition, B()[inhibitor], C()[inh_target], {disjoint:1}, 0.00005, 0.000006
+inhibition, D()[inhibitor], E()[inh_target], {disjoint:1}, 0.000005, 0.000006
+inhibition, A()[inhibitor], C()[inh_target], {group:2}, 0.000040, 0.000007
+inhibition, B()[inhibitor], D()[inh_target], {group:2}, 0.000010, 0.000006
