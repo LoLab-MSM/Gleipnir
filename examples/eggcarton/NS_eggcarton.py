@@ -61,7 +61,9 @@ if __name__ == '__main__':
     print("evidence: {} +- {}".format(evidence, error))
     # exp(-information) is an estimate of the compression factor from prior to posterior
     print("Information: {} exp(-Information): {}".format(information, np.exp(-information)))
-
+    # We can also pull out an estimate of the Akaike Information Criterion (AIC)
+    aic = NS.akaike_ic()
+    print("AIC estimate: {}".format(aic))
     #try plotting a marginal distribution
     try:
         import seaborn as sns

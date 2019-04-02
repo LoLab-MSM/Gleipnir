@@ -52,6 +52,9 @@ if __name__ == '__main__':
     # Print the output -- logZ should be approximately 236
     print("log_evidence: {} +- {} ".format(log_evidence, log_evidence_error))
 
+    # We can also pull out an estimate of the Akaike Information Criterion (AIC)
+    aic = MNNS.akaike_ic()
+    print("AIC estimate: {}".format(aic))
     #try plotting a marginal distribution
     try:
         import seaborn as sns
