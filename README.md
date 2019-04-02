@@ -141,6 +141,7 @@ environment variable to be able to import from HypBuilder.
 
 Checkout the Jupyter Notebook (more in the pipeline):
  1. [Intro to Nested Sampling with Gleipnir](./jupyter_notebooks/Intro_to_Nested_Sampling_with_Gleipnir.ipynb)
+ 2. [HypSelector Example](./jupyter_notebooks/HypSelector_example.ipynb)
 
 Also checkout the [examples](./examples) to see how to setup Nested Sampling runs using Gleipnir.
 
