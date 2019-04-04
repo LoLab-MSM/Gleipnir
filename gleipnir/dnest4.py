@@ -266,3 +266,10 @@ class DNest4NestedSampling(object):
         ml = mx['log_likelihood']
         k = len(self.sampled_parameters)
         return  2.*k - 2.*ml
+
+    def bayesian_ic(self, n_data):
+
+        mx = self._last_live_sample_info.max()
+        ml = mx['log_likelihood']
+        k = len(self.sampled_parameters)
+        return  np.log(n_data)*k - 2.*ml        

@@ -169,3 +169,11 @@ class PolyChordNestedSampling(object):
         ml = mx['loglike']
         k = len(self.sampled_parameter)
         return  2.*k - 2.*ml
+
+
+    def bayesian_ic(self, n_data):
+        samples = self._output.samples
+        mx = samples.max()
+        ml = mx['loglike']
+        k = len(self.sampled_parameter)
+        return  np.log(n_data)*k - 2.*ml    

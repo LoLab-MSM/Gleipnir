@@ -184,3 +184,10 @@ class MultiNestNestedSampling(object):
         ml = log_ls.max()
         k = len(self.sampled_parameters)
         return  2.*k - 2.*ml
+
+    def bayesian_ic(self, n_data):
+        mn_data = Analyzer(len(self.sampled_parameters), self._file_root, verbose=False).get_data()
+        log_ls = -0.5*mn_data[:,1]
+        ml = log_ls.max()
+        k = len(self.sampled_parameters)
+        return  np.log(n_data)*k - 2.*ml        

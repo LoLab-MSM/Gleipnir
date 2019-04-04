@@ -290,6 +290,12 @@ class NestedSampling(object):
         k = len(self.sampled_parameters)
         return  2.*k - 2.*ml
 
+    def bayesian_ic(self, n_data):
+        mx = self._dead_points.max()
+        ml = mx['log_l']
+        k = len(self.sampled_parameters)
+        return  np.log(n_data)*k - 2.*ml
+
     @property
     def dead_points(self):
         """The set of dead points collected during the Nested Sampling run."""
