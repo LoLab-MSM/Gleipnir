@@ -296,6 +296,21 @@ class NestedSampling(object):
         k = len(self.sampled_parameters)
         return  np.log(n_data)*k - 2.*ml
 
+    def deviance_ic(self):
+        log_likelihoods = self._dead_points['log_l'].to_numpy()
+        weights = self._dead_points['weight'].to_numpy()
+        likelihoods = np.exp(log_likelihoods)
+        norm_weights = (weights*likelihoods)/self.evidence
+        gt_mask = norm_weights > 0.0
+        parms = self._dead_points.columns[2:]
+
+        D_of_theta = -2.*log_likelihoods[gt_mask]
+        D_bar = np.average(D_of_theta, weights=norm_weights[gt_mask])
+        theta_bar = np.average(parms[gt_mask], weights=norm_weights[gt_mask], axis=0)
+        D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
+        p_D = D_bar - D_of_theta_bar
+        return p_D + D_bar   
+
     @property
     def dead_points(self):
         """The set of dead points collected during the Nested Sampling run."""
