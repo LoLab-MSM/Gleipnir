@@ -36,7 +36,7 @@ if __name__ == '__main__':
     sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=0.0,scale=10.0*np.pi)) for i in range(ndim)]
 
     # Set the active point population size
-    population_size = 100
+    population_size = 200
 
     # Setup the Nested Sampling run
     n_params = len(sampled_parameters)
@@ -56,6 +56,12 @@ if __name__ == '__main__':
     # We can also pull out an estimate of the Akaike Information Criterion (AIC)
     aic = PCNS.akaike_ic()
     print("AIC estimate: {}".format(aic))
+    # Bayesian Information Criterion (BIC)
+    bic = PCNS.bayesian_ic(2)
+    print("BIC estimate: {}".format(bic))
+    # Deviance Information Criterion (DIC)
+    dic = PCNS.deviance_ic()
+    print("DIC estimate: {}".format(dic))
     #try plotting a marginal distribution
     try:
         import seaborn as sns

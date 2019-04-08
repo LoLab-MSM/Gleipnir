@@ -66,6 +66,12 @@ if __name__ == '__main__':
     # We can also pull out an estimate of the Akaike Information Criterion (AIC)
     aic = DNS.akaike_ic()
     print("AIC estimate: {}".format(aic))
+    # Bayesian Information Criterion (BIC)
+    bic = DNS.bayesian_ic(2)
+    print("BIC estimate: {}".format(bic))
+    # Deviance Information Criterion (DIC)
+    dic = DNS.deviance_ic()
+    print("DIC estimate: {}".format(dic))
     #try plotting a marginal distribution
     try:
         import seaborn as sns
