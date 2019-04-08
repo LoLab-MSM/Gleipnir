@@ -183,7 +183,11 @@ class DNest4NestedSampling(object):
         # print(sampler.backend.sample_info[-1])
         # print(len(sampler.backend.sample_info[-1]))
         # print(pd.DataFrame(sampler.backend.sample_info[-1]))
+        print(len(sampler.backend.samples[-1]))
+        print(len(sampler.backend.weights[-1]))
         # quit()
+        self._last_live_sample = sampler.backend.samples[-1]
+        self._last_live_sample_weights = sampler.backend.weights[-1]
         self._last_live_sample_info = pd.DataFrame(sampler.backend.sample_info[-1])
         return self.log_evidence, self.log_evidence_error
 
@@ -272,4 +276,18 @@ class DNest4NestedSampling(object):
         mx = self._last_live_sample_info.max()
         ml = mx['log_likelihood']
         k = len(self.sampled_parameters)
-        return  np.log(n_data)*k - 2.*ml        
+        return  np.log(n_data)*k - 2.*ml
+
+    def deviance_ic(self):
+        params = self._last_live_sample
+        log_likelihoods = self._last_live_sample_info['log_likelihood']
+        weights = self._last_live_sample_weights
+        likelihoods = np.exp(log_likelihoods)
+        D_of_theta = -2.*log_likelihoods
+        D_bar = np.average(D_of_theta, weights=weights)
+        print(D_bar)
+        theta_bar = np.average(params, axis=0, weights=weights)
+        print(theta_bar)
+        D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
+        p_D = D_bar - D_of_theta_bar
+        return p_D + D_bar

@@ -176,4 +176,18 @@ class PolyChordNestedSampling(object):
         mx = samples.max()
         ml = mx['loglike']
         k = len(self.sampled_parameter)
-        return  np.log(n_data)*k - 2.*ml    
+        return  np.log(n_data)*k - 2.*ml
+
+    def deviance_ic(self):
+        samples = self._output.samples
+        log_likelihoods = samples['loglike'].to_numpy()
+        likelihoods = np.exp(log_likelihoods)
+        parms = samples.columns[2:]
+        params = samples[parms]
+        D_of_theta = -2.*log_likelihoods
+        D_bar = np.average(D_of_theta)
+        theta_bar = np.average(params, axis=0)
+        print(theta_bar)
+        D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
+        p_D = D_bar - D_of_theta_bar
+        return p_D + D_bar
