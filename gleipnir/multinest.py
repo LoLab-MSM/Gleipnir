@@ -194,15 +194,24 @@ class MultiNestNestedSampling(object):
 
     def deviance_ic(self):
         mn_data = Analyzer(len(self.sampled_parameters), self._file_root, verbose=False).get_data()
-        print(mn_data[0])
+        #print(len(mn_data))
+        #print(mn_data.shape)
+        #print(mn_data)
+        #print(len(mn_data[0]))
+        #quit()
         params = mn_data[:,2:]
         log_likelihoods = -0.5*mn_data[:,1]
         prior_mass = mn_data[:,0]
         norm_weights = (prior_mass*np.exp(log_likelihoods))/self.evidence
+        #print(norm_weights)
+        nw_mask = np.isnan(norm_weights)
+        if  np.any(nw_mask):
+            return np.inf
+        #print(len(nw_mask))
         D_of_theta = -2.*log_likelihoods
         D_bar = np.average(D_of_theta, weights=norm_weights)
         theta_bar = np.average(params, axis=0, weights=norm_weights)
-        print(theta_bar)
+        #print(theta_bar)
         D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
         p_D = D_bar - D_of_theta_bar
         return p_D + D_bar
