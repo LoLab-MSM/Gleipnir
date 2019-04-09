@@ -305,6 +305,17 @@ class HypSelector(object):
         aic_frame.sort_values(by=['BIC'], ascending=True, inplace=True)
         return aic_frame.reset_index(drop=True)
 
+    def deviance_ic(self):
+        frame = list()
+        for i,ns in enumerate(self.nested_samplers):
+            data_d = dict()
+            data_d['model'] = "model_{}".format(i)
+            data_d['DIC'] = ns.deviance_ic()
+            frame.append(data_d)
+        aic_frame = pd.DataFrame(frame)
+        aic_frame.sort_values(by=['DIC'], ascending=True, inplace=True)
+        return aic_frame.reset_index(drop=True)
+        
 def _run_ns(nested_sampler):
     nested_sampler.run()
     return nested_sampler
