@@ -17,6 +17,7 @@ References:
 """
 
 import numpy as np
+import pandas as pd
 import warnings
 try:
     import dnest4
@@ -174,8 +175,20 @@ class DNest4NestedSampling(object):
         ev_err = np.exp(logZ_err)
         self._evidence_error = ev_err
         self._evidence = np.exp(self._log_evidence)
+        # To compute posterior distributions
         self._samples = np.array(sampler.backend.posterior_samples)
-
+        # To compute AIC estimate
+        # print(sampler.backend.sample_info)
+        # print(len(sampler.backend.sample_info))
+        # print(sampler.backend.sample_info[-1])
+        # print(len(sampler.backend.sample_info[-1]))
+        # print(pd.DataFrame(sampler.backend.sample_info[-1]))
+        print(len(sampler.backend.samples[-1]))
+        print(len(sampler.backend.weights[-1]))
+        # quit()
+        self._last_live_sample = sampler.backend.samples[-1]
+        self._last_live_sample_weights = sampler.backend.weights[-1]
+        self._last_live_sample_info = pd.DataFrame(sampler.backend.sample_info[-1])
         return self.log_evidence, self.log_evidence_error
 
     @property
@@ -250,3 +263,71 @@ class DNest4NestedSampling(object):
             self._post_eval = True
 
         return self._posteriors
+
+    def akaike_ic(self):
+        """Estimate Akaike Information Criterion.
+        This function estimates the Akaike Information Criterion (AIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        largest likelihood value found during the NS run and using that as
+        the maximum likelihood estimate. The AIC formula is given by:
+            AIC = 2k - 2ML,
+        where k is number of sampled parameters and ML is maximum likelihood
+        estimate.
+
+        Returns:
+            float: The AIC estimate.
+        """
+        mx = self._last_live_sample_info.max()
+        ml = mx['log_likelihood']
+        k = len(self.sampled_parameters)
+        return  2.*k - 2.*ml
+
+    def bayesian_ic(self, n_data):
+        """Estimate Bayesian Information Criterion.
+        This function estimates the Bayesian Information Criterion (BIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        largest likelihood value found during the NS run and taking that as
+        the maximum likelihood estimate. The BIC formula is given by:
+            BIC = ln(n_data)k - 2ML,
+        where n_data is the number of data points used in computing the likelihood
+        function fitting, k is number of sampled parameters, and ML is maximum
+        likelihood estimate.
+
+        Args:
+            n_data (int): The number of data points used when comparing to data
+                in the likelihood function.
+
+        Returns:
+            float: The BIC estimate.
+        """
+        mx = self._last_live_sample_info.max()
+        ml = mx['log_likelihood']
+        k = len(self.sampled_parameters)
+        return  np.log(n_data)*k - 2.*ml
+
+    def deviance_ic(self):
+        """Estimate Deviance Information Criterion.
+        This function estimates the Deviance Information Criterion (DIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        posterior distribution estimates computed from the NS outputs.
+        The DIC formula is given by:
+            DIC = p_D + D_bar,
+        where p_D = D_bar - D(theta_bar), D_bar is the posterior average of
+        the deviance D(theta)= -2*ln(L(theta)) with L(theta) the likelihood
+        of parameter set theta, and theta_bar is posterior average parameter set.
+
+        Returns:
+            float: The DIC estimate.
+        """        
+        params = self._last_live_sample
+        log_likelihoods = self._last_live_sample_info['log_likelihood']
+        weights = self._last_live_sample_weights
+        likelihoods = np.exp(log_likelihoods)
+        D_of_theta = -2.*log_likelihoods
+        D_bar = np.average(D_of_theta, weights=weights)
+        print(D_bar)
+        theta_bar = np.average(params, axis=0, weights=weights)
+        print(theta_bar)
+        D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
+        p_D = D_bar - D_of_theta_bar
+        return p_D + D_bar

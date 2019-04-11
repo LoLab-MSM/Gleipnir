@@ -33,6 +33,7 @@ import warnings
 try:
     import pymultinest
     from pymultinest.solve import solve
+    from pymultinest.analyse import Analyzer
 except ImportError as err:
     #print(err)
     raise err
@@ -148,7 +149,7 @@ class MultiNestNestedSampling(object):
     def information(self, value):
         warnings.warn("information is not settable")
 
-    def posteriors(self):
+    def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
             dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
@@ -158,12 +159,15 @@ class MultiNestNestedSampling(object):
         """
         # Lazy evaluation at first call of the function and store results
         # so that subsequent calls don't have to recompute.
+        print('nbins', nbins)
         if not self._post_eval:
             # Here the samples are samples directly from the posterior
             # (i.e. equal weights).
             samples = self._output['samples']
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(samples)))
+            if nbins is None:
+                nbins = 2 * int(np.cbrt(len(samples)))
+            print('nbins', nbins)
             nd = samples.shape[1]
             self._posteriors = dict()
             for ii in range(nd):
@@ -173,3 +177,75 @@ class MultiNestNestedSampling(object):
             self._post_eval = True
 
         return self._posteriors
+
+    def akaike_ic(self):
+        """Estimate Akaike Information Criterion.
+        This function estimates the Akaike Information Criterion (AIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        largest likelihood value found during the NS run and using that as
+        the maximum likelihood estimate. The AIC formula is given by:
+            AIC = 2k - 2ML,
+        where k is number of sampled parameters and ML is maximum likelihood
+        estimate.
+
+        Returns:
+            float: The AIC estimate.
+        """
+        mn_data = Analyzer(len(self.sampled_parameters), self._file_root, verbose=False).get_data()
+        log_ls = -0.5*mn_data[:,1]
+        ml = log_ls.max()
+        k = len(self.sampled_parameters)
+        return  2.*k - 2.*ml
+
+    def bayesian_ic(self, n_data):
+        """Estimate Bayesian Information Criterion.
+        This function estimates the Bayesian Information Criterion (BIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        largest likelihood value found during the NS run and taking that as
+        the maximum likelihood estimate. The BIC formula is given by:
+            BIC = ln(n_data)k - 2ML,
+        where n_data is the number of data points used in computing the likelihood
+        function fitting, k is number of sampled parameters, and ML is maximum
+        likelihood estimate.
+
+        Args:
+            n_data (int): The number of data points used when comparing to data
+                in the likelihood function.
+
+        Returns:
+            float: The BIC estimate.
+        """
+        mn_data = Analyzer(len(self.sampled_parameters), self._file_root, verbose=False).get_data()
+        log_ls = -0.5*mn_data[:,1]
+        ml = log_ls.max()
+        k = len(self.sampled_parameters)
+        return  np.log(n_data)*k - 2.*ml
+
+    def deviance_ic(self):
+        """Estimate Deviance Information Criterion.
+        This function estimates the Deviance Information Criterion (DIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        posterior distribution estimates computed from the NS outputs.
+        The DIC formula is given by:
+            DIC = p_D + D_bar,
+        where p_D = D_bar - D(theta_bar), D_bar is the posterior average of
+        the deviance D(theta)= -2*ln(L(theta)) with L(theta) the likelihood
+        of parameter set theta, and theta_bar is posterior average parameter set.
+
+        Returns:
+            float: The DIC estimate.
+        """
+        mn_data = Analyzer(len(self.sampled_parameters), self._file_root, verbose=False).get_data()
+        params = mn_data[:,2:]
+        log_likelihoods = -0.5*mn_data[:,1]
+        prior_mass = mn_data[:,0]
+        norm_weights = (prior_mass*np.exp(log_likelihoods))/self.evidence
+        nw_mask = np.isnan(norm_weights)
+        if  np.any(nw_mask):
+            return np.inf
+        D_of_theta = -2.*log_likelihoods
+        D_bar = np.average(D_of_theta, weights=norm_weights)
+        theta_bar = np.average(params, axis=0, weights=norm_weights)
+        D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
+        p_D = D_bar - D_of_theta_bar
+        return p_D + D_bar

@@ -52,6 +52,15 @@ if __name__ == '__main__':
     # Print the output -- logZ should be approximately 236
     print("log_evidence: {} +- {} ".format(log_evidence, log_evidence_error))
 
+    # We can also pull out an estimate of the Akaike Information Criterion (AIC)
+    aic = MNNS.akaike_ic()
+    print("AIC estimate: {}".format(aic))
+    # Bayesian Information Criterion (BIC)
+    bic = MNNS.bayesian_ic(2)
+    print("BIC estimate: {}".format(bic))
+    # Deviance Information Criterion (DIC)
+    dic = MNNS.deviance_ic()
+    print("DIC estimate: {}".format(dic))    
     #try plotting a marginal distribution
     try:
         import seaborn as sns

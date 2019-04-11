@@ -250,7 +250,7 @@ class HypSelector(object):
         selection = pd.DataFrame(frame)
         selection.sort_values(by=['log_evidence'], ascending=False, inplace=True)
         self.selection = selection
-        return selection
+        return selection.reset_index(drop=True)
 
     def bayes_factors(self):
         """Compute the Bayes factors of models using evidence ratios.
@@ -275,6 +275,47 @@ class HypSelector(object):
         return pd.DataFrame(bayes_factors, index=mod_list,
                                 columns=mod_list)
 
+    def akaike_ic(self):
+        frame = list()
+        for i,ns in enumerate(self.nested_samplers):
+            data_d = dict()
+            data_d['model'] = "model_{}".format(i)
+            data_d['AIC'] = ns.akaike_ic()
+            frame.append(data_d)
+        aic_frame = pd.DataFrame(frame)
+        aic_frame.sort_values(by=['AIC'], ascending=True, inplace=True)
+        return aic_frame.reset_index(drop=True)
+
+    def _n_data(self):
+        n_dat = 0
+        obs_dat = self._nested_sample_its[0].observable_data
+        for item in obs_dat:
+            n_dat += len(obs_dat[item][0])
+        return n_dat
+
+    def bayesian_ic(self):
+        n_data = self._n_data()
+        frame = list()
+        for i,ns in enumerate(self.nested_samplers):
+            data_d = dict()
+            data_d['model'] = "model_{}".format(i)
+            data_d['BIC'] = ns.bayesian_ic(n_data)
+            frame.append(data_d)
+        aic_frame = pd.DataFrame(frame)
+        aic_frame.sort_values(by=['BIC'], ascending=True, inplace=True)
+        return aic_frame.reset_index(drop=True)
+
+    def deviance_ic(self):
+        frame = list()
+        for i,ns in enumerate(self.nested_samplers):
+            data_d = dict()
+            data_d['model'] = "model_{}".format(i)
+            data_d['DIC'] = ns.deviance_ic()
+            frame.append(data_d)
+        aic_frame = pd.DataFrame(frame)
+        aic_frame.sort_values(by=['DIC'], ascending=True, inplace=True)
+        return aic_frame.reset_index(drop=True)
+        
 def _run_ns(nested_sampler):
     nested_sampler.run()
     return nested_sampler

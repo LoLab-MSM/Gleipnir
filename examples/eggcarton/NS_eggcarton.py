@@ -33,12 +33,12 @@ if __name__ == '__main__':
     sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=0.0,scale=10.0*np.pi)) for i in range(ndim)]
 
     # Set the active point population size
-    population_size = 200
+    population_size = 500
     # Setup the sampler to use when updated points during the NS run --
     # Here we are using an implementation of the Metropolis Monte Carlo algorithm
     # with component-wise trial moves and augmented acceptance criteria that adds a
     # hard rejection constraint for the NS likelihood boundary.
-    sampler = MetropolisComponentWiseHardNSRejection(iterations=10, burn_in=10, tuning_cycles=1)
+    sampler = MetropolisComponentWiseHardNSRejection(iterations=50, tuning_cycles=2)
     # Setup the stopping criterion for the NS run -- We'll use a fixed number of
     # iterations: 10*population_size
     stopping_criterion = NumberOfIterations(10*population_size)
@@ -61,6 +61,15 @@ if __name__ == '__main__':
     print("evidence: {} +- {}".format(evidence, error))
     # exp(-information) is an estimate of the compression factor from prior to posterior
     print("Information: {} exp(-Information): {}".format(information, np.exp(-information)))
+    # We can also pull out an estimate of the Akaike Information Criterion (AIC)
+    aic = NS.akaike_ic()
+    print("AIC estimate: {}".format(aic))
+    # Bayesian Information Criterion (BIC)
+    bic = NS.bayesian_ic(2)
+    print("BIC estimate: {}".format(bic))
+    # Deviance Information Criterion (DIC)
+    dic = NS.deviance_ic()
+    print("DIC estimate: {}".format(dic))
 
     #try plotting a marginal distribution
     try:

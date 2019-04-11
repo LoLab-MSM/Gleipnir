@@ -162,3 +162,74 @@ class PolyChordNestedSampling(object):
             self._post_eval = True
 
         return self._posteriors
+
+    def akaike_ic(self):
+        """Estimate Akaike Information Criterion.
+        This function estimates the Akaike Information Criterion (AIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        largest likelihood value found during the NS run and using that as
+        the maximum likelihood estimate. The AIC formula is given by:
+            AIC = 2k - 2ML,
+        where k is number of sampled parameters and ML is maximum likelihood
+        estimate.
+
+        Returns:
+            float: The AIC estimate.
+        """
+        samples = self._output.samples
+        mx = samples.max()
+        ml = mx['loglike']
+        k = len(self.sampled_parameter)
+        return  2.*k - 2.*ml
+
+
+    def bayesian_ic(self, n_data):
+        """Estimate Bayesian Information Criterion.
+        This function estimates the Bayesian Information Criterion (BIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        largest likelihood value found during the NS run and taking that as
+        the maximum likelihood estimate. The BIC formula is given by:
+            BIC = ln(n_data)k - 2ML,
+        where n_data is the number of data points used in computing the likelihood
+        function fitting, k is number of sampled parameters, and ML is maximum
+        likelihood estimate.
+
+        Args:
+            n_data (int): The number of data points used when comparing to data
+                in the likelihood function.
+
+        Returns:
+            float: The BIC estimate.
+        """
+        samples = self._output.samples
+        mx = samples.max()
+        ml = mx['loglike']
+        k = len(self.sampled_parameter)
+        return  np.log(n_data)*k - 2.*ml
+
+    def deviance_ic(self):
+        """Estimate Deviance Information Criterion.
+        This function estimates the Deviance Information Criterion (DIC) for the
+        model simulated with Nested Sampling (NS). It does so by using the
+        posterior distribution estimates computed from the NS outputs.
+        The DIC formula is given by:
+            DIC = p_D + D_bar,
+        where p_D = D_bar - D(theta_bar), D_bar is the posterior average of
+        the deviance D(theta)= -2*ln(L(theta)) with L(theta) the likelihood
+        of parameter set theta, and theta_bar is posterior average parameter set.
+
+        Returns:
+            float: The DIC estimate.
+        """        
+        samples = self._output.samples
+        log_likelihoods = samples['loglike'].to_numpy()
+        likelihoods = np.exp(log_likelihoods)
+        parms = samples.columns[2:]
+        params = samples[parms]
+        D_of_theta = -2.*log_likelihoods
+        D_bar = np.average(D_of_theta)
+        theta_bar = np.average(params, axis=0)
+        print(theta_bar)
+        D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
+        p_D = D_bar - D_of_theta_bar
+        return p_D + D_bar
