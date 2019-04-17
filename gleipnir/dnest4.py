@@ -86,16 +86,26 @@ class DNest4NestedSampling(object):
         population_size (int): The number of points to use in the Nested
             Sampling active population. Default: None -> gets set to
             25*(number of sampled parameters) if left at default.
-        n_diffusive_levels (int, optional): The number of diffusive likelihood
+        n_diffusive_levels (int, optional): The max number of diffusive likelihood
             levels that DNest4 should initial during the Diffusive Nested
             Sampling run. Default: 20
         dnest4_backend (str, optional): The python DNest4 backend for storing
             the output. Options are: 'memory' and 'csv'. If 'memory' the
             DNest4 outputs are stored in memory during the run. If 'csv' the
-            DNest4 outputs are written out CSV format files during the run.
-            Defualt: 'memory'.
+            DNest4 outputs are written out to filse with a CSV format during
+            the run. Defualt: 'memory'.
             dnest4_kwargs: Any additional DNest4 keyword arguments to be passed
-                to the DNest4 sampler.
+                to the DNest4 sampler. The available options are:
+                num_steps (int): The number of MCMC iterations to run. If None,
+                    will run forever.
+                    Default: None
+                new_level_interval (int): The number of moves to run before
+                    creating a new diffusive likelihood level. Default: 10000
+                lam (float): Set the backtracking scale length. Default: 5.0
+                beta (float): Set the strength of effect to force the histogram
+                    to equal bin counts. Default: 100
+
+
     References:
         1. Brewer, B., & Foreman-Mackey, D. (2018). DNest4: Diffusive Nested
             1 - 33. doi:http://dx.doi.org/10.18637/jss.v086.i07
@@ -116,6 +126,7 @@ class DNest4NestedSampling(object):
         self.dnest4_kwargs = dnest4_kwargs
 
         self._n_dims = len(sampled_parameters)
+        self._file_root = './dnest4_run_'
         self._log_evidence = None
         self._information = None
         self._output = None
@@ -153,7 +164,7 @@ class DNest4NestedSampling(object):
 
         if self.dnest4_backend == 'csv':
             # for CSVBackend, which is output data to disk
-            backend = dnest4.backends.CSVBackend(".", sep=" ")
+            backend = dnest4.backends.CSVBackend("./dnest4_run_", sep=" ")
         else:
             # for the MemoryBackend, which is output data to memory
             backend = dnest4.backends.MemoryBackend()
@@ -237,6 +248,15 @@ class DNest4NestedSampling(object):
     def information(self, value):
         warnings.warn("information is not settable")
 
+    @property
+    def dnest4_file_root(self):
+        """str: The file root used by Polychord output files."""
+        return self._file_root
+    @dnest4_file_root.setter
+    def dnest4_file_root(self, value):
+        self._file_root = value
+        return
+
     def posteriors(self):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
@@ -318,7 +338,7 @@ class DNest4NestedSampling(object):
 
         Returns:
             float: The DIC estimate.
-        """        
+        """
         params = self._last_live_sample
         log_likelihoods = self._last_live_sample_info['log_likelihood']
         weights = self._last_live_sample_weights

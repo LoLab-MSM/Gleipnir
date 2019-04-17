@@ -134,6 +134,14 @@ class PolyChordNestedSampling(object):
     def information(self, value):
         warnings.warn("information is not settable")
 
+    @property
+    def polychord_file_root(self):
+        """str: The file root used by Polychord output files."""
+        return self._settings.file_root
+    @polychord_file_root.setter
+    def polychord_file_root(self, value):
+        self._settings.file_root = value
+        return
 
     def posteriors(self):
         """Estimates of the posterior marginal probability distributions of each parameter.
@@ -220,7 +228,7 @@ class PolyChordNestedSampling(object):
 
         Returns:
             float: The DIC estimate.
-        """        
+        """
         samples = self._output.samples
         log_likelihoods = samples['loglike'].to_numpy()
         likelihoods = np.exp(log_likelihoods)
