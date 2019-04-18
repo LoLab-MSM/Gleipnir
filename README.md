@@ -158,10 +158,12 @@ nestedsample_it is a utility that helps generate a Nested Sampling run script or
 ### Commmand line use
 nestedsample_it can be used as a command line utility to generate a template Nested Sampling run script for a PySB model. nestedsample_it reads the model file, imports and pulls out all the kinetic parameters, and then writes out a run_NS script for that model. nestedsample_it currently writes out a run script for classic Nested Sampling via Gleipnir, so you'll need to modify it to use one of the other Nested Samplers (MultiNest, PolyChord, or DNest4). And you will need to edit the run script to load any data and modify the loglikelihood function, but nestedsample_it should give you a good starting point.
 
-Run nestedsample_it from the command line:
+Run nestedsample_it from the command line with following format:
 ```
-python -m glepnir.pysb_utilities.nestedsample_it model.py
+python -m glepnir.pysb_utilities.nestedsample_it model.py output_path
 ```      
+where output_path is the directory/folder location where you want the generated script
+to be saved.
 
 The command line version of nestedsample_it also has support for a limited set of #NESTEDSAMPLE_IT directives which can be added to model files. The current directives are:
   * #NESTEDSAMPLE_IT prior [param_name, param_index] [norm, uniform]  
