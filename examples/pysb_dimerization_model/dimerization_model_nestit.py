@@ -3,6 +3,8 @@ Dimerization model:
  A + A <> AA
 '''
 from pysb import Model, Parameter, Monomer, Rule, Observable, Initial
+from scipy.stats import norm
+import numpy as np
 from gleipnir.pysb_utilities import NestIt
 
 nest_it = NestIt()
@@ -12,7 +14,7 @@ Model()
 V = 100.
 #######
 nest_it(Parameter('kf',   0.001))
-nest_it(Parameter('kr',   1.))
+nest_it(Parameter('kr',   1.), prior=norm(loc=np.log10(1.), scale=2.))
 
 
 Monomer('A', ['d'])
