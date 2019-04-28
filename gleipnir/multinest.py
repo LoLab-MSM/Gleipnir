@@ -28,8 +28,14 @@ References:
 """
 
 import numpy as np
+import pandas as pd
 import warnings
+import itertools
+import networkx as nx
+# Testing only!
+import matplotlib.pyplot as plt
 
+from scipy.spatial.distance import cdist
 try:
     import pymultinest
     from pymultinest.solve import solve
@@ -249,3 +255,246 @@ class MultiNestNestedSampling(object):
         D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
         p_D = D_bar - D_of_theta_bar
         return p_D + D_bar
+
+    def landscape(self):
+
+        # Get the samples.
+        mn_data = Analyzer(len(self.sampled_parameters), self._file_root, verbose=False).get_data()
+        print(mn_data)
+        # Pull out parameters.
+        params = mn_data[-2000:,2:]
+        # loglikelihoods.
+        loglikelihoods = -0.5*mn_data[-2000:,1]
+        print(min(loglikelihoods))
+        quit()
+        # Weights.
+        weights = mn_data[-2000:,0]
+        # Compute the k-nearest neighbors--uses Euclidean distance between
+        # parameter vectors.
+        #print(params)
+        param_knn = _knn(params, loglikelihoods, k=6)
+        #quit()
+        # Build the knn-network from the knn lists.
+        graph = nx.Graph(name='base')
+        # First add the nodes with loglikelihoods and weights
+        for key in param_knn.keys():
+            graph.add_node(key, loglikelihood=loglikelihoods[key],
+                           weight=weights[key])
+        # Now add the edges with distance.
+        for key in param_knn.keys():
+            my_knn = param_knn[key]
+            #print("key:", key, len(my_knn))
+            for item in my_knn:
+            #    print("add edge: ", key, item[0])
+                graph.add_edge(key, item[0], distance=item[1])
+        # Prune out any disjoint nodes from the initial graph.
+        subs = [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+        for sub in subs:
+            if len(sub) == 1:
+                for node in sub.nodes:
+                    graph.remove_node(node)
+        #print(graph.edges)
+        #quit()
+        _basin_label = itertools.cycle(('base', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'))
+        basin_graph = nx.DiGraph()
+        basin_points = dict()
+        current_basin = next(_basin_label)
+        basin_graph.add_node(current_basin)
+        basin_points[current_basin] = list()
+        subgraphs = list([graph])
+        basins = list()
+        basins.append(current_basin)
+        # Now we start pruning and separating basins
+        for i in range(len(loglikelihoods)):
+            # Find the subgraph with that node.
+            for j, sg in enumerate(subgraphs):
+                if i in sg.nodes:
+                    print(graph.name)
+                    #Add to the basins list
+                    basin_points[sg.name].append(i)
+                    # Remove the node
+                    sg.remove_node(i)
+                    # Check for splitting.
+                    subs = [sg.subgraph(c).copy() for c in nx.connected_components(sg)]
+                    #print("number of subs: ", len(subs))
+                    #for s, sub in enumerate(subs):
+                    #    print("s ",s," size ",len(sub))
+                    #quit()
+
+                    if len(subs) > 1:
+                        # Remove dangling nodes
+                        for sub in subs:
+                            if len(sub) < 12:
+                                for node in sub.nodes:
+                                #node = list(sub.nodes)[0]
+                                    sg.remove_node(node)
+                                    #subgraphs[j].remove_node(node)
+                    subs = [sg.subgraph(c).copy() for c in nx.connected_components(sg)]
+                    print("number of subgraphs", len(subs))
+                    if len(subs) > 0:
+                        print("len(subs[0])", len(subs[0]))
+                    if len(subs) > 1:
+                        # Caused a split.
+                        top_basin = sg.name
+                        # Remove the original subgraph from the master list.
+                        del subgraphs[j]
+                        # Now add the its subgraphs to the master list.
+                        for sub in subs:
+                            if len(sub) > 1:
+                                # Create new copies with appropriate names.
+                                subg = nx.Graph(sub,name=next(_basin_label))
+                                print("created new split: ",subg.name)
+                                subgraphs.append(subg)
+                                basin_graph.add_edge(top_basin, subg.name)
+                                basin_points[subg.name] = list()
+                                basins.append(subg.name)
+                    elif len(subs) == 0:
+                        del subgraphs[j]
+
+                    # Now break the enumerate since we already found the
+                    # right subgraph.
+                    break
+        landscape_points = list()
+        #quit()
+        basin = 'base'
+
+        nbasins = len(basins)
+
+        # Compute the widths for each point
+        widths = dict()
+        for b, basin in enumerate(basins):
+            bps = basin_points[basin]
+            descend = nx.descendants(basin_graph, basin)
+            descend_weight = 0.0
+            for d in descend:
+                descend_weight += weights[basin_points[d]].sum()
+            for idx, i in enumerate(bps):
+                my_weight = weights[i]
+                follow_weight = weights[bps[idx+1:]].sum()
+                width = descend_weight + my_weight + follow_weight
+                #dbps = dict({'center':b,'loglikelihood':loglikelihoods[i], 'weight':my_weight, 'width':width})
+                #landscape_points.append(dbps)
+                widths[i] = width
+        big_sibling = dict()
+        for i in range(nbasins):
+            big_sibling[basins[i]] = True
+        has_center = dict()
+        for i in range(nbasins):
+            has_center[basins[i]] = False
+
+        basin_centers = dict()
+        basin_centers['base'] = 0.0
+        has_center['base'] = True
+        for b, basin in enumerate(basins[1:]):
+            if not has_center[basin]:
+                my_width = widths[basin_points[basin][0]]
+                parents = list(basin_graph.predecessors(basin))
+                parent = parents[0]
+                p_low = basin_points[parent][-1]
+                width_p_low = widths[p_low]
+                if len(parents) > 0:
+                    successors = list(basin_graph.successors(parent))
+                    siblings = [successor for successor in successors if successor != basin]
+
+                my_center =  (basin_centers[parent] - width_p_low/2.0) + my_width/2.0
+
+                basin_centers[basin] = my_center
+
+                has_center[basin] = True
+                #has_center[sibling] = True
+                for s, sibling in enumerate(siblings):
+                    sib_width = widths[basin_points[sibling][0]]
+                    prev_sibs = siblings[:s]
+                    prev_width = 0.0
+                    for prev_sib in prev_sibs:
+                        prev_width += widths[basin_points[prev_sib][0]]
+                    sib_center = (basin_centers[parent] - width_p_low/2.0) + my_width + prev_width + sib_width/2.0
+                    basin_centers[sibling] = sib_center
+                    has_center[sibling] = True
+                    #sib_center = (basin_centers[parent] - width_p_low/2.0) + my_width + sib_width/2.0
+        print(basin_centers)
+
+        # First do the base left
+        bps = basin_points['base']
+        for i in reversed(bps):
+            pos = basin_centers['base'] - widths[i]/2.0
+            dbps = dict({'x':pos,'loglikelihood':loglikelihoods[i], 'weight':weights[i], 'width':widths[i]})
+            landscape_points.append(dbps)
+        # Now do the children
+        for basin in basins[1:]:
+            bps = basin_points[basin]
+            # Forward
+            for idx, i in enumerate(bps):
+                pos = basin_centers[basin] - widths[i]/2.0
+                dbps = dict({'x':pos,'loglikelihood':loglikelihoods[i], 'weight':weights[i], 'width':widths[i]})
+                landscape_points.append(dbps)
+            # Reverse
+            for i in reversed(bps):
+                pos = basin_centers[basin] + widths[i]/2.0
+                dbps = dict({'x':pos,'loglikelihood':loglikelihoods[i], 'weight':weights[i], 'width':widths[i]})
+                landscape_points.append(dbps)
+        # Now do the base right
+        bps = basin_points['base']
+        for idx, i in enumerate(bps):
+            pos = basin_centers['base'] + widths[i]/2.0
+            dbps = dict({'x':pos,'loglikelihood':loglikelihoods[i], 'weight':weights[i], 'width':widths[i]})
+            landscape_points.append(dbps)
+        #
+        # for b, basin in enumerate(basins):
+        #     bps = basin_points[basin]
+        #     descend = nx.descendants(basin_graph, basin)
+        #     descend_weight = 0.0
+        #     for d in descend:
+        #         descend_weight += weights[basin_points[d]].sum()
+        #     for idx, i in enumerate(bps):
+        #         my_weight = weights[i]
+        #         follow_weight = weights[bps[idx+1:]].sum()
+        #         width = descend_weight + my_weight + follow_weight
+        #         dbps = dict({'center':b,'loglikelihood':loglikelihoods[i], 'weight':my_weight, 'width':width})
+        #         landscape_points.append(dbps)
+
+        landscape_points = pd.DataFrame(landscape_points)
+        #nx.draw_spring(basin_graph, with_labels=True)
+        #plt.show()
+        plt.plot(landscape_points['x'], -1.0*landscape_points['loglikelihood'])
+        plt.show()
+
+def _knn(X, likelihoods, k=1):
+    """Determine the k-nearest neighbors of each point within a random variate sample.
+    This function uses Euclidean distance as the distance metric for
+    determining the nearest neighbors.
+    Args:
+        X (numpy.array): A random variate sample.
+        k (int): The number of nearest neighbors to find. Defaults to 1.
+
+    Returns:
+        dict: A dictionary keyed to the sample indices of points from the input
+            random variate sample. Each element is a sorted list of the
+            k-nearest neighbors of the form
+            [[index, distance], [index, distance]...]
+
+    """
+    #length
+    nX = len(X)
+    #initialize knn dict
+    knn = {key: [] for key in range(nX)}
+    #make sure X has the right shape for the cdist function
+    X = np.reshape(X, (nX,-1))
+    dists_arr = cdist(X, X)
+    distances = [[i,j,dists_arr[i,j]] for i in range(nX-1) for j in range(i+1,nX)]
+    #sort distances
+    distances.sort(key=lambda x: x[2])
+    #pick up the k nearest
+    for d in distances:
+        i = d[0]
+        j = d[1]
+        dist = d[2]
+        li = likelihoods[i]
+        lj = likelihoods[j]
+        #print("dist", dist)
+        if (len(knn[i]) < k) and (li < lj):
+            #print("dist", dist)
+            knn[i].append([j, dist])
+        if (len(knn[j]) < k) and (lj < li):
+            knn[j].append([i, dist])
+    return knn
