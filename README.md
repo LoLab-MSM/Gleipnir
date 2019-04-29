@@ -179,7 +179,7 @@ class. It's importable from the pysb_utilities module:
 from gleipnir.pysb_utilities import NestedSampleIt
 ```
 The NestedSampleIt class can build an instance of a NestedSampling object.  
- Here's a minimal example:
+ Here's a faux minimal example:
 ```python
 from my_pysb_model import model as my_model
 from gleipnir.pysb_utilities import NestedSampleIt
@@ -195,7 +195,7 @@ observable_data['my_observable'] = (data, data_sd, time_idxs)
 sample_it = NestedSampleIt(my_model, observable_data, timespan)
 # Now build the NestedSampling object. -- All inputs are
 # optional keyword arguments.
-nested_sampler = sample_it(ns_version='gleipnir-classic'
+nested_sampler = sample_it(ns_version='gleipnir-classic',
                            ns_population_size=100,
                            ns_kwargs=dict(),
                            log_likelihood_type='logpdf')
@@ -203,7 +203,7 @@ nested_sampler = sample_it(ns_version='gleipnir-classic'
 log_evidence, log_evidence_error = nested_sampler.run()
 ```
 
-NestedSampleIt constructs the NestedSampling object to sample all of a model's kinetic rate parameters. It assumes that the priors are uniform with size 4 orders of magnitude and centered on the values defined in the model. Currently there is no way to change the parameters that are sampled, or the priors used by NestedSampleIt; if these are features you would like to have then please open an [issue](https://github.com/LoLab-VU/Gleipnir/issues) and let me know.
+NestedSampleIt constructs the NestedSampling object to sample all of a model's kinetic rate parameters. It assumes that the priors are uniform with size 4 orders of magnitude and centered on the values defined in the model.
 
 In addition, NestedSampleIt crrently has three pre-defined loglikelihood functions with different estimators. They can be specified with the keyword parameter log_likelihood_type:
 ```python
@@ -220,6 +220,22 @@ the negative sum of squared errors estimator.
 The default is 'logpdf'.
 Each of these functions computes the loglikelihood estimate using the timecourse output of a model simulation for each observable defined in the `observable_data` dictionary.
 If you want to use a different or more complicated likelihood function with NestedSampleIt then you'll need to subclass it and override one of the existing loglikelihood functions.  
+
+#### NestIt
+The nestedsample_it module has a built-in helper class, NestIt, which can be used in conjunction of with NestedSampleIt class. NestIt can be used at the level of PySB model definition to log which parameters to include in
+a Nested Sampling run. It can be imported from the pysb_utilities module:
+```python
+from gleipnir.pysb_utilities import NestIt
+```
+It is passed at instantiation to the NestedSampleIt class, which uses it
+to build the sampled parameters list and parameter mask for the likelihood
+function.
+See the following example files:
+
+   * [dimerization_model_nestit](./examples/pysb_dimerization_model/dimerization_model_nestit.py) - example model definition using NestIt to flag parameters.
+   * [run_NS_NestedSampleIt_NestIt_dimerization_model](./examples/pysb_dimerization_model/run_NS_NestedSampleIt_NestIt_dimerization_model.py) - example use of NestIt with NestedSampleIt.
+
+Note that if you flag a parameter for sampling without setting a prior, NestIt will by default assign the parameter a uniform prior centered on the parameter's value with a width of 4 orders of magnitude.  
 
 ## HypSelector
 

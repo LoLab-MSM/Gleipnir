@@ -1,5 +1,5 @@
 import warnings
-from .nestedsample_it import NestedSampleIt
+from .nestedsample_it import NestedSampleIt, NestIt
 try:
     from .hyp_selector import HypSelector
     from .model_selector import ModelSelector

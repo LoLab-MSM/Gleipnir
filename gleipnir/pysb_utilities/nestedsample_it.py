@@ -63,6 +63,79 @@ def write_uniform_param(p_name, p_val):
     line = "sp_{} = SampledParameter(\'{}\', uniform(loc=np.log10({})-1.0, scale=2.0))\n".format(p_name, p_name, p_val)
     return line
 
+class NestIt(object):
+    """Container to store parameters and priors for sampling.
+    This object is geared towards flagging PySB model parameters at the level of
+    model definition for Nested Sampling. However, it could be used outside
+    model definition.
+
+    Attributes:
+        parms (dict of :obj:): A dictionary keyed to the parameter names. The
+            values are the parameter priors as given in the call function.
+
+    """
+
+    def __init__(self):
+        self.parms = dict()
+        return
+
+    def __call__(self, parameter, prior=None):
+        """Add a parameter to the list.
+
+        Args:
+            parameter (:obj:pysb.Parameter): The parameter to be registered for
+                Nested Sampling.
+            prior (:obj:scipy.stats.RVS): The prior for the parameter. Should
+                Should be defined using log10 scale. Default: None
+                If None, a uniform prior centered on the parameter.value
+                is used with a scale 4 orders of magnitude.
+        """
+        if prior is None:
+            prior = uniform(loc=np.log10(parameter.value)-2.0, scale=4.0)
+        self.parms[parameter.name] = prior
+        return parameter
+
+    def __getitem__(self, key):
+        return self.parms[key]
+
+    def __setitem__(self, key, prior):
+        self.parms[key] = prior
+
+    def __delitem__(self, key):
+        del self.parm[key]
+
+    def __contains__(self, key):
+        return (key in self.names)
+
+    def __iadd__(self, parm):
+        self.__call__(parm)
+        return self
+
+    def __isub__(self, parm):
+        try:
+            name = parm.name
+            self.__delitem__(name)
+        except:
+            self.__delitem__(parm)
+        return self
+
+    def names(self):
+        return list(self.parms.keys())
+
+    def keys(self):
+        return self.parms.keys()
+
+    def mask(self, model_parameters):
+        names = self.names()
+        return [(parm.name in names) for parm in model_parameters]
+
+    def priors(self):
+        return [self.parm[name] for name in self.parm.keys()]
+
+    def sampled_parameters(self):
+        return [SampledParameter(name, self.parm[name]) for name in self.keys()]
+
+
 class NestedSampleIt(object):
     """Create instances of Nested Samling objects for PySB models.
 
@@ -80,6 +153,11 @@ class NestedSampleIt(object):
             Defaults to pysb.simulator.ScipyOdeSimulator.
         solver_kwargs (dict): Dictionary of optional keyword arguments to
             pass to the solver when it is initialized. Defaults to dict().
+        nest_it (:obj:NestIt): An instance of the NestIt class with the
+            data about the parameters to be sampled. Default: None
+            If None, the default parameters to be sampled are the
+            kinetic rate parameters with uniform priors of four orders of
+            magnitude.
 
     Attributes:
         model
@@ -91,7 +169,7 @@ class NestedSampleIt(object):
     """
     def __init__(self, model, observable_data, timespan,
                  solver=pysb.simulator.ScipyOdeSimulator,
-                 solver_kwargs=dict()):
+                 solver_kwargs=dict(), nest_it=None):
         """Inits the NestedSampleIt."""
         self.model = model
         self.observable_data = observable_data
@@ -112,26 +190,21 @@ class NestedSampleIt(object):
             if observable_data[observable_key][2] is None:
                 self._data_mask[observable_key] = range(len(self.timespan))
         self._model_solver = solver(self.model, tspan=self.timespan, **solver_kwargs)
-        params = list()
-        for rule in model.rules:
-            if rule.rate_forward:
-                 params.append(rule.rate_forward)
-            if rule.rate_reverse:
-                 params.append(rule.rate_reverse)
-        rate_mask = [model.parameters.index(param) for param in params]
+        if nest_it is not None:
+            parm_mask = nest_it.mask(model.parameters)
+            self._sampled_parameters = [SampledParameter(parm.name, nest_it[parm.name]) for i,parm in enumerate(model.parameters) if parm_mask[i]]
+            self._rate_mask = parm_mask
+        else:
+            params = list()
+            for rule in model.rules:
+                if rule.rate_forward:
+                     params.append(rule.rate_forward)
+                if rule.rate_reverse:
+                     params.append(rule.rate_reverse)
+            rate_mask = [model.parameters.index(param) for param in params]
+            self._sampled_parameters = [SampledParameter(param.name, uniform(loc=np.log10(param.value)-2.0, scale=4.0)) for i,param in enumerate(model.parameters) if i in rate_mask]
+            self._rate_mask = rate_mask
 
-        # for i,param in enumerate(model.parameters):
-        #     if 'kf' in param.name:
-        #         rate_mask.append(i)
-        #     elif 'kr' in param.name:
-        #         rate_mask.append(i)
-        #     elif 'kc' in param.name:
-        #         rate_mask.append(i)
-        # print(rate_mask)
-        # print(model.parameters[rate_mask])
-
-        self._sampled_parameters = [SampledParameter(param.name, uniform(loc=np.log10(param.value)-2.0, scale=4.0)) for i,param in enumerate(model.parameters) if i in rate_mask]
-        self._rate_mask = rate_mask
         self._param_values = np.array([param.value for param in model.parameters])
         return
 
