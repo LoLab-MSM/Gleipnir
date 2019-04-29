@@ -169,7 +169,7 @@ class NestedSampleIt(object):
     """
     def __init__(self, model, observable_data, timespan,
                  solver=pysb.simulator.ScipyOdeSimulator,
-                 solver_kwargs=dict(), nest_it=None):
+                 solver_kwargs=dict(), nest_it=None, builder=None):
         """Inits the NestedSampleIt."""
         self.model = model
         self.observable_data = observable_data
@@ -194,6 +194,10 @@ class NestedSampleIt(object):
             parm_mask = nest_it.mask(model.parameters)
             self._sampled_parameters = [SampledParameter(parm.name, nest_it[parm.name]) for i,parm in enumerate(model.parameters) if parm_mask[i]]
             self._rate_mask = parm_mask
+        elif builder is not None:
+            pnames = [parm.name for parm in builder.estimate_params]
+            self._rate_mask = [(parm.name in pnames) for parm in model.parameters]
+            self._sampled_parameters = [SampledParameter(parm.name, builder.priors[pnames.index(parm.name)]) for i,parm in enumerate(model.parameters) if self._rate_mask[i]]
         else:
             params = list()
             for rule in model.rules:
