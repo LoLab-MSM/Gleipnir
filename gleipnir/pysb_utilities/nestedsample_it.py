@@ -153,11 +153,16 @@ class NestedSampleIt(object):
             Defaults to pysb.simulator.ScipyOdeSimulator.
         solver_kwargs (dict): Dictionary of optional keyword arguments to
             pass to the solver when it is initialized. Defaults to dict().
-        nest_it (:obj:NestIt): An instance of the NestIt class with the
-            data about the parameters to be sampled. Default: None
-            If None, the default parameters to be sampled are the
-            kinetic rate parameters with uniform priors of four orders of
-            magnitude.
+        nest_it (:obj:gleipnir.pysb_utilities.nestedsample_it.NestIt): An
+            instance of the NestIt class with the data about the parameters to
+            be sampled. If None (and builder is None), the default parameters to be sampled
+            are the kinetic rate parameters with uniform priors of four orders of
+            magnitude. Default: None
+        builder (:obj:pysb.builder.Builder): An instance of the Builder class
+            with the data about the parameters to be sampled. If None
+            (and nest_it is None), the default parameters to be sampled
+            are the kinetic rate parameters with uniform priors of four orders
+            of magnitude. Default: None           
 
     Attributes:
         model
