@@ -16,7 +16,6 @@ builder.parameter('kr', 1., prior=norm(loc=np.log10(1.), scale=2.))
 
 builder.monomer('A', ['d'])
 
-print(builder.model.monomers)
 # Rules
 builder.rule('ReversibleBinding',
              builder['A'](d=None) + builder['A'](d=None) | builder['A'](d=1) % builder['A'](d=1),
