@@ -153,11 +153,16 @@ class NestedSampleIt(object):
             Defaults to pysb.simulator.ScipyOdeSimulator.
         solver_kwargs (dict): Dictionary of optional keyword arguments to
             pass to the solver when it is initialized. Defaults to dict().
-        nest_it (:obj:NestIt): An instance of the NestIt class with the
-            data about the parameters to be sampled. Default: None
-            If None, the default parameters to be sampled are the
-            kinetic rate parameters with uniform priors of four orders of
-            magnitude.
+        nest_it (:obj:gleipnir.pysb_utilities.nestedsample_it.NestIt): An
+            instance of the NestIt class with the data about the parameters to
+            be sampled. If None (and builder is None), the default parameters to be sampled
+            are the kinetic rate parameters with uniform priors of four orders of
+            magnitude. Default: None
+        builder (:obj:pysb.builder.Builder): An instance of the Builder class
+            with the data about the parameters to be sampled. If None
+            (and nest_it is None), the default parameters to be sampled
+            are the kinetic rate parameters with uniform priors of four orders
+            of magnitude. Default: None           
 
     Attributes:
         model
@@ -169,7 +174,7 @@ class NestedSampleIt(object):
     """
     def __init__(self, model, observable_data, timespan,
                  solver=pysb.simulator.ScipyOdeSimulator,
-                 solver_kwargs=dict(), nest_it=None):
+                 solver_kwargs=dict(), nest_it=None, builder=None):
         """Inits the NestedSampleIt."""
         self.model = model
         self.observable_data = observable_data
@@ -194,6 +199,10 @@ class NestedSampleIt(object):
             parm_mask = nest_it.mask(model.parameters)
             self._sampled_parameters = [SampledParameter(parm.name, nest_it[parm.name]) for i,parm in enumerate(model.parameters) if parm_mask[i]]
             self._rate_mask = parm_mask
+        elif builder is not None:
+            pnames = [parm.name for parm in builder.estimate_params]
+            self._rate_mask = [(parm.name in pnames) for parm in model.parameters]
+            self._sampled_parameters = [SampledParameter(parm.name, builder.priors[pnames.index(parm.name)]) for i,parm in enumerate(model.parameters) if self._rate_mask[i]]
         else:
             params = list()
             for rule in model.rules:
