@@ -6,6 +6,7 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+![version](https://img.shields.io/badge/version-0.16.0-orange.svg)
 
 Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to the calibration tools [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization). Gleipnir has a built-in implementation of the classic Nested Sampling algorithm, and the toolkit provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, and DNest4. Gleipnir also has some PySB model-specific utilities, including nestedsample_it/NestedSampleIt and HypSelector (read more under the PySB Utilities section).
 
@@ -130,7 +131,7 @@ Notes:
 
 ### HypBuilder
 If you want use the HypSelector tool from gleipnir.pysb_utilities then you
-need to have [HypBuilder](git clone https://github.com/LoLab-VU/HypBuilder):
+need to have [HypBuilder](https://github.com/LoLab-VU/HypBuilder):
 ```
 conda install -c blakeaw hypbuilder
 ```
