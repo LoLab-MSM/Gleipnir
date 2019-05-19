@@ -1,23 +1,25 @@
 # Gleipnir
 
+![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
+[![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
+![version](https://img.shields.io/badge/version-0.16.0-orange.svg)
+![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)
+![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)
+
 <p align="center">
   <img width="100" height="100" src="./images/gleipnir_logo_2.png">
 </p>
 
-![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.16.0-orange.svg)
-
-Gleipnir is a python toolkit that provides an easy to use interface for Nested Sampling that is similar to the calibration tools [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization). Gleipnir has a built-in implementation of the classic Nested Sampling algorithm, and the toolkit provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, and DNest4. Gleipnir also has some PySB model-specific utilities, including nestedsample_it/NestedSampleIt and HypSelector (read more under the PySB Utilities section).
-
-Through Nested Sampling simulations, Gleipnir can be used to compute the Bayesian evidence (or marginal likelihood) of models. The Bayesian evidence can in turn be used for model selection; i.e., users can select between competing models and determine which one is best supported by the data. And as a side-effect of the evidence calculation, estimates of the posterior distributions of the parameters can also be generated; therefore, Gleipnir can also be used for Bayesian model calibration.
+Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the classic Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, and DNest4.
+Although Gleipnir provides a general framework for running Nested Sampling simulations, it was created with biological models in mind. It therefore supplies additional tools for working with biological models in the PySB format (see the PySB Utilities section). Likewise, Gleipnir's API was designed to be familiar to users of [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization), which are primarily used for biological model calibration.
 
 ### What is Nested Sampling?
 
-Nested Sampling is a numerical integration scheme for estimating Bayesian evidence (i.e., the normalization factor or denominator in Bayes formula for probability distributions) integrals.
+Nested Sampling is a numerical integration scheme for estimating the marginal likelihood, or in Nested Sampling parlance, the 'evidence' of high-dimensional models
+As a side-effect of the evidence calculation, estimates of the posterior probability distributions of model parameters can also be generated.   
 
 In particular, Nested Sampling was
-designed to handle cases where the evidence integral is high-dimensional and the likelihood is exponentially localized in the probability mass of the prior distribution of the sampled dimensions. In the Nested Sampling approach, the evidence is first converted from a (possibly) multi-dimensional integral into a one-dimensional integral taken over a mapping of the likelihood function to elements of the unit prior probability mass (X). In principle, this is achieved by using a top-down
+designed to handle evaluae the evidence of high-dimensional models where the likelihood is exponentially localized in the prior probability mass. In the Nested Sampling approach, the evidence is first converted from a (possibly) multi-dimensional integral into a one-dimensional integral taken over a mapping of the likelihood function to elements of the unit prior probability mass (X). In principle, this is achieved by using a top-down
 approach in which sample points are drawn according to the prior distribution, and the unit prior probability is subdivided
 into equal fractional elements from X = 1 down to X = 0 and
 mapped to the likelihood function, L(X), via a likelihood sorting routine.
@@ -69,27 +71,25 @@ Gleipnir has the following core dependencies:
 
 Gleipnir is compatible with Python 3.6
 
-The following section describes the process for setting up the dependencies using a conda environment (https://conda.io/en/latest/).
+The following section describes the process for intalling `gleipnir` using `conda` (https://conda.io/en/latest/).
 
 ## Setup and install using conda
 
-First, clone or download the GitHub repo
+`gleipnir` (including core dependencies) can be installed from the terminal using `conda`:
 ```
-git clone https://github.com/LoLab-VU/Gleipnir.git
+conda intall -c blakeaw gleipnir
 ```
-Then create a new conda environment for gleipnir using the environment.yml file
-(which includes the core dependencies):
+
+Alternatively, for convenience, a `gleipnir` environment can be downloaded/created that has gleipnir, its core dependencies, as well as several optional/recommended packages; the optional/recommended packages include pysb, hypbuilder, matplotlib, seaborn, and jupyter.
+From the terminal:
 ```
-conda env create -f Gleipnir/environment.yml
+conda env create blakeaw/gleipnir
 ```
-Activate the environment
+and then activate it with:
 ```
 conda activate gleipnir
 ```
-Then from the Gleipnir directory/folder you can install gleipnir into the environment using the setup.py script:
-```
-python setup.py install
-```
+
 ## Optional package installation
 
 ### To run pysb models (and use gleipnir.pysb_utilities):
