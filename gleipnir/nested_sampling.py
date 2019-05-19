@@ -609,9 +609,9 @@ def _knn(X, likelihoods, k=1):
         li = likelihoods[i]
         lj = likelihoods[j]
         #print("dist", dist)
-        if (len(knn[i]) < k) and (li < lj):
+        if (len(knn[i]) < k) and (li > lj):
             #print("dist", dist)
             knn[i].append([j, dist])
-        elif (len(knn[j]) < k) and (lj < li):
+        elif (len(knn[j]) < k) and (lj > li):
             knn[j].append([i, dist])
     return knn
