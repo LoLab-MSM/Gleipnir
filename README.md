@@ -2,7 +2,7 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.16.0-orange.svg)
+![version](https://img.shields.io/badge/version-0.17.0-orange.svg)
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.16.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 
@@ -142,8 +142,9 @@ conda install -c blakeaw hypbuilder
 
 Checkout the Jupyter Notebook (more in the pipeline):
  1. [Intro to Nested Sampling with Gleipnir](./jupyter_notebooks/Intro_to_Nested_Sampling_with_Gleipnir.ipynb)
- 2. [HypSelector Example](./jupyter_notebooks/HypSelector_example.ipynb)
- 3. [ModelSelector Example](./jupyter_notebooks/ModelSelector_example.ipynb)
+ 2. [Nested Sampling Classes](./jupyter_notebooks/Nested_Sampling_classes.ipynb)
+ 3. [HypSelector Example](./jupyter_notebooks/HypSelector_example.ipynb)
+ 4. [ModelSelector Example](./jupyter_notebooks/ModelSelector_example.ipynb)
 
 Also checkout the [examples](./examples) to see example scripts that show how to setup Nested Sampling runs using Gleipnir.
 
