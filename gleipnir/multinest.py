@@ -53,7 +53,49 @@ class MultiNestNestedSampling(object):
             Sampling active population. Default: None -> gets set to
             25*(number of sampled parameters) if left at default.
         multinest_kwargs (dict): Additional keyword arguments that should be
-            passed to the PyMultiNest MultiNest solver.
+            passed to the PyMultiNest MultiNest solver. Available options are:
+                importance_nested_sampling (bool): Should MultiNest use
+                    Importance Nested Sampling (INS). Default: True
+                constant_efficiency_mode (bool): Should MultiNest run in
+                    constant sampling efficiency mode. Default: False
+	            sampling_efficiency (float): Set the MultiNest sampling
+                    efficiency. 0.3 is recommended for evidence evaluation,
+                    while 0.8 is recommended for parameter estimation.
+                    Default: 0.8
+                resume (bool): Resume from a previous MultiNest run (using
+                    the last saved checkpoint in the MultiNest output files).
+                    Default: True
+                write_output (bool): Specify whether MultiNest should write
+                    to output files. True is required for additional
+                    analysis. Default: True
+                multimodal (bool): Set whether MultiNest performs mode
+                    separation. Default: True
+                max_mode (int): Set the maximum number of modes allowed in
+                    mode separation (if multimodal=True). Default: 100
+                mode_tolerance (float): A lower bound for which MultiNest will
+                    use to separate mode samples and statistics with
+                    log-evidence value greater the given value.
+                    Default: -1e90
+                n_clustering_params (int): If multimodal=True, set the number
+                    of parameters to use in clustering during mode separation.
+                    If None, then MultiNest will use all the paramters for
+                    clustering during mode separation. If
+                    n<(number of sampled parameters), then MultiNest will only
+                    use a subset composed of the first n parameters for
+                    clustering during mode separation. Default: None
+                null_log_evidence (float): If multimodal=True, a lower bound
+                    for which MultiNest can use to separte mode samples and
+                    statistics with a local log-evidence value greater than the
+                    given bound. Default: -1.e90
+                log_zero (float): Set a threshold value for which points with
+                    a loglikelihood less than the given value will be ignored
+                    by MultiNest. Default: -1e100
+                max_iter (int): Set the maximum number of nested sampling
+                    iterations performed by MultiNest. If 0, then it is
+                    unlimited and MultiNest will stop using a different
+                    criterion. Default: 0
+
+
     References:
         1. Feroz, Farhan, and M. P. Hobson. "Multimodal nested sampling: an
             efficient and robust alternative to Markov Chain Monte Carlo
@@ -91,7 +133,7 @@ class MultiNestNestedSampling(object):
 
         self._prior = prior
         # multinest settings
-        self._file_root = 'multinest_run' #string
+        self._file_root = 'multinest_run_' #string
 
         return
 
@@ -148,6 +190,15 @@ class MultiNestNestedSampling(object):
     @information.setter
     def information(self, value):
         warnings.warn("information is not settable")
+
+    @property
+    def multinest_file_root(self):
+        """str. The root name used for MultNest output files."""
+        return self._file_root
+    @multinest_file_root.setter
+    def multinest_file_root(self, value):
+        self._file_root = value
+        return
 
     def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
