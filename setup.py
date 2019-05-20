@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='gleipnir',
-      version='0.1.0',
+      version='0.17.0',
       description='Python toolkit for Nested Sampling.',
       author='Blake A. Wilson',
       author_email='blake.a.wilson@vanderbilt.edu',
