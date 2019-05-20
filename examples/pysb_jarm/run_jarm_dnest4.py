@@ -1,6 +1,6 @@
 """
 Nesting Sampling of the JARM (https://github.com/LoLab-VU/JARM) PySB model
-parameters using PolyChord via Gleipnir.
+parameters using DNest4 via Gleipnir.
 
 Adapted from the calibrate_pydream.py script at:
 https://github.com/LoLab-VU/JARM/blob/master/model_analysis/calibrate_pydream.py
