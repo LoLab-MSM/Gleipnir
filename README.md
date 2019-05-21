@@ -2,8 +2,8 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.17.0-orange.svg)
-[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.17.0)
+![version](https://img.shields.io/badge/version-0.18.0-orange.svg)
+[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
 
@@ -16,11 +16,11 @@ Although Gleipnir provides a general framework for running Nested Sampling simul
 
 ### What is Nested Sampling?
 
-Nested Sampling is a numerical integration scheme for estimating the marginal likelihood, or in Nested Sampling parlance, the 'evidence' of high-dimensional models
+Nested Sampling is a numerical integration scheme for estimating the marginal likelihood, or in Nested Sampling parlance, the 'evidence' of high-dimensional models.
 As a side-effect of the evidence calculation, estimates of the posterior probability distributions of model parameters can also be generated.   
 
 In particular, Nested Sampling was
-designed to handle evaluae the evidence of high-dimensional models where the likelihood is exponentially localized in the prior probability mass. In the Nested Sampling approach, the evidence is first converted from a (possibly) multi-dimensional integral into a one-dimensional integral taken over a mapping of the likelihood function to elements of the unit prior probability mass (X). In principle, this is achieved by using a top-down
+designed to handle evaluate the evidence of high-dimensional models where the likelihood is exponentially localized in the prior probability mass. In the Nested Sampling approach, the evidence is first converted from a (possibly) multi-dimensional integral into a one-dimensional integral taken over a mapping of the likelihood function to elements of the unit prior probability mass (X). In principle, this is achieved by using a top-down
 approach in which sample points are drawn according to the prior distribution, and the unit prior probability is subdivided
 into equal fractional elements from X = 1 down to X = 0 and
 mapped to the likelihood function, L(X), via a likelihood sorting routine.
@@ -41,45 +41,19 @@ The Nested Sampling method was originally developed by John Skilling; see the fo
 | :--- |
 |  Gleipnir is still under heavy development and may rapidly change. |
 
-## Gleipnir run dependencies
-Gleipnir has the following core dependencies:
-   * NumPy - http://www.numpy.org/
-   * SciPy - https://www.scipy.org/
-   * pandas - https://pandas.pydata.org/
+Gleipnir installs as the `gleipnir` package. It is compatible with Python 3.6.
 
-### To use PolyChord
-   * pypolychord - https://github.com/PolyChord/PolyChordLite
+Although not absolutely required, we recommend using the [Anaconda](https://www.anaconda.com/) Python distribution and the [conda](https://conda.io/en/latest/) package manager.
 
-### To use MultiNest
-   * PyMultiNest - https://github.com/JohannesBuchner/PyMultiNest
-   * MultiNest -  https://github.com/JohannesBuchner/MultiNest
-
-### To use DNest4
-   * DNest4 - https://github.com/eggplantbren/DNest4
-
-### To use PySB models
-   * PySB - http://pysb.org/
-
-### To run the Jupyter notebooks
-   * Jupyter - https://jupyter.org/   
-
-### Recommended packages for plotting
-   * matplotlib - https://matplotlib.org/
-   * seaborn - https://seaborn.pydata.org/        
-
-### To use the HypSelector tool (see the PySB Utilities section)
-   * HypBuilder - https://github.com/LoLab-VU/HypBuilder
-
-Gleipnir is compatible with Python 3.6
-
-The following section describes the process for intalling `gleipnir` using `conda` (https://conda.io/en/latest/).
-
-## Setup and install using conda
-
-`gleipnir` (including core dependencies) can be installed from the terminal using `conda`:
+`gleipnir` can be installed from the terminal using `conda`:
 ```
 conda intall -c blakeaw gleipnir
 ```
+
+Note that `gleipnir` has the following core dependencies which will also be installed:
+   * [NumPy](http://www.numpy.org/)
+   * [SciPy](https://www.scipy.org/)
+   * [pandas](https://pandas.pydata.org/)
 
 Alternatively, for convenience, a `gleipnir` environment can be downloaded/created that has gleipnir, its core dependencies, as well as several optional/recommended packages; the optional/recommended packages include pysb, hypbuilder, matplotlib, seaborn, and jupyter.
 From the terminal:
@@ -91,57 +65,67 @@ and then activate it with:
 conda activate gleipnir
 ```
 
-## Optional package installation
+### Recommended additional software
 
-### To run pysb models (and use gleipnir.pysb_utilities):
+The following software is not required for the basic operation of Gleipnir, but provides extra capabilities and features when installed.
+
+#### PySB
+[PySB](http://pysb.org/) is needed to run pysb models and it is needed if you want to use the gleipnir.pysb_utilities module:
 ```
 conda install -c alubbock pysb
 ```
 
-### To run Jupyter notebooks:
-```
-conda install jupyter
-```
-
-### Recommended plotting packages:
-```
-conda install matplotlib seaborn
-```
-
-### PolyChord
-If you want to use the PolyChordNestedSampling object for the Nested Sampling runs then download, build, and install pypolychord following instructions in the README at:
-
-https://github.com/PolyChord/PolyChordLite
-
-Notes:
- * Installs into your .local/lib python site-packages.
- * Requires gfortran (f77 compiler) and lipopenmpi-dev (development libraries for MPI) to build the code.
-
-### MultiNest
-If you want to use the MultiNestNestedSampling object for Nested Sampling download, build, and install PyMultiNest and MultiNest following the instructions at:
-http://johannesbuchner.github.io/PyMultiNest/install.html
-
-### DNest4
-If you want use the DNest4NestedSampling object for Nested Sampling then download,
-build, and install DNest4 and its Python bindings following the instructions in the README at:
-https://github.com/eggplantbren/DNest4
-
-Notes:
- * Requires a c++ compiler with c++11 standard libraries.
- * Requires Cython and numba for python bindings to compile and install
-
-### HypBuilder
-If you want use the HypSelector tool from gleipnir.pysb_utilities then you
+#### HypBuilder
+If you want use the HypSelector class from gleipnir.pysb_utilities then you
 need to have [HypBuilder](https://github.com/LoLab-VU/HypBuilder):
 ```
 conda install -c blakeaw hypbuilder
 ```
 
+#### Jupyter
+If you want to run the Jupyter IPython notebooks that come with Gleipnir then you need to install [Jupyter](https://jupyter.org/):
+```
+conda install jupyter
+```
+
+#### Plotting packages:
+We recommend installing [Matplotlib](https://matplotlib.org/) and [seaborn](https://seaborn.pydata.org/) to generate plots. Note that some of the Gleipnir examples will use these packages if they are installed to generate sample plots. Matplotlib is also needed for one of the Jupyter notebooks.
+```
+conda install matplotlib seaborn
+```
+
+#### MultiNest
+If you want to run Nested Sampling simulations using MultiNest via the  MultiNestNestedSampling class from the gleipnir.multinest module, then you will need to install [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest) and [MultiNest](https://github.com/JohannesBuchner/MultiNest) following the instructions at:
+http://johannesbuchner.github.io/PyMultiNest/install.html
+
+#### PolyChord
+If you want run Nested Sampling simulations using [PolyChord](https://github.com/PolyChord/PolyChordLite) via the PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord by following instructions in the README at:
+https://github.com/PolyChord/PolyChordLite
+
+Special Notes:
+ * Installs into your .local/lib python site-packages.
+ * Requires gfortran (f77 compiler) and lipopenmpi-dev (development libraries for MPI) to build the code.
+
+
+#### DNest4
+If you want run Nested Sampling simulations using [DNest4](https://github.com/eggplantbren/DNest4) via the DNest4NestedSampling class from the gleipnir.dnest4 module, then you will need to download install DNest4 and its Python bindings following the instructions in the README at:
+https://github.com/eggplantbren/DNest4
+
+Special Notes:
+ * Requires a c++ compiler with c++11 standard libraries.
+ * Requires Cython and numba for python bindings to compile and install
+
+------
+
+# License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
 ------
 
 # Documentation and Usage
 
-Checkout the Jupyter Notebook (more in the pipeline):
+Checkout the Jupyter Notebooks (more in the pipeline):
  1. [Intro to Nested Sampling with Gleipnir](./jupyter_notebooks/Intro_to_Nested_Sampling_with_Gleipnir.ipynb)
  2. [Nested Sampling Classes](./jupyter_notebooks/Nested_Sampling_classes.ipynb)
  3. [HypSelector Example](./jupyter_notebooks/HypSelector_example.ipynb)
@@ -149,7 +133,14 @@ Checkout the Jupyter Notebook (more in the pipeline):
 
 Also checkout the [examples](./examples) to see example scripts that show how to setup Nested Sampling runs using Gleipnir.
 
+------
 
+# Contact
+
+To report problems or bugs please open a
+[GitHub Issue](https://github.com/LoLab-VU/Gleipnir/issues). Additionally, any
+comments, suggestions, or feature requests for Gleipnir can also be submitted as a
+[GitHub Issue](https://github.com/LoLab-VU/Gleipnir/issues).
 
 ------
 
@@ -260,3 +251,13 @@ HypSelector is a tool for hypothesis selection using [HypBuilder](https://github
 ## ModelSelector
 
 Similar to HypSelector, ModelSelector is a tool for PySB model selection using Nested Sampling-based model selection. ModelSelector allows users to easily compare model variants written in PySB and see which one may best explain a dataset by performing Nested Sampling to compute their evidences and thereby do model selection; ModelSelector also provides functionality to estimate Bayes factors from the evidence estimates, as well as estimators for the Akaike, Bayesian, and Deviance information criteria computed from the Nested Sampling outputs. See the [ModelSelector Example Jupyter Notebook](./jupyter_notebooks/ModelSelector_example.ipynb) to see example usage of ModelSelector.
+
+------
+
+# Citing
+
+If you use the Gleipnir software in your research, please cite it:
+
+Blake A. Wilson and Carlos F. Lopez. (2019, May 20). LoLab-VU/Gleipnir: v0.18.0 (Version v0.18.0). Zenodo. http://doi.org/10.5281/zenodo.3036346
+
+You can export other Gleipnir citation formats from its [Zenodo entry](https://zenodo.org/record/3036346#.XOImPkN7m09).  
