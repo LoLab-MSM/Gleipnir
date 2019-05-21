@@ -256,8 +256,4 @@ Similar to HypSelector, ModelSelector is a tool for PySB model selection using N
 
 # Citing
 
-If you use the Gleipnir software in your research, please cite it:
-
-Blake A. Wilson and Carlos F. Lopez. (2019, May 20). LoLab-VU/Gleipnir: v0.18.0 (Version v0.18.0). Zenodo. http://doi.org/10.5281/zenodo.3036346
-
-You can export other Gleipnir citation formats from its [Zenodo DOI](http://doi.org/10.5281/zenodo.3036345).  
+If you use the Gleipnir software in your research, please cite it. You can export the  Gleipnir citation in your preferred format from its [Zenodo DOI](http://doi.org/10.5281/zenodo.3036345) entry.  
