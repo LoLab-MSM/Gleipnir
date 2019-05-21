@@ -260,4 +260,4 @@ If you use the Gleipnir software in your research, please cite it:
 
 Blake A. Wilson and Carlos F. Lopez. (2019, May 20). LoLab-VU/Gleipnir: v0.18.0 (Version v0.18.0). Zenodo. http://doi.org/10.5281/zenodo.3036346
 
-You can export other Gleipnir citation formats from its [Zenodo DOI](http://doi.org/10.5281/zenodo.3036346).  
+You can export other Gleipnir citation formats from its [Zenodo DOI](http://doi.org/10.5281/zenodo.3036345).  
