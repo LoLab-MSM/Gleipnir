@@ -50,8 +50,9 @@ if __name__ == '__main__':
     stopping_criterion = NumberOfIterations(1000)
     # Construct the Nested Sampler
     NS = NestedSampling(sampled_parameters=sampled_parameters,
-                        loglikelihood=loglikelihood, sampler=sampler,
+                        loglikelihood=loglikelihood,
                         population_size=500,
+                        sampler=sampler,
                         stopping_criterion=stopping_criterion)
     # run it
     log_evidence, log_evidence_error = NS.run(verbose=True)

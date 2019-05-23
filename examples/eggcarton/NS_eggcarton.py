@@ -45,8 +45,9 @@ if __name__ == '__main__':
     # Construct the Nested Sampler -- Using the MCMC sampler with hard rejection
     # of likelihood levels is an implementation of the classic NS algorithm.
     NS = NestedSampling(sampled_parameters=sampled_parameters,
-                        loglikelihood=loglikelihood, sampler=sampler,
+                        loglikelihood=loglikelihood,
                         population_size=population_size,
+                        sampler=sampler,
                         stopping_criterion=stopping_criterion)
     # run it
     log_evidence, log_evidence_error = NS.run(verbose=True)

@@ -36,8 +36,7 @@ class PolyChordNestedSampling(object):
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
         population_size (int): The number of points to use in the Nested
-            Sampling active population. Default: None -> gets set to
-            25*(number of sampled parameters) if left at default.
+            Sampling active population.
     References:
         1. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "PolyChord: nested
             sampling for cosmology." Monthly Notices of the Royal Astronomical
@@ -47,7 +46,7 @@ class PolyChordNestedSampling(object):
             Astronomical Society 453.4 (2015): 4384-4398.
     """
 
-    def __init__(self, sampled_parameters, loglikelihood, population_size=None):
+    def __init__(self, sampled_parameters, loglikelihood, population_size):
         """Initialize the PolyChord Nested Sampler."""
         self.sampled_parameter = sampled_parameters
         self.loglikelihood = loglikelihood
@@ -57,8 +56,8 @@ class PolyChordNestedSampling(object):
         self._nDerived = 0
         self._post_eval = False
         self._posteriors = None
-        if self.population_size is None:
-            self.population_size = 25*self._nDims
+        #if self.population_size is None:
+        #    self.population_size = 25*self._nDims
         # make the likelihood function for polychord
         def likelihood(theta):
             r2 = 0
@@ -84,7 +83,7 @@ class PolyChordNestedSampling(object):
         return
 
 
-    def run(self):
+    def run(self, verbose=False):
         """Initiate the PolyChord Nested Sampling run."""
         output = pypolychord.run_polychord(self._likelihood, self._nDims,
                                            self._nDerived, self._settings,

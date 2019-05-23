@@ -14,6 +14,8 @@ References:
 import numpy as np
 import pandas as pd
 import warnings
+from .samplers import MetropolisComponentWiseHardNSRejection
+from .stopping_criterion import NumberOfIterations
 
 class NestedSampling(object):
     """A Nested Sampler.
@@ -26,13 +28,14 @@ class NestedSampling(object):
             run.
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
-        sampler (obj from gleipnir.samplers): The sampling scheme to be used
-            when updating sample points.
         population_size (int): The number of points to use in the Nested
             Sampling active population.
-        stopping_criterion (obj from gleipnir.stopping_criterion): The criterion
-            that should be used to determine when to stop the Nested Sampling
-            run.
+        sampler (obj from gleipnir.samplers, optional): The sampling scheme to
+            be used when updating sample points.
+            Default: MetropolisComponentWiseHardNSRejection(10, tuning_cycles=1)
+        stopping_criterion (obj from gleipnir.stopping_criterion, optional):
+            The criterion that should be used to determine when to stop the
+            Nested Sampling run. Default: NumberOfIterations(1000)
     References:
         1. Skilling, John. "Nested sampling." AIP Conference Proceedings. Vol.
             735. No. 1. AIP, 2004.
@@ -42,8 +45,9 @@ class NestedSampling(object):
             Proceedings. Vol. 1193. No. 1. AIP, 2009.
     """
 
-    def __init__(self, sampled_parameters, loglikelihood, sampler,
-                 population_size, stopping_criterion):
+    def __init__(self, sampled_parameters, loglikelihood, population_size,
+                 sampler=MetropolisComponentWiseHardNSRejection(10, tuning_cycles=1),
+                 stopping_criterion=NumberOfIterations(1000)):
         """Initialize the Nested Sampler."""
         # stor inputs
         self.sampled_parameters = sampled_parameters
