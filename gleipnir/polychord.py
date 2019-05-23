@@ -36,7 +36,7 @@ class PolyChordNestedSampling(object):
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
         population_size (int): The number of points to use in the Nested
-            Sampling active population. 
+            Sampling active population.
     References:
         1. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "PolyChord: nested
             sampling for cosmology." Monthly Notices of the Royal Astronomical
@@ -83,7 +83,7 @@ class PolyChordNestedSampling(object):
         return
 
 
-    def run(self):
+    def run(self, verbose=False):
         """Initiate the PolyChord Nested Sampling run."""
         output = pypolychord.run_polychord(self._likelihood, self._nDims,
                                            self._nDerived, self._settings,
