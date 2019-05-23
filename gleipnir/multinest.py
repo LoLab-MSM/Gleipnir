@@ -50,8 +50,7 @@ class MultiNestNestedSampling(object):
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
         population_size (int): The number of points to use in the Nested
-            Sampling active population. Default: None -> gets set to
-            25*(number of sampled parameters) if left at default.
+            Sampling active population. 
         multinest_kwargs (dict): Additional keyword arguments that should be
             passed to the PyMultiNest MultiNest solver. Available options are:
                 importance_nested_sampling (bool): Should MultiNest use
@@ -112,7 +111,7 @@ class MultiNestNestedSampling(object):
             Astronomy & Astrophysics 564 (2014): A125.
     """
 
-    def __init__(self, sampled_parameters, loglikelihood, population_size=None,
+    def __init__(self, sampled_parameters, loglikelihood, population_size,
                  **multinest_kwargs):
         """Initialize the MultiNest Nested Sampler."""
         self.sampled_parameters = sampled_parameters
@@ -124,8 +123,8 @@ class MultiNestNestedSampling(object):
         self._nDerived = 0
         self._output = None
         self._post_eval = False
-        if self.population_size is None:
-            self.population_size = 25*self._nDims
+        #if self.population_size is None:
+        #    self.population_size = 25*self._nDims
 
         # Make the prior function for PyMultiNest.
         def prior(hypercube):
