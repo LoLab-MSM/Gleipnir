@@ -84,8 +84,7 @@ class DNest4NestedSampling(object):
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
         population_size (int): The number of points to use in the Nested
-            Sampling active population. Default: None -> gets set to
-            25*(number of sampled parameters) if left at default.
+            Sampling active population. 
         n_diffusive_levels (int, optional): The max number of diffusive likelihood
             levels that DNest4 should initial during the Diffusive Nested
             Sampling run. Default: 20
@@ -114,7 +113,7 @@ class DNest4NestedSampling(object):
             sampling. Statistics and Computing, 21(4), 649-656
     """
 
-    def __init__(self, sampled_parameters, loglikelihood, population_size=None,
+    def __init__(self, sampled_parameters, loglikelihood, population_size,
                  n_diffusive_levels=20, dnest4_backend="memory",
                  **dnest4_kwargs):
         """Initialize the DNest4 Nested Sampler."""
@@ -131,9 +130,12 @@ class DNest4NestedSampling(object):
         self._information = None
         self._output = None
         self._post_eval = False
-        if self.population_size is None:
-            self.population_size = 25*self._n_dims
-
+        #if self.population_size is None:
+        #    self.population_size = 25*self._n_dims
+        # Change the default value of num_steps so that DNest4 will
+        # terminate.
+        if 'num_steps' not in list(self.dnest4_kwargs.keys()):
+            self.dnest4_kwargs['num_steps'] = 1000
         # Make the from_prior function for DNest4
         def from_prior():
             return np.array([sampled_parameter.rvs(1)[0] for sampled_parameter in self.sampled_parameters])
