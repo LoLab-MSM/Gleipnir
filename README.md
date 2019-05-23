@@ -287,3 +287,35 @@ Similar to HypSelector, ModelSelector is a tool for PySB model selection using N
 # Citing
 
 If you use the Gleipnir software in your research, please cite it. You can export the  Gleipnir citation in your preferred format from its [Zenodo DOI](http://doi.org/10.5281/zenodo.3036345) entry.  
+
+Also, please cite the following references as appropriate for software used with/via Gleipnir:
+
+#### PySB
+  1. Lopez, C. F., Muhlich, J. L., Bachman, J. A. & Sorger, P. K. Programming biological models in Python using PySB. Mol Syst Biol 9, (2013). doi:[10.1038/msb.2013.1](dx.doi.org/10.1038/msb.2013.1)
+
+#### MultiNest
+  1. Feroz, Farhan, and M. P. Hobson. "Multimodal nested sampling: an
+      efficient and robust alternative to Markov Chain Monte Carlo
+      methods for astronomical data analyses." Monthly Notices of the
+      Royal Astronomical Society 384.2 (2008): 449-463.
+  2. Feroz, F., M. P. Hobson, and M. Bridges. "MultiNest: an efficient
+      and robust Bayesian inference tool for cosmology and particle
+      physics." Monthly Notices of the Royal Astronomical Society 398.4
+      (2009): 1601-1614.
+  3. Feroz, F., et al. "Importance nested sampling and the MultiNest
+      algorithm." arXiv preprint arXiv:1306.2144 (2013).
+
+#### PyMultiNest:
+  1. Buchner, J., et al. "X-ray spectral modelling of the AGN obscuring region in the CDFS: Bayesian model selection and catalogue." Astronomy & Astrophysics 564 (2014): A125.
+
+#### PolyChord
+  1. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "PolyChord: nested sampling for cosmology." Monthly Notices of the Royal Astronomical Society: Letters 450.1 (2015): L61-L65.
+  2. Handley, W. J., M. P. Hobson, and A. N. Lasenby. "POLYCHORD:
+    next-generation nested sampling." Monthly Notices of the Royal
+    Astronomical Society 453.4 (2015): 4384-4398.
+
+#### DNest4
+
+  1. Brewer, B. J., Pártay, L. B., & Csányi, G. (2011). Diffusive nested
+        sampling. Statistics and Computing, 21(4), 649-656        
+  2. Brewer, B., & Foreman-Mackey, D. (2018). DNest4: Diffusive Nested Sampling in C++ and Python. Journal of Statistical Software, 86(7), 1 - 33. doi:[10.18637/jss.v086.i07](http://dx.doi.org/10.18637/jss.v086.i07)
