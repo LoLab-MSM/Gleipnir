@@ -55,7 +55,7 @@ Note that `gleipnir` has the following core dependencies which will also be inst
    * [SciPy](https://www.scipy.org/)
    * [pandas](https://pandas.pydata.org/)
 
-Alternatively, for convenience, a `gleipnir` environment can be downloaded/created that has gleipnir, its core dependencies, as well as several optional/recommended packages; the optional/recommended packages include pysb, hypbuilder, matplotlib, seaborn, and jupyter.
+Alternatively, for convenience, a `gleipnir` environment can be downloaded/created that has `gleipnir`, its core dependencies, as well as several optional/recommended packages; the optional/recommended packages include `pysb`, `hypbuilder`, `matplotlib`, `seaborn`, and `jupyter`.
 From the terminal:
 ```
 conda env create blakeaw/gleipnir
@@ -70,7 +70,7 @@ conda activate gleipnir
 The following software is not required for the basic operation of Gleipnir, but provides extra capabilities and features when installed.
 
 #### PySB
-[PySB](http://pysb.org/) is needed to run pysb models and it is needed if you want to use the gleipnir.pysb_utilities module:
+[PySB](http://pysb.org/) is needed to run PySB models and it is needed if you want to use the gleipnir.pysb_utilities module:
 ```
 conda install -c alubbock pysb
 ```
@@ -95,23 +95,53 @@ conda install matplotlib seaborn
 ```
 
 #### MultiNest
-If you want to run Nested Sampling simulations using MultiNest via the  MultiNestNestedSampling class from the gleipnir.multinest module, then you will need to install [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest) and [MultiNest](https://github.com/JohannesBuchner/MultiNest) following the instructions at:
+If you want to run Nested Sampling simulations using MultiNest via the  MultiNestNestedSampling class from the gleipnir.multinest module, then you will need to install [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest) and [MultiNest](https://github.com/JohannesBuchner/MultiNest). Build and install instructions for getting PyMultiNest and MultiNest from source can be found at:
 http://johannesbuchner.github.io/PyMultiNest/install.html
 
+PyMultiNest is available on PyPI:
+```
+pip install pymultinest
+```
+Note that in addition to MultiNest, `pymultinest` requires `numpy`, `scipy`, and `matplotlib` to run. It also optionally requires `mpi4py` to run MultiNest with MPI parallelization.
+
+You can get a linux-64 conda build of MultiNest from the [blakeaw conda channel](https://anaconda.org/blakeaw/multinest):
+```
+conda install -c blakeaw multinest
+```
+Note that this conda build of MultiNest requires packages from the `anaconda` and `conda-forge` channels, so you'll need to add them to the channel list in your conda config (.condarc) file.
+
+Additionally, a separate set of third party instructions for building and installing on Mac OS can be found at:
+http://astrobetter.com/wiki/MultiNest+Installation+Notes
+
+Also, this PyMultiNest GitHub issue may be helpful if you run into library path problems on Mac OS:
+https://github.com/JohannesBuchner/PyMultiNest/issues/89
+
 #### PolyChord
-If you want run Nested Sampling simulations using [PolyChord](https://github.com/PolyChord/PolyChordLite) via the PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord by following instructions in the README at:
+If you want run Nested Sampling simulations using [PolyChord](https://github.com/PolyChord/PolyChordLite) via the
+PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord. Build and instal instructions are in the README at:
 https://github.com/PolyChord/PolyChordLite
 
-Special Notes:
+However, as per [PolyChordLite GitHub Issue 11](https://github.com/PolyChord/PolyChordLite/issues/11) there is a version of pypolychord on PyPI which should work for linux-64:
+```
+pip install pypolychord
+```
+
+Special Notes for builds from source on linux-64:
  * Installs into your .local/lib python site-packages.
  * Requires gfortran (f77 compiler) and lipopenmpi-dev (development libraries for MPI) to build the code.
 
 
 #### DNest4
-If you want run Nested Sampling simulations using [DNest4](https://github.com/eggplantbren/DNest4) via the DNest4NestedSampling class from the gleipnir.dnest4 module, then you will need to download install DNest4 and its Python bindings following the instructions in the README at:
+If you want run Nested Sampling simulations using [DNest4](https://github.com/eggplantbren/DNest4) via the DNest4NestedSampling class from the gleipnir.dnest4 module, then you will need to get DNest4 and its Python bindings. Instructions for building and installing from source can be found in the README at:
 https://github.com/eggplantbren/DNest4
 
-Special Notes:
+Additionally, a linux-64 conda build of dnest4 can be installed from
+the [blakeaw conda channel](https://anaconda.org/blakeaw/dnest4):
+```
+conda install -c blakeaw dnest4
+```
+
+Special Notes for building and installing from source:
  * Requires a c++ compiler with c++11 standard libraries.
  * Requires Cython and numba for python bindings to compile and install
 
