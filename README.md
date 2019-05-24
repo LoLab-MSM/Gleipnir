@@ -65,6 +65,16 @@ and then activate it with:
 conda activate gleipnir
 ```
 
+Additionally, there is another `gleipnir` environment for linux-64 that can be downloaded/created that has `gleipnir`, its core dependencies, as well as all the recommended additional software packages; note that the versions of packages are pinned to exact version numbers in this environment file.
+From the terminal:
+```
+conda env create blakeaw/gleipnir-all-linux64
+```
+and then activate it with:
+```
+conda activate gleipnir
+```
+
 ### Recommended additional software
 
 The following software is not required for the basic operation of Gleipnir, but provides extra capabilities and features when installed.
