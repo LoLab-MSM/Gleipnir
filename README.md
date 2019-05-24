@@ -290,6 +290,11 @@ If you use the Gleipnir software in your research, please cite it. You can expor
 
 Also, please cite the following references as appropriate for software used with/via Gleipnir:
 
+#### Packages from the SciPy ecosystem
+
+These include NumPy, SciPy, Pandas, and Matplotlib for which references can be obtained from:
+https://www.scipy.org/citing.html
+
 #### PySB
   1. Lopez, C. F., Muhlich, J. L., Bachman, J. A. & Sorger, P. K. Programming biological models in Python using PySB. Mol Syst Biol 9, (2013). doi:[10.1038/msb.2013.1](dx.doi.org/10.1038/msb.2013.1)
 
@@ -319,3 +324,6 @@ Also, please cite the following references as appropriate for software used with
   1. Brewer, B. J., Pártay, L. B., & Csányi, G. (2011). Diffusive nested
         sampling. Statistics and Computing, 21(4), 649-656        
   2. Brewer, B., & Foreman-Mackey, D. (2018). DNest4: Diffusive Nested Sampling in C++ and Python. Journal of Statistical Software, 86(7), 1 - 33. doi:[10.18637/jss.v086.i07](http://dx.doi.org/10.18637/jss.v086.i07)
+
+#### seaborn
+Reference can be exported from the [seaborn Zeondo DOI entry](https://doi.org/10.5281/zenodo.592845)
