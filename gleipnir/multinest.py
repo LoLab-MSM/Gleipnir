@@ -50,7 +50,7 @@ class MultiNestNestedSampling(object):
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
         population_size (int): The number of points to use in the Nested
-            Sampling active population. 
+            Sampling active population.
         multinest_kwargs (dict): Additional keyword arguments that should be
             passed to the PyMultiNest MultiNest solver. Available options are:
                 importance_nested_sampling (bool): Should MultiNest use
@@ -223,7 +223,7 @@ class MultiNestNestedSampling(object):
             for ii in range(nd):
                 marginal, edge = np.histogram(samples[:,ii], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self.sampled_parameters[ii].name] = (marginal, center)
+                self._posteriors[self.sampled_parameters[ii].name] = (marginal, edge, center)
             self._post_eval = True
 
         return self._posteriors

@@ -165,7 +165,7 @@ class PolyChordNestedSampling(object):
             for ii,parm in enumerate(parms):
                 marginal, edge = np.histogram(samples[parm], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self.sampled_parameter[ii].name] = (marginal, center)
+                self._posteriors[self.sampled_parameter[ii].name] = (marginal, edge, center)
             self._post_eval = True
 
         return self._posteriors

@@ -284,7 +284,7 @@ class NestedSampling(object):
             for parm in parms:
                 marginal, edge = np.histogram(self._dead_points[parm][gt_mask], weights=norm_weights[gt_mask], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[parm] = (marginal, center)
+                self._posteriors[parm] = (marginal, edge, center)
             self._post_eval = True
         return self._posteriors
 
