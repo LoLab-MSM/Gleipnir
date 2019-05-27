@@ -35,7 +35,7 @@ if __name__ == '__main__':
     sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=-5.0,scale=10.0)) for i in range(ndim)]
 
     # Set the active point population size
-    population_size = 100
+    population_size = 500
     # Setup the Nested Sampling run
     n_params = len(sampled_parameters)
     print("Sampling a total of {} parameters".format(n_params))
@@ -52,6 +52,11 @@ if __name__ == '__main__':
     # Print the output
     print("log_evidence: {} +- {} ".format(log_evidence, log_evidence_error))
     print("analytic log_evidence: {}".format(analytic_log_evidence(ndim, width)))
+    best_fit_l = MNNS.best_fit_likelihood()
+    print("Max likelihood parms: ", best_fit_l)
+    best_fit_p, fit_error = MNNS.best_fit_posterior()
+    print("Max posterior weight parms ", best_fit_p)
+    print("Max posterior weight parms error ", fit_error)
     #try plotting a marginal distribution
     try:
         import seaborn as sns

@@ -61,6 +61,11 @@ if __name__ == '__main__':
     # Evidence should be 1/2
     print("evidence: ",evidence)
     print("log_evidence: ", log_evidence)
+    best_fit_l = NS.best_fit_likelihood()
+    print("Max likelihood parms: ", best_fit_l)
+    best_fit_p, fit_error = NS.best_fit_posterior()
+    print("Max posterior weight parms ", best_fit_p)
+    print("Max posterior weight parms error ", fit_error)
     #try plotting a marginal distribution
     try:
         import seaborn as sns
@@ -70,11 +75,11 @@ if __name__ == '__main__':
         # estimate of the marginal distribution, including the heights and centers.
         posteriors = NS.posteriors()
         # Lets look at the first paramter
-        marginal, edges, centers = posteriors[list(posteriors.keys())[0]]
+        marginal, edge, centers = posteriors[list(posteriors.keys())[0]]
         # Plot with seaborn
-        sns.distplot(centers, bins=edges, hist_kws={'weights':marginal})
+        sns.distplot(centers, bins=edge, hist_kws={'weights':marginal})
         # Uncomment next line to plot with plt.hist:
-        # plt.hist(centers, bins=edges, weights=marginal)
+        # plt.hist(centers, bins=edge, weights=marginal)
         plt.show()
     except ImportError:
         pass
