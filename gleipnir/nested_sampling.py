@@ -363,9 +363,9 @@ class NestedSampling(object):
         Returns:
             numpy.array: The parameter vector.
         """
-        mx = self._dead_points.max()
+        midx = np.argmax(self._dead_points.values[:,0])
         # print(mx)
-        ml = mx.values[2:]
+        ml = self._dead_points.values[midx][2:]
         return ml
 
     def best_fit_posterior(self):
