@@ -358,6 +358,30 @@ class NestedSampling(object):
         p_D = D_bar - D_of_theta_bar
         return p_D + D_bar
 
+    def best_fit_likelihood(self):
+        """Parameter vector with the maximum likelihood.
+        Returns:
+            numpy.array: The parameter vector.
+        """
+        mx = self._dead_points.max()
+        print(mx)
+        ml = mx.values[2:]
+        return ml
+
+    def best_fit_posterior(self):
+        """Parameter vector with the maximum posterior weight.
+        Returns:
+            numpy.array: The parameter vector.
+        """
+        post = self.posteriors()
+        mparms = list()
+        for parm in post.keys():
+            marginal, edge, center = post[parm]
+            midx = np.argmax(marginal)
+            mparm = center[midx]
+            mparms.append(mparm)
+        return np.array(mparms)
+
     @property
     def dead_points(self):
         """The set of dead points collected during the Nested Sampling run."""
