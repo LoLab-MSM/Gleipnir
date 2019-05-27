@@ -306,7 +306,7 @@ class DNest4NestedSampling(object):
             var = np.var(samples)
             skew = scipy.stats.skew(samples)
             kurtosis = scipy.stats.kurtosis(samples)
-            moments[parm] = np.array([mean, var, skew, kurtosis])
+            moments[parm] = tuple((mean, var, skew, kurtosis))
         return moments
 
     def akaike_ic(self):
