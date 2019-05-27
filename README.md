@@ -2,7 +2,7 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.20.0-orange.svg)
+![version](https://img.shields.io/badge/version-0.21.0-orange.svg)
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
