@@ -118,7 +118,10 @@ You can get a linux-64 conda build of MultiNest from the [blakeaw conda channel]
 ```
 conda install -c blakeaw multinest
 ```
-Note that this conda build of MultiNest requires packages from the `anaconda` and `conda-forge` channels, so you'll need to add them to the channel list in your conda config (.condarc) file.
+Note that this conda build of MultiNest requires packages from the `anaconda` and `conda-forge` channels, so you'll need to add them to the channel list in your conda config (.condarc) file. You can also install a build of `mpi4py` that is compatible with this build of `multinest` from the [blakeaw conda channel](https://anaconda.org/blakeaw/mpi4py):
+```
+conda install -c blakeaw mpi4py
+```
 
 Additionally, a separate set of third party instructions for building and installing on Mac OS can be found at:
 http://astrobetter.com/wiki/MultiNest+Installation+Notes
