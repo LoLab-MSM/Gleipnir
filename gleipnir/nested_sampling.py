@@ -364,23 +364,29 @@ class NestedSampling(object):
             numpy.array: The parameter vector.
         """
         mx = self._dead_points.max()
-        print(mx)
+        # print(mx)
         ml = mx.values[2:]
         return ml
 
     def best_fit_posterior(self):
         """Parameter vector with the maximum posterior weight.
+        The parameter vector is estimated by first estimating the posterior
+        distributions via histogramming. Then the parameters with the
+        highest posterior probability are determined.
         Returns:
-            numpy.array: The parameter vector.
+            numpy.array, numpy.array: The parameter vector and the error
+                associated with the histogram bin widths.
         """
         post = self.posteriors()
         mparms = list()
+        errors = list()
         for parm in post.keys():
             marginal, edge, center = post[parm]
             midx = np.argmax(marginal)
             mparm = center[midx]
             mparms.append(mparm)
-        return np.array(mparms)
+            errors.append(edge[1]-edge[0])
+        return np.array(mparms), np.array(errors)/2.0
 
     @property
     def dead_points(self):

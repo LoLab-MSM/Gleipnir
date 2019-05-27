@@ -190,7 +190,6 @@ class PolyChordNestedSampling(object):
         k = len(self.sampled_parameter)
         return  2.*k - 2.*ml
 
-
     def bayesian_ic(self, n_data):
         """Estimate Bayesian Information Criterion.
         This function estimates the Bayesian Information Criterion (BIC) for the
@@ -241,3 +240,34 @@ class PolyChordNestedSampling(object):
         D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
         p_D = D_bar - D_of_theta_bar
         return p_D + D_bar
+
+
+    def best_fit_likelihood(self):
+        """Parameter vector with the maximum likelihood.
+        Returns:
+            numpy.array: The parameter vector.
+        """
+        samples = self._output.samples
+        midx = np.argmax(samples['loglike'].values)
+        ml = samples.values[midx][2:]
+        return ml
+
+    def best_fit_posterior(self):
+        """Parameter vector with the maximum posterior weight.
+        The parameter vector is estimated by first estimating the posterior
+        distributions via histogramming. Then the parameters with the
+        highest posterior probability are determined.
+        Returns:
+            numpy.array, numpy.array: The parameter vector and the error
+                associated with the histogram bin widths.
+        """
+        post = self.posteriors()
+        mparms = list()
+        errors = list()
+        for parm in post.keys():
+            marginal, edge, center = post[parm]
+            midx = np.argmax(marginal)
+            mparm = center[midx]
+            mparms.append(mparm)
+            errors.append(edge[1]-edge[0])
+        return np.array(mparms), np.array(errors)/2.0
