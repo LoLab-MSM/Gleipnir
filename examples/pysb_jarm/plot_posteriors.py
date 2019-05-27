@@ -23,8 +23,9 @@ counter = 0
     for r in range(rows):
         for c in range(columns):
             weights = np.load("post_multinest_marginal_weights_parm_"+str(counter)+".npy")
+            edges = np.load("post_multinest_marginal_edges_parm_"+str(counter)+".npy")
             centers = np.load("post_multinest_marginal_centers_parm_"+str(counter)+".npy")
-            axes[r, c].hist(centers, bins=centers, color=colors[counter], weights=weights)
+            axes[r, c].hist(centers, bins=edges, color=colors[counter], weights=weights)
             #axes[r, c].hist(centers, bins=50, color=colors[counter], weights=weights, density=True)
             axes[r, c].set_title(model.parameters[idx_pars_calibrate[counter]].name, fontdict={'fontsize':8})
             # axes[r, c].set_xlim(-6, 6)
