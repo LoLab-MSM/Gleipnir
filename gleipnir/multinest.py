@@ -202,10 +202,11 @@ class MultiNestNestedSampling(object):
     def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
-            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
-                estimates of the posterior marginal probability distributions.
-                The returned dict is keyed by the sampled parameter names and
-                each element is a tuple with (marginal_weights, bin_centers).
+            dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
+                histogram estimates of the posterior marginal probability
+                distributions. The returned dict is keyed by the sampled
+                parameter names and each element is a tuple with
+                (marginal_weights, bin_edges, bin_centers).
         """
         # Lazy evaluation at first call of the function and store results
         # so that subsequent calls don't have to recompute.
