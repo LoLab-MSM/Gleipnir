@@ -63,8 +63,9 @@ if __name__ == '__main__':
     print("log_evidence: ", log_evidence)
     best_fit_l = NS.best_fit_likelihood()
     print("Max likelihood parms: ", best_fit_l)
-    best_fit_p = NS.best_fit_posterior()
+    best_fit_p, fit_error = MNNS.best_fit_posterior()
     print("Max posterior weight parms ", best_fit_p)
+    print("Max posterior weight parms error ", fit_error)
     #try plotting a marginal distribution
     try:
         import seaborn as sns

@@ -1,6 +1,6 @@
 """
 Implementation of a 5-dimensional Gaussian problem and its Nested Sampling
-using DNest4 via Gleipnir.
+using MultiNest via Gleipnir.
 
 Adapted from the DNest4 python gaussian example:
 https://github.com/eggplantbren/DNest4/blob/master/python/examples/gaussian/gaussian.py
@@ -12,7 +12,7 @@ from scipy.stats import uniform
 from scipy.special import erf
 import matplotlib.pyplot as plt
 from gleipnir.sampled_parameter import SampledParameter
-from gleipnir.dnest4 import DNest4NestedSampling
+from gleipnir.polychord import PolyChordNestedSampling
 
 
 
@@ -35,38 +35,26 @@ if __name__ == '__main__':
     sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=-5.0,scale=10.0)) for i in range(ndim)]
 
     # Set the active point population size
-    population_size = 100
-    #DNest4 has additional parameters we probably want to set
-    # Number of iterations -- num_steps
-    num_steps = 500
-    # Number of monte carlo trial moves per iteration -- num_per_step
-    num_per_step = 2000
-    # Number of diffusive levels
-    n_levels = 20
+    population_size = 500
     # Setup the Nested Sampling run
     n_params = len(sampled_parameters)
     print("Sampling a total of {} parameters".format(n_params))
     #population_size = 10
     print("Will use NS population size of {}".format(population_size))
     # Construct the Nested Sampler
-    DNS = DNest4NestedSampling(sampled_parameters=sampled_parameters,
+    PCNS = PolyChordNestedSampling(sampled_parameters=sampled_parameters,
                                    loglikelihood=loglikelihood,
-                                   population_size=population_size,
-                                   n_diffusive_levels=n_levels,
-                                   num_steps=num_steps,
-                                   num_per_step=num_per_step,
-                                   new_level_interval=10000,
-                                   thread_steps=100, lam=5, beta=100)
+                                   population_size=population_size)
     #print(PCNS.likelihood(np.array([1.0])))
     #quit()
     # run it
-    log_evidence, log_evidence_error = DNS.run(verbose=True)
+    log_evidence, log_evidence_error = PCNS.run(verbose=True)
     # Print the output
     print("log_evidence: {} +- {} ".format(log_evidence, log_evidence_error))
     print("analytic log_evidence: {}".format(analytic_log_evidence(ndim, width)))
-    best_fit_l = DNS.best_fit_likelihood()
+    best_fit_l = PCNS.best_fit_likelihood()
     print("Max likelihood parms: ", best_fit_l)
-    best_fit_p, fit_error = DNS.best_fit_posterior()
+    best_fit_p, fit_error = PCNS.best_fit_posterior()
     print("Max posterior weight parms ", best_fit_p)
     print("Max posterior weight parms error ", fit_error)
     #try plotting a marginal distribution
@@ -76,7 +64,7 @@ if __name__ == '__main__':
         # Get the posterior distributions -- the posteriors are return as dictionary
         # keyed to the names of the sampled paramters. Each element is a histogram
         # estimate of the marginal distribution, including the heights and centers.
-        posteriors = DNS.posteriors()
+        posteriors = PCNS.posteriors()
         # Lets look at the first paramter
         marginal, edges, centers = posteriors[list(posteriors.keys())[0]]
         # Plot with seaborn
