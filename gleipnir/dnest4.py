@@ -84,7 +84,7 @@ class DNest4NestedSampling(object):
         loglikelihood (function): The log-likelihood function to use for
             assigning a likelihood to parameter vectors during the sampling.
         population_size (int): The number of points to use in the Nested
-            Sampling active population. 
+            Sampling active population.
         n_diffusive_levels (int, optional): The max number of diffusive likelihood
             levels that DNest4 should initial during the Diffusive Nested
             Sampling run. Default: 20
@@ -262,10 +262,11 @@ class DNest4NestedSampling(object):
     def posteriors(self):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
-            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
-                estimates of the posterior marginal probability distributions.
-                The returned dict is keyed by the sampled parameter names and
-                each element is a tuple with (marginal_weights, bin_centers).
+            dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
+                histogram estimates of the posterior marginal probability
+                distributions. The returned dict is keyed by the sampled
+                parameter names and each element is a tuple with
+                (marginal_weights, bin_edges, bin_centers).
         """
         # Lazy evaluation at first call of the function and store results
         # so that subsequent calls don't have to recompute.
@@ -280,7 +281,7 @@ class DNest4NestedSampling(object):
             for ii in range(nd):
                 marginal, edge = np.histogram(samples[:,ii], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self.sampled_parameters[ii].name] = (marginal, center)
+                self._posteriors[self.sampled_parameters[ii].name] = (marginal, edge, center)
 
             self._post_eval = True
 

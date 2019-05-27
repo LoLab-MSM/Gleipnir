@@ -145,10 +145,11 @@ class PolyChordNestedSampling(object):
     def posteriors(self):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
-            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
-                estimates of the posterior marginal probability distributions.
-                The returned dict is keyed by the sampled parameter names and
-                each element is a tuple with (marginal_weights, bin_centers).
+            dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
+                histogram estimates of the posterior marginal probability
+                distributions. The returned dict is keyed by the sampled
+                parameter names and each element is a tuple with
+                (marginal_weights, bin_edges, bin_centers).
         """
         # Lazy evaluation at first call of the function and store results
         # so that subsequent calls don't have to recompute.
@@ -165,7 +166,7 @@ class PolyChordNestedSampling(object):
             for ii,parm in enumerate(parms):
                 marginal, edge = np.histogram(samples[parm], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self.sampled_parameter[ii].name] = (marginal, center)
+                self._posteriors[self.sampled_parameter[ii].name] = (marginal, edge, center)
             self._post_eval = True
 
         return self._posteriors

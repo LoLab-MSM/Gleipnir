@@ -60,7 +60,7 @@ if __name__ == '__main__':
     print("BIC estimate: {}".format(bic))
     # Deviance Information Criterion (DIC)
     dic = MNNS.deviance_ic()
-    print("DIC estimate: {}".format(dic))    
+    print("DIC estimate: {}".format(dic))
     #try plotting a marginal distribution
     try:
         import seaborn as sns
@@ -70,11 +70,11 @@ if __name__ == '__main__':
         # estimate of the marginal distribution, including the heights and centers.
         posteriors = MNNS.posteriors()
         # Lets look at the first paramter
-        marginal, centers = posteriors[list(posteriors.keys())[0]]
+        marginal, edges, centers = posteriors[list(posteriors.keys())[0]]
         # Plot with seaborn
-        sns.distplot(centers, bins=centers, hist_kws={'weights':marginal})
+        sns.distplot(centers, bins=edges, hist_kws={'weights':marginal})
         # Uncomment next line to plot with plt.hist:
-        # plt.hist(centers, bins=centers, weights=marginal)
+        # plt.hist(centers, bins=edges, weights=marginal)
         plt.show()
     except ImportError:
         pass

@@ -264,10 +264,11 @@ class NestedSampling(object):
     def posteriors(self):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
-            dict of tuple of (numpy.ndarray, numpy.ndarray): The histogram
-                estimates of the posterior marginal probability distributions.
-                The returned dict is keyed by the sampled parameter names and
-                each element is a tuple with (marginal_weights, bin_centers).
+            dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
+                histogram estimates of the posterior marginal probability
+                distributions. The returned dict is keyed by the sampled
+                parameter names and each element is a tuple with
+                (marginal_weights, bin_edges, bin_centers).
         """
         # Lazy evaluation at first call of the function and store results
         # so that subsequent calls don't have to recompute.
@@ -284,7 +285,7 @@ class NestedSampling(object):
             for parm in parms:
                 marginal, edge = np.histogram(self._dead_points[parm][gt_mask], weights=norm_weights[gt_mask], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[parm] = (marginal, center)
+                self._posteriors[parm] = (marginal, edge, center)
             self._post_eval = True
         return self._posteriors
 
