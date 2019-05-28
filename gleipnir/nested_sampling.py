@@ -13,6 +13,7 @@ References:
 
 import numpy as np
 import pandas as pd
+import scipy
 import warnings
 from .samplers import MetropolisComponentWiseHardNSRejection
 from .stopping_criterion import NumberOfIterations
@@ -288,6 +289,28 @@ class NestedSampling(object):
                 self._posteriors[parm] = (marginal, edge, center)
             self._post_eval = True
         return self._posteriors
+
+
+    def posterior_moments(self):
+        """Get the first 4 moments of each marginal distribution.
+        Returns:
+            dict of tuple of (float, float, float, float): The first 4 moments
+                (mean, var, skew, kurtosis) for each parameter's marginal
+                posterior distribution. The dict is keyed to parameter names.
+        """
+        post = self.posteriors()
+        moments = dict()
+        for parm in post.keys():
+            marginal, edges, centers = post[parm]
+            width = edges[1] - edges[0]
+            # resample from the distribution
+            samples = np.random.choice(centers, size=10000, p=marginal/(marginal.sum())) + (width*(np.random.random(10000)-0.5))
+            mean = np.mean(samples)
+            var = np.var(samples)
+            skew = scipy.stats.skew(samples)
+            kurtosis = scipy.stats.kurtosis(samples)
+            moments[parm] = tuple((mean, var, skew, kurtosis))
+        return moments
 
     def akaike_ic(self):
         """Estimate Akaike Information Criterion.

@@ -76,6 +76,11 @@ if __name__ == '__main__':
         posteriors = NS.posteriors()
         # Lets look at the first paramter
         marginal, edge, centers = posteriors[list(posteriors.keys())[0]]
+        # Look at the moments of the first parameter
+        post_moms = NS.posterior_moments()
+        # Each element of the dict is a tuple with:
+        # (mean, variance, skew, kurtosis)
+        print(post_moms[list(post_moms.keys())[0]])
         # Plot with seaborn
         sns.distplot(centers, bins=edge, hist_kws={'weights':marginal})
         # Uncomment next line to plot with plt.hist:
