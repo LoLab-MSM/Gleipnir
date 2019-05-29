@@ -7,5 +7,6 @@ setup(name='gleipnir',
       author_email='blake.a.wilson@vanderbilt.edu',
       url='https://github.com/LoLab-VU/Gleipnir',
       packages=['gleipnir', 'gleipnir.pysb_utilities'],
-      license='MIT'
+      license='MIT',
+      keywords=['nested sampling', 'calibration', 'model selection']
      )
