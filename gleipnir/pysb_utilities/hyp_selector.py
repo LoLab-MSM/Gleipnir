@@ -5,22 +5,13 @@ import shutil
 import glob
 import importlib
 import warnings
-import multiprocessing
-from multiprocessing import Pool
 try:
     import HypBuilder
     from HypBuilder import ModelAssembler
 except ImportError as err:
     raise err
 import pysb
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-# try:
-#     import dill
-# except ImportError as err:
-#     raise err
+
 
 from .nestedsample_it import NestedSampleIt
 
@@ -108,7 +99,7 @@ class HypSelector(object):
         """
         # Load the models
         self.models = list()
-        for i, model_file in enumerate(self._model_files):
+        for i in range(len(self._model_files)):
                 model_module = importlib.import_module("hb_models.model_{}".format(i))
                 model = getattr(model_module, 'model')
                 self.models.append(model)
@@ -142,8 +133,8 @@ class HypSelector(object):
 
     def gen_nested_samplers(self, timespan, observable_data,
                         solver=pysb.simulator.ScipyOdeSimulator,
-                        solver_kwargs=dict(), ns_version='gleipnir-classic',
-                        ns_population_size=1000, ns_kwargs=dict(),
+                        solver_kwargs=None, ns_version='gleipnir-classic',
+                        ns_population_size=1000, ns_kwargs=None,
                         log_likelihood_type='logpdf'):
         """Generate the Nested Sampling objects for each model.
 
@@ -184,6 +175,10 @@ class HypSelector(object):
         Returns:
             None
         """
+        if solver_kwargs is None:
+            solver_kwargs = dict()
+        if ns_kwargs is None:
+            ns_kwargs = dict()
         print(ns_version)
         if self.models is None:
             self.load_models()
@@ -226,11 +221,11 @@ class HypSelector(object):
                 order by the log_evidence.
 
         """
-        nprocs = 1
+        # nprocs = 1
         if self.nested_samplers is None:
             warnings.warn("Unable to run. Must call the 'gen_nested_samplers' function first!")
             return
-        ns_samplers = self.nested_samplers
+        # ns_samplers = self.nested_samplers
         # if nprocs > 1:
         #
         #     p = Pool(nprocs)
@@ -315,7 +310,7 @@ class HypSelector(object):
         aic_frame = pd.DataFrame(frame)
         aic_frame.sort_values(by=['DIC'], ascending=True, inplace=True)
         return aic_frame.reset_index(drop=True)
-        
+
 def _run_ns(nested_sampler):
     nested_sampler.run()
     return nested_sampler

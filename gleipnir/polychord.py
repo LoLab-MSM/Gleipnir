@@ -252,7 +252,7 @@ class PolyChordNestedSampling(object):
         """
         samples = self._output.samples
         log_likelihoods = samples['loglike'].to_numpy()
-        likelihoods = np.exp(log_likelihoods)
+        # likelihoods = np.exp(log_likelihoods)
         parms = samples.columns[2:]
         params = samples[parms]
         D_of_theta = -2.*log_likelihoods

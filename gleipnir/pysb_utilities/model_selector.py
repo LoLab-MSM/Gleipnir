@@ -1,7 +1,5 @@
-import numpy as np
-import pandas as pd
-import warnings
-import pysb
+"""Defines the ModelSelector class, which is a subclass of HypSelector.
+"""
 
 from .hyp_selector import HypSelector
 

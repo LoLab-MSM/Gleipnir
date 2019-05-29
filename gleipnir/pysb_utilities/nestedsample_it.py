@@ -1,4 +1,3 @@
-import sys
 import importlib
 import os.path
 try:
@@ -8,7 +7,6 @@ except ImportError:
     pass
 from scipy.stats import norm, uniform
 import numpy as np
-import pandas as pd
 from gleipnir.sampled_parameter import SampledParameter
 
 
@@ -162,7 +160,7 @@ class NestedSampleIt(object):
             with the data about the parameters to be sampled. If None
             (and nest_it is None), the default parameters to be sampled
             are the kinetic rate parameters with uniform priors of four orders
-            of magnitude. Default: None           
+            of magnitude. Default: None
 
     Attributes:
         model
@@ -174,8 +172,10 @@ class NestedSampleIt(object):
     """
     def __init__(self, model, observable_data, timespan,
                  solver=pysb.simulator.ScipyOdeSimulator,
-                 solver_kwargs=dict(), nest_it=None, builder=None):
+                 solver_kwargs=None, nest_it=None, builder=None):
         """Inits the NestedSampleIt."""
+        if solver_kwargs is None:
+            solver_kwargs = dict()
         self.model = model
         self.observable_data = observable_data
         self.timespan = timespan
@@ -287,7 +287,7 @@ class NestedSampleIt(object):
         return logl
 
     def __call__(self, ns_version='gleipnir-classic',
-                 ns_population_size=1000, ns_kwargs=dict(),
+                 ns_population_size=1000, ns_kwargs=None,
                  log_likelihood_type='logpdf'):
         """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
 
@@ -315,6 +315,8 @@ class NestedSampleIt(object):
             type: Description of returned object.
 
         """
+        if ns_kwargs is None:
+            ns_kwargs = dict()
         # self.ns_version = ns_version
         self._ns_kwargs = ns_kwargs
         population_size = ns_population_size
@@ -327,7 +329,7 @@ class NestedSampleIt(object):
         if ns_version == 'gleipnir-classic':
             from gleipnir.nested_sampling import NestedSampling
             from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
-            from gleipnir.sampled_parameter import SampledParameter
+            # from gleipnir.sampled_parameter import SampledParameter
             from gleipnir.stopping_criterion import NumberOfIterations
             # population_size = 100*len(self._sampled_parameters)
             sampler = MetropolisComponentWiseHardNSRejection(iterations=10,
@@ -402,7 +404,7 @@ if __name__ == '__main__':
             words = line.split()
             if len(words) > 1:
                 if words[0] == '#NESTEDSAMPLE_IT':
-                    parse_directive(line, priors, no_sample)
+                    parse_directive(line, priors, no_sample, Keq_sample)
 
     #now we need to extract a list of kinetic parameters
     parameters = list()

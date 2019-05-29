@@ -12,7 +12,6 @@ parameters defined in the csv file; they are the last 10 timepoints.
 
 import numpy as np
 try:
-    import pysb
     from pysb.simulator import ScipyOdeSimulator
 except ImportError as err:
     raise err

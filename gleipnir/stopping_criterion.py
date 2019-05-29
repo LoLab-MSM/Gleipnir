@@ -5,7 +5,6 @@ instances to define the stopping criterion for the Nested Sampling run.
 
 """
 
-import numpy as np
 
 class NumberOfIterations(object):
     """Stop after a fixed number of iteration.

@@ -7,10 +7,8 @@ https://github.com/eggplantbren/DNest4/blob/master/python/examples/gaussian/gaus
 """
 
 import numpy as np
-from numpy import exp, log, pi
 from scipy.stats import uniform
 from scipy.special import erf
-import matplotlib.pyplot as plt
 from gleipnir.sampled_parameter import SampledParameter
 from gleipnir.dnest4 import DNest4NestedSampling
 

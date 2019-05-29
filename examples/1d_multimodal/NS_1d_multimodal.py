@@ -7,7 +7,6 @@ http://johannesbuchner.github.io/pymultinest-tutorial/example1.html
 """
 
 import numpy as np
-from numpy import exp, log, pi
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
 from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
@@ -27,8 +26,8 @@ width = 0.01
 def loglikelihood(sampled_parameter_vector):
     diff = sampled_parameter_vector[0] - positions
     diff_scale = diff / width
-    l = np.exp(-0.5 * diff_scale**2) / (2.0*pi*width**2)**0.5
-    log_like = log(l.mean())
+    l = np.exp(-0.5 * diff_scale**2) / (2.0*np.pi*width**2)**0.5
+    log_like = np.log(l.mean())
     if np.isnan(log_like):
         return -np.inf
     return log_like

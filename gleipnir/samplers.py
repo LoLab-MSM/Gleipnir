@@ -101,7 +101,7 @@ class MetropolisComponentWiseHardNSRejection(object):
                         new_pointj = norm.ppf(rsteps[j],loc=cur_pointj, scale=widthj)
                     else:
                         new_pointj = uniform.ppf(rsteps[j],loc=cur_pointj-(widthj/2.0), scale=widthj)
-                    
+
                     new_point[j] = new_pointj
                     cur_priorj = sampled_parameters[j].prior(cur_pointj)
                     new_priorj = sampled_parameters[j].prior(new_point[j])
@@ -124,7 +124,7 @@ class MetropolisComponentWiseHardNSRejection(object):
         # Start the sampling chain
         self._widths = steps.copy()
         cur_point = start_param_vec.copy()
-        curr_likelihood = start_likelihood
+        # curr_likelihood = start_likelihood
         for i in range(self.iterations+self.burn_in):
                 rsteps = np.random.random(self._ndim)
                 u = np.random.random(self._ndim)

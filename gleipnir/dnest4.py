@@ -367,7 +367,6 @@ class DNest4NestedSampling(object):
         params = self._last_live_sample
         log_likelihoods = self._last_live_sample_info['log_likelihood']
         weights = self._last_live_sample_weights
-        likelihoods = np.exp(log_likelihoods)
         D_of_theta = -2.*log_likelihoods
         D_bar = np.average(D_of_theta, weights=weights)
         print(D_bar)
