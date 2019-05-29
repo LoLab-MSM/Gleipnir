@@ -178,7 +178,7 @@ class HypSelector(object):
         if solver_kwargs is None:
             solver_kwargs = dict()
         if ns_kwargs is None:
-            ns_kwargs = dict()     
+            ns_kwargs = dict()
         print(ns_version)
         if self.models is None:
             self.load_models()

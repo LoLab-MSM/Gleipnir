@@ -6,6 +6,8 @@ https://github.com/LoLab-VU/JARM/blob/master/model_analysis/pars_dists_plot.py
 """
 
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from jnk3_no_ask1 import model
 
 idx_pars_calibrate = [1, 5, 9, 11, 15, 17, 19, 23, 25, 27, 31, 35, 36, 37, 38, 39, 41, 43] #pydream3
@@ -16,9 +18,6 @@ rows = 6
 columns = 3
 counter = 0
 
-
-import seaborn as sns
-import matplotlib.pyplot as plt
 f, axes = plt.subplots(rows, columns, figsize=(7, 7), sharex=True)
 for r in range(rows):
     for c in range(columns):

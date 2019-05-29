@@ -4,7 +4,6 @@ Gleipnir NS run script for dimerization_model.py
 '''
 from dimerization_model_nestit import model, nest_it
 import numpy as np
-from scipy.stats import norm
 
 from gleipnir.pysb_utilities import NestedSampleIt
 
