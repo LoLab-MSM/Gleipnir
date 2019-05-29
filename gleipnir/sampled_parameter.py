@@ -7,7 +7,6 @@ prior distributions that are to sampled and used during the Nested Sampling run.
 """
 
 import numpy as np
-import scipy
 
 class SampledParameter(object):
     """A parameter that will be sampled during a Nested Sampling run.

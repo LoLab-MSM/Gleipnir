@@ -1,4 +1,3 @@
-import sys
 import importlib
 import os.path
 try:
@@ -8,7 +7,6 @@ except ImportError:
     pass
 from scipy.stats import norm, uniform
 import numpy as np
-import pandas as pd
 from gleipnir.sampled_parameter import SampledParameter
 
 
@@ -162,7 +160,7 @@ class NestedSampleIt(object):
             with the data about the parameters to be sampled. If None
             (and nest_it is None), the default parameters to be sampled
             are the kinetic rate parameters with uniform priors of four orders
-            of magnitude. Default: None           
+            of magnitude. Default: None
 
     Attributes:
         model
@@ -327,7 +325,7 @@ class NestedSampleIt(object):
         if ns_version == 'gleipnir-classic':
             from gleipnir.nested_sampling import NestedSampling
             from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
-            from gleipnir.sampled_parameter import SampledParameter
+            # from gleipnir.sampled_parameter import SampledParameter
             from gleipnir.stopping_criterion import NumberOfIterations
             # population_size = 100*len(self._sampled_parameters)
             sampler = MetropolisComponentWiseHardNSRejection(iterations=10,

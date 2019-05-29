@@ -5,8 +5,6 @@ import shutil
 import glob
 import importlib
 import warnings
-import multiprocessing
-from multiprocessing import Pool
 try:
     import HypBuilder
     from HypBuilder import ModelAssembler
@@ -101,7 +99,7 @@ class HypSelector(object):
         """
         # Load the models
         self.models = list()
-        for i, model_file in enumerate(self._model_files):
+        for i in range(len(self._model_files)):
                 model_module = importlib.import_module("hb_models.model_{}".format(i))
                 model = getattr(model_module, 'model')
                 self.models.append(model)
@@ -219,11 +217,11 @@ class HypSelector(object):
                 order by the log_evidence.
 
         """
-        nprocs = 1
+        # nprocs = 1
         if self.nested_samplers is None:
             warnings.warn("Unable to run. Must call the 'gen_nested_samplers' function first!")
             return
-        ns_samplers = self.nested_samplers
+        # ns_samplers = self.nested_samplers
         # if nprocs > 1:
         #
         #     p = Pool(nprocs)
