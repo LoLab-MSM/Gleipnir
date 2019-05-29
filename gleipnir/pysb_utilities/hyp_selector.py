@@ -133,8 +133,8 @@ class HypSelector(object):
 
     def gen_nested_samplers(self, timespan, observable_data,
                         solver=pysb.simulator.ScipyOdeSimulator,
-                        solver_kwargs=dict(), ns_version='gleipnir-classic',
-                        ns_population_size=1000, ns_kwargs=dict(),
+                        solver_kwargs=None, ns_version='gleipnir-classic',
+                        ns_population_size=1000, ns_kwargs=None,
                         log_likelihood_type='logpdf'):
         """Generate the Nested Sampling objects for each model.
 
@@ -175,6 +175,10 @@ class HypSelector(object):
         Returns:
             None
         """
+        if solver_kwargs is None:
+            solver_kwargs = dict()
+        if ns_kwargs is None:
+            ns_kwargs = dict()     
         print(ns_version)
         if self.models is None:
             self.load_models()
