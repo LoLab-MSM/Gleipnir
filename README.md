@@ -6,6 +6,7 @@
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e117a46ae8b241539742ab00f8cd1b38)](https://www.codacy.com/app/blakeaw1102/Gleipnir?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LoLab-VU/Gleipnir&amp;utm_campaign=Badge_Grade)
 
 <p align="center">
   <img width="100" height="100" src="./images/gleipnir_logo_2.png">
