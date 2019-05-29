@@ -13,14 +13,7 @@ try:
 except ImportError as err:
     raise err
 import pysb
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-# try:
-#     import dill
-# except ImportError as err:
-#     raise err
+
 
 from .nestedsample_it import NestedSampleIt
 
@@ -315,7 +308,7 @@ class HypSelector(object):
         aic_frame = pd.DataFrame(frame)
         aic_frame.sort_values(by=['DIC'], ascending=True, inplace=True)
         return aic_frame.reset_index(drop=True)
-        
+
 def _run_ns(nested_sampler):
     nested_sampler.run()
     return nested_sampler
