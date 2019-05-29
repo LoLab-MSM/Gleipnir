@@ -1,6 +1,7 @@
 # Gleipnir
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7d9cbcc943ea4f99b387852da3b2c022)](https://app.codacy.com/app/blakeaw1102/Gleipnir?utm_source=github.com&utm_medium=referral&utm_content=LoLab-VU/Gleipnir&utm_campaign=Badge_Grade_Dashboard)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
 ![version](https://img.shields.io/badge/version-0.22.0-orange.svg)
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
