@@ -10,7 +10,6 @@ Nested Sampling runs via the gleipnir.nested_sampling.NestedSampling class.
 import numpy as np
 from scipy.stats import uniform, norm
 
-
 class MetropolisComponentWiseHardNSRejection(object):
     """Markov Chain Monte Carlo sampler using augmented Metropolis criterion and component-wise trial moves.
     This sampler uses a Markov Chain Monte Carlo method to augment a position
