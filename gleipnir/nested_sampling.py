@@ -576,6 +576,74 @@ class NestedSampling(object):
         plt.plot(landscape_points['x'], -1.0*landscape_points['loglikelihood'])
         plt.show()
 
+
+    def landscape_2(self):
+        # Get the samples.
+        ns_samples = self.dead_points
+        # Pull out parameters.
+        pnames = ns_samples.columns[2:]
+        params = ns_samples[pnames].to_numpy()
+        # loglikelihoods.
+        loglikelihoods = ns_samples['log_l'].to_numpy()
+        # Weights.
+        weights = ns_samples['weight'].to_numpy()
+        # Compute the k-nearest neighbors--uses Euclidean distance between
+        # parameter vectors with lower likelihood.
+        param_knn = _knn(params, loglikelihoods, k=6)
+        #quit()
+        # Build the knn-network from the knn lists.
+        graph = nx.Graph(name='base')
+        # First add the nodes with loglikelihoods and weights
+        for key in param_knn.keys():
+            graph.add_node(key, loglikelihood=loglikelihoods[key],
+                           weight=weights[key])
+        # Now add the edges with distance.
+        for key in param_knn.keys():
+            my_knn = param_knn[key]
+            #print("key:", key, len(my_knn))
+            for item in my_knn:
+            #    print("add edge: ", key, item[0])
+                graph.add_edge(key, item[0], distance=item[1])
+        # Prune out any disjoint nodes from the initial graph.
+        subs = [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+        for sub in subs:
+            if len(sub) == 1:
+                for node in sub.nodes:
+                    graph.remove_node(node)
+
+        basin_graph = nx.DiGraph()
+        # Now we start pruning and separating basins
+        for i in range(len(loglikelihoods)):
+            if i in graph.nodes:
+                graph.remove_node(i)
+                #basin_graph.add_node(i)
+                my_knn = param_knn[i]
+                #gnodes = list(graph.nodes())
+                # Check for splitting.
+                subs = [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+                for sub in subs:
+                    snodes = list(sub.nodes)
+                    connect = list()
+                    connectl = list()
+                    for snode in sub.nodes:
+                        snknn = param_knn[snode]
+                        snknnidx = [snknni[0] for snknni in snknn]
+
+                        if i in snknnidx:
+                            connect.append(snode)
+                            connectl.append(loglikelihoods[snode])
+
+
+                    if len(connect)>0:
+                        connectl = np.array(connectl)
+                        mlidx = np.argmin(connectl)
+                        cmlidx = connect[mlidx]
+                        basin_graph.add_edge(i, cmlidx)
+
+
+        nx.draw_spring(basin_graph, with_labels=True)
+        plt.show()
+
 def _knn(X, likelihoods, k=1):
     """Determine the k-nearest neighbors of each point within a random variate sample.
     This function uses Euclidean distance as the distance metric for
