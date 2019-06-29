@@ -50,12 +50,21 @@ if __name__ == '__main__':
     # Print the output
     print("log_evidence: {} +- {} ".format(log_evidence, log_evidence_error))
     print("analytic log_evidence: {}".format(analytic_log_evidence(ndim, width)))
-    quit()
-    best_fit_l = PCNS.best_fit_likelihood()
+    #quit()
+    best_fit_l = dyPCNS.best_fit_likelihood()
     print("Max likelihood parms: ", best_fit_l)
-    best_fit_p, fit_error = PCNS.best_fit_posterior()
+    best_fit_p, fit_error = dyPCNS.best_fit_posterior()
     print("Max posterior weight parms ", best_fit_p)
     print("Max posterior weight parms error ", fit_error)
+    # Information criteria
+    # Akaike
+    aic = dyPCNS.akaike_ic()
+    # Bayesian
+    bic = dyPCNS.bayesian_ic(5)
+    # Deviance
+    dic = dyPCNS.deviance_ic()
+    print("AIC ",aic, " BIC ", bic, " DIC ",dic)
+
     #try plotting a marginal distribution
     try:
         import seaborn as sns
@@ -63,7 +72,7 @@ if __name__ == '__main__':
         # Get the posterior distributions -- the posteriors are return as dictionary
         # keyed to the names of the sampled paramters. Each element is a histogram
         # estimate of the marginal distribution, including the heights and centers.
-        posteriors = PCNS.posteriors()
+        posteriors = dyPCNS.posteriors()
         # Lets look at the first paramter
         marginal, edges, centers = posteriors[list(posteriors.keys())[0]]
         # Plot with seaborn

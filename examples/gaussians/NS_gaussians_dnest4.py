@@ -67,6 +67,14 @@ if __name__ == '__main__':
     best_fit_p, fit_error = DNS.best_fit_posterior()
     print("Max posterior weight parms ", best_fit_p)
     print("Max posterior weight parms error ", fit_error)
+    # Information criteria
+    # Akaike
+    aic = DNS.akaike_ic()
+    # Bayesian
+    bic = DNS.bayesian_ic(5)
+    # Deviance
+    dic = DNS.deviance_ic()
+    print("AIC ",aic, " BIC ", bic, " DIC ",dic)
     #try plotting a marginal distribution
     try:
         import seaborn as sns
