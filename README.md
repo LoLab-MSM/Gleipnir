@@ -2,7 +2,7 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.22.1-orange.svg)
+![version](https://img.shields.io/badge/version-0.23.0-orange.svg)
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
@@ -12,7 +12,7 @@
   <img width="100" height="100" src="./images/gleipnir_logo_2.png">
 </p>
 
-Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the classic Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, and DNest4.
+Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the classic Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, dyPolyChord, and DNest4.
 Although Gleipnir provides a general framework for running Nested Sampling simulations, it was created with biological models in mind. It therefore supplies additional tools for working with biological models in the PySB format (see the PySB Utilities section). Likewise, Gleipnir's API was designed to be familiar to users of [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization), which are primarily used for biological model calibration.
 
 ### What is Nested Sampling?
@@ -44,13 +44,13 @@ The Nested Sampling method was originally developed by John Skilling; see the fo
 
 Gleipnir installs as the `gleipnir` package. It is compatible with Python 3.6.
 
+#### conda install
 Although not absolutely required, we recommend using the [Anaconda](https://www.anaconda.com/) Python distribution and the [conda](https://conda.io/en/latest/) package manager.
 
 `gleipnir` can be installed from the terminal using `conda`:
 ```
 conda intall -c blakeaw gleipnir
 ```
-
 Note that `gleipnir` has the following core dependencies which will also be installed:
    * [NumPy](http://www.numpy.org/)
    * [SciPy](https://www.scipy.org/)
@@ -66,7 +66,7 @@ and then activate it with:
 conda activate gleipnir
 ```
 
-Additionally, there is another `gleipnir` environment for linux-64 that can be downloaded/created that has `gleipnir`, its core dependencies, as well as all the recommended additional software packages; note that the versions of packages are pinned to exact version numbers in this environment file.
+Additionally, there is another `gleipnir` environment for linux-64 that can be downloaded/created that has `gleipnir`, its core dependencies, as well as most of the recommended additional software packages; note that the versions of packages are pinned to exact version numbers in this environment file.
 From the terminal:
 ```
 conda env create blakeaw/gleipnir-all-linux64
@@ -74,6 +74,16 @@ conda env create blakeaw/gleipnir-all-linux64
 and then activate it with:
 ```
 conda activate gleipnir
+```
+
+#### pip install
+You can install the `gleipnir` package using `pip` sourced from the GitHub repo:
+```
+pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.18.0#egg=gleipnir
+```
+However, this will not automatically install the core dependencies. You will have to do that separately:
+```
+pip install numpy scipy pandas
 ```
 
 ### Recommended additional software
@@ -106,7 +116,7 @@ conda install matplotlib seaborn
 ```
 
 #### MultiNest
-If you want to run Nested Sampling simulations using MultiNest via the  MultiNestNestedSampling class from the gleipnir.multinest module, then you will need to install [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest) and [MultiNest](https://github.com/JohannesBuchner/MultiNest). Build and install instructions for getting PyMultiNest and MultiNest from source can be found at:
+If you want to run Nested Sampling simulations using Gleipnir's MultiNest interface class object, MultiNestNestedSampling (from the gleipnir.multinest module), then you will need to install [PyMultiNest](https://github.com/JohannesBuchner/PyMultiNest) and [MultiNest](https://github.com/JohannesBuchner/MultiNest). Build and install instructions for getting PyMultiNest and MultiNest from source can be found at:
 http://johannesbuchner.github.io/PyMultiNest/install.html
 
 PyMultiNest is available on PyPI:
@@ -132,7 +142,7 @@ https://github.com/JohannesBuchner/PyMultiNest/issues/89
 
 #### PolyChord
 If you want run Nested Sampling simulations using [PolyChord](https://github.com/PolyChord/PolyChordLite) via the
-PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord. Build and instal instructions are in the README at:
+PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord. Build and install instructions are in the README at:
 https://github.com/PolyChord/PolyChordLite
 
 However, as per [PolyChordLite GitHub Issue 11](https://github.com/PolyChord/PolyChordLite/issues/11) there is a version of pypolychord on PyPI which should work for linux-64:
@@ -144,6 +154,14 @@ Special Notes for builds from source on linux-64:
  * Installs into your .local/lib python site-packages.
  * Requires gfortran (f77 compiler) and lipopenmpi-dev (development libraries for MPI) to build the code.
 
+#### dyPolyChord
+If you want to run Nested Sampling simulations using
+[dyPolyChord](https://github.com/ejhigson/dyPolyChord) using Gleipnir's interface object, dyPolyChordNestedSampling (from the gleipnir.dypolychord module), then you will need to install dyPolyChord (available on PyPI):
+```
+pip install dyPolyChord
+```
+Note that dyPolyChord requires PolyChord to run, so its use via Gleipnir requires the pypolychord package; see the the previous section. Also note that in addition to PolyChord, `dyPolyChord` requires `numpy`, `scipy`, and `nestcheck` to run. It also optionally requires `mpi4py` to run with MPI parallelization.
+For additional information check out the [dyPolyChord documentation](https://dypolychord.readthedocs.io/en/latest/index.html).
 
 #### DNest4
 If you want run Nested Sampling simulations using [DNest4](https://github.com/eggplantbren/DNest4) via the DNest4NestedSampling class from the gleipnir.dnest4 module, then you will need to get DNest4 and its Python bindings. Instructions for building and installing from source can be found in the README at:
