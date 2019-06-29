@@ -238,14 +238,16 @@ class dyPolyChordNestedSampling(object):
             # Here the samples are samples directly from the posterior
             # (i.e. equal weights). - The samples from the PolyChord output
             # is a pandas DataFrame.
-            samples = self._output.samples
-            log_likelihoods = samples['loglike'].to_numpy()
-            parms = samples.columns[2:]
+            #samples = self._run['theta']
+            #log_likelihoods = self._run['logl']
+            parms = self._run['theta']
+            # The log posterior weight
+            logpw = nestcheck.ns_run_utils.get_logw(self._run)
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(log_likelihoods)))
+            nbins = 2 * int(np.cbrt(len(logpw)))
             self._posteriors = dict()
-            for ii,parm in enumerate(parms):
-                marginal, edge = np.histogram(samples[parm], density=True, bins=nbins)
+            for ii,parm in enumerate(parms[0]):
+                marginal, edge = np.histogram(parms[:,ii], weights=logpw, density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
                 self._posteriors[self.sampled_parameter[ii].name] = (marginal, edge, center)
             self._post_eval = True
@@ -286,9 +288,8 @@ class dyPolyChordNestedSampling(object):
         Returns:
             float: The AIC estimate.
         """
-        samples = self._output.samples
-        mx = samples.max()
-        ml = mx['loglike']
+        log_likelihoods = self._run['logl']
+        ml = log_likelihoods.max()
         k = len(self.sampled_parameter)
         return  2.*k - 2.*ml
 
@@ -310,9 +311,8 @@ class dyPolyChordNestedSampling(object):
         Returns:
             float: The BIC estimate.
         """
-        samples = self._output.samples
-        mx = samples.max()
-        ml = mx['loglike']
+        log_likelihoods = self._run['logl']
+        ml = log_likelihoods.max()
         k = len(self.sampled_parameter)
         return  np.log(n_data)*k - 2.*ml
 
@@ -330,14 +330,12 @@ class dyPolyChordNestedSampling(object):
         Returns:
             float: The DIC estimate.
         """
-        samples = self._output.samples
-        log_likelihoods = samples['loglike'].to_numpy()
-        # likelihoods = np.exp(log_likelihoods)
-        parms = samples.columns[2:]
-        params = samples[parms]
+        params = self._run['theta']
+        log_likelihoods = self._run['logl']
+        weights = nestcheck.ns_run_utils.get_logw(self._run)
         D_of_theta = -2.*log_likelihoods
-        D_bar = np.average(D_of_theta)
-        theta_bar = np.average(params, axis=0)
+        D_bar = np.average(D_of_theta, weights=weights)
+        theta_bar = np.average(params, axis=0, weights=weights)
         print(theta_bar)
         D_of_theta_bar = -2. * self.loglikelihood(theta_bar)
         p_D = D_bar - D_of_theta_bar
@@ -349,9 +347,9 @@ class dyPolyChordNestedSampling(object):
         Returns:
             numpy.array: The parameter vector.
         """
-        samples = self._output.samples
-        midx = np.argmax(samples['loglike'].values)
-        ml = samples.values[midx][2:]
+        samples = self._run['theta']
+        midx = np.argmax(self._run['logl'])
+        ml = samples[midx][:]
         return ml
 
     def best_fit_posterior(self):
