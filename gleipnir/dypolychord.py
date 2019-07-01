@@ -158,8 +158,8 @@ class dyPolyChordNestedSampling(object):
                                     ninit=self.initial_population_size,
                                     nlive_const=self.population_size)
         # load the dyPolyChord run output into nestcheck
-        run = nestcheck.data_processing.process_polychord_run('dypolychord_run',  # = settings['file_root']
-                                                              'dypolychord_chains')    # = settings['base_dir']
+        run = nestcheck.data_processing.process_polychord_run(self._settings_dict['file_root'],  # = settings['file_root']
+                                                              self._settings_dict['base_dir'])    # = settings['base_dir']
         self._run = run
         self._logZ = ncheck_e.logz(run)
         self._Z = ncheck_e.evidence(run)
