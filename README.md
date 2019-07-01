@@ -142,13 +142,14 @@ https://github.com/JohannesBuchner/PyMultiNest/issues/89
 
 #### PolyChord
 If you want run Nested Sampling simulations using [PolyChord](https://github.com/PolyChord/PolyChordLite) via the
-PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord. Build and install instructions are in the README at:
+PolyChordNestedSampling class from the gleipnir.polychord, then you will need to install pypolychord (for PolyChordLite version >= 1.16). Build and install instructions are in the README at:
 https://github.com/PolyChord/PolyChordLite
 
 However, as per [PolyChordLite GitHub Issue 11](https://github.com/PolyChord/PolyChordLite/issues/11) there is a version of pypolychord on PyPI which should work for linux-64:
 ```
 pip install pypolychord
 ```
+But note that the current version of pypolychord on PyPI (as of 07-01-2019) is not the most recent version, and some of the extra functionality provided by Gleipnir will not work with it. 
 
 Special Notes for builds from source on linux-64:
  * Installs into your .local/lib python site-packages.
