@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import scipy
 import warnings
+from .nsbase import NestedSamplingBase
 try:
     import dnest4
 except ImportError as err:
@@ -74,7 +75,7 @@ class _DNest4Model(object):
         return 0.0
 
 
-class DNest4NestedSampling(object):
+class DNest4NestedSampling(NestedSamplingBase):
     """Nested Sampling using DNest4.
     DNest4: https://github.com/eggplantbren/DNest4
 
@@ -288,67 +289,11 @@ class DNest4NestedSampling(object):
 
         return self._posteriors
 
-    def posterior_moments(self):
-        """Get the first 4 moments of each marginal distribution.
-        Returns:
-            dict of tuple of (float, float, float, float): The first 4 moments
-                (mean, var, skew, kurtosis) for each parameter's marginal
-                posterior distribution. The dict is keyed to parameter names.
-        """
-        post = self.posteriors()
-        moments = dict()
-        for parm in post.keys():
-            marginal, edges, centers = post[parm]
-            width = edges[1] - edges[0]
-            # resample from the distribution
-            samples = np.random.choice(centers, size=10000, p=marginal/(marginal.sum())) + (width*(np.random.random(10000)-0.5))
-            mean = np.mean(samples)
-            var = np.var(samples)
-            skew = scipy.stats.skew(samples)
-            kurtosis = scipy.stats.kurtosis(samples)
-            moments[parm] = tuple((mean, var, skew, kurtosis))
-        return moments
-
-    def akaike_ic(self):
-        """Estimate Akaike Information Criterion.
-        This function estimates the Akaike Information Criterion (AIC) for the
-        model simulated with Nested Sampling (NS). It does so by using the
-        largest likelihood value found during the NS run and using that as
-        the maximum likelihood estimate. The AIC formula is given by:
-            AIC = 2k - 2ML,
-        where k is number of sampled parameters and ML is maximum likelihood
-        estimate.
-
-        Returns:
-            float: The AIC estimate.
-        """
+    def max_loglikelihood(self):
         mx = self._last_live_sample_info.max()
         ml = mx['log_likelihood']
-        k = len(self.sampled_parameters)
-        return  2.*k - 2.*ml
+        return ml
 
-    def bayesian_ic(self, n_data):
-        """Estimate Bayesian Information Criterion.
-        This function estimates the Bayesian Information Criterion (BIC) for the
-        model simulated with Nested Sampling (NS). It does so by using the
-        largest likelihood value found during the NS run and taking that as
-        the maximum likelihood estimate. The BIC formula is given by:
-            BIC = ln(n_data)k - 2ML,
-        where n_data is the number of data points used in computing the likelihood
-        function fitting, k is number of sampled parameters, and ML is maximum
-        likelihood estimate.
-
-        Args:
-            n_data (int): The number of data points used when comparing to data
-                in the likelihood function.
-
-        Returns:
-            float: The BIC estimate.
-        """
-        mx = self._last_live_sample_info.max()
-        ml = mx['log_likelihood']
-        k = len(self.sampled_parameters)
-        return  np.log(n_data)*k - 2.*ml
 
     def deviance_ic(self):
         """Estimate Deviance Information Criterion.
@@ -385,23 +330,3 @@ class DNest4NestedSampling(object):
         midx = np.argmax(self._last_live_sample_info['log_likelihood'].values)
         ml = self._last_live_sample[midx]
         return ml
-
-    def best_fit_posterior(self):
-        """Parameter vector with the maximum posterior weight.
-        The parameter vector is estimated by first estimating the posterior
-        distributions via histogramming. Then the parameters with the
-        highest posterior probability are determined.
-        Returns:
-            numpy.array, numpy.array: The parameter vector and the error
-                associated with the histogram bin widths.
-        """
-        post = self.posteriors()
-        mparms = list()
-        errors = list()
-        for parm in post.keys():
-            marginal, edge, center = post[parm]
-            midx = np.argmax(marginal)
-            mparm = center[midx]
-            mparms.append(mparm)
-            errors.append(edge[1]-edge[0])
-        return np.array(mparms), np.array(errors)/2.0

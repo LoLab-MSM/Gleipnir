@@ -19,7 +19,10 @@ References:
 
 import numpy as np
 import scipy
+import pandas as pd
 import warnings
+from .nsbase import NestedSamplingBase
+
 try:
     import pypolychord
     from pypolychord.settings import PolyChordSettings
@@ -27,7 +30,7 @@ except ImportError as err:
     #print(err)
     raise err
 
-class PolyChordNestedSampling(object):
+class PolyChordNestedSampling(NestedSamplingBase):
     """Nested Sampling using PolyChord.
     PolyChord and pypolychord: https://github.com/PolyChord/PolyChordLites
     Attributes:
@@ -49,7 +52,7 @@ class PolyChordNestedSampling(object):
 
     def __init__(self, sampled_parameters, loglikelihood, population_size):
         """Initialize the PolyChord Nested Sampler."""
-        self.sampled_parameter = sampled_parameters
+        self.sampled_parameters = sampled_parameters
         self.loglikelihood = loglikelihood
         self.population_size = population_size
 
@@ -66,7 +69,7 @@ class PolyChordNestedSampling(object):
         self._likelihood = likelihood
         # make the prior for polychord
         def prior(hypercube):
-            return np.array([self.sampled_parameter[i].invcdf(value) for i,value in enumerate(hypercube)])
+            return np.array([self.sampled_parameters[i].invcdf(value) for i,value in enumerate(hypercube)])
 
         self._prior = prior
         # PolyChord settings object
@@ -167,74 +170,16 @@ class PolyChordNestedSampling(object):
             for ii,parm in enumerate(parms):
                 marginal, edge = np.histogram(samples[parm], density=True, bins=nbins)
                 center = (edge[:-1] + edge[1:])/2.
-                self._posteriors[self.sampled_parameter[ii].name] = (marginal, edge, center)
+                self._posteriors[self.sampled_parameters[ii].name] = (marginal, edge, center)
             self._post_eval = True
 
         return self._posteriors
 
-    def posterior_moments(self):
-        """Get the first 4 moments of each marginal distribution.
-        Returns:
-            dict of tuple of (float, float, float, float): The first 4 moments
-                (mean, var, skew, kurtosis) for each parameter's marginal
-                posterior distribution. The dict is keyed to parameter names.
-        """
-        post = self.posteriors()
-        moments = dict()
-        for parm in post.keys():
-            marginal, edges, centers = post[parm]
-            width = edges[1] - edges[0]
-            # resample from the distribution
-            samples = np.random.choice(centers, size=10000, p=marginal/(marginal.sum())) + (width*(np.random.random(10000)-0.5))
-            mean = np.mean(samples)
-            var = np.var(samples)
-            skew = scipy.stats.skew(samples)
-            kurtosis = scipy.stats.kurtosis(samples)
-            moments[parm] = tuple((mean, var, skew, kurtosis))
-        return moments
-
-    def akaike_ic(self):
-        """Estimate Akaike Information Criterion.
-        This function estimates the Akaike Information Criterion (AIC) for the
-        model simulated with Nested Sampling (NS). It does so by using the
-        largest likelihood value found during the NS run and using that as
-        the maximum likelihood estimate. The AIC formula is given by:
-            AIC = 2k - 2ML,
-        where k is number of sampled parameters and ML is maximum likelihood
-        estimate.
-
-        Returns:
-            float: The AIC estimate.
-        """
+    def max_loglikelihood(self):
         samples = self._output.samples
         mx = samples.max()
         ml = mx['loglike']
-        k = len(self.sampled_parameter)
-        return  2.*k - 2.*ml
-
-    def bayesian_ic(self, n_data):
-        """Estimate Bayesian Information Criterion.
-        This function estimates the Bayesian Information Criterion (BIC) for the
-        model simulated with Nested Sampling (NS). It does so by using the
-        largest likelihood value found during the NS run and taking that as
-        the maximum likelihood estimate. The BIC formula is given by:
-            BIC = ln(n_data)k - 2ML,
-        where n_data is the number of data points used in computing the likelihood
-        function fitting, k is number of sampled parameters, and ML is maximum
-        likelihood estimate.
-
-        Args:
-            n_data (int): The number of data points used when comparing to data
-                in the likelihood function.
-
-        Returns:
-            float: The BIC estimate.
-        """
-        samples = self._output.samples
-        mx = samples.max()
-        ml = mx['loglike']
-        k = len(self.sampled_parameter)
-        return  np.log(n_data)*k - 2.*ml
+        return ml
 
     def deviance_ic(self):
         """Estimate Deviance Information Criterion.
@@ -263,7 +208,6 @@ class PolyChordNestedSampling(object):
         p_D = D_bar - D_of_theta_bar
         return p_D + D_bar
 
-
     def best_fit_likelihood(self):
         """Parameter vector with the maximum likelihood.
         Returns:
@@ -273,23 +217,3 @@ class PolyChordNestedSampling(object):
         midx = np.argmax(samples['loglike'].values)
         ml = samples.values[midx][2:]
         return ml
-
-    def best_fit_posterior(self):
-        """Parameter vector with the maximum posterior weight.
-        The parameter vector is estimated by first estimating the posterior
-        distributions via histogramming. Then the parameters with the
-        highest posterior probability are determined.
-        Returns:
-            numpy.array, numpy.array: The parameter vector and the error
-                associated with the histogram bin widths.
-        """
-        post = self.posteriors()
-        mparms = list()
-        errors = list()
-        for parm in post.keys():
-            marginal, edge, center = post[parm]
-            midx = np.argmax(marginal)
-            mparm = center[midx]
-            mparms.append(mparm)
-            errors.append(edge[1]-edge[0])
-        return np.array(mparms), np.array(errors)/2.0
