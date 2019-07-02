@@ -2,7 +2,7 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.23.0-orange.svg)
+![version](https://img.shields.io/badge/version-0.24.0-orange.svg)
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
@@ -12,7 +12,7 @@
   <img width="100" height="100" src="./images/gleipnir_logo_2.png">
 </p>
 
-Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the classic Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, dyPolyChord, and DNest4.
+Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, dyPolyChord, and DNest4.
 Although Gleipnir provides a general framework for running Nested Sampling simulations, it was created with biological models in mind. It therefore supplies additional tools for working with biological models in the PySB format (see the PySB Utilities section). Likewise, Gleipnir's API was designed to be familiar to users of [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization), which are primarily used for biological model calibration.
 
 ### What is Nested Sampling?
@@ -149,7 +149,7 @@ However, as per [PolyChordLite GitHub Issue 11](https://github.com/PolyChord/Pol
 ```
 pip install pypolychord
 ```
-But note that the current version of pypolychord on PyPI (as of 07-01-2019) is not the most recent version, and some of the extra functionality provided by Gleipnir will not work with it. 
+But note that the current version of pypolychord on PyPI (as of 07-01-2019) is not the most recent version, and some of the extra functionality provided by Gleipnir will not work with it.
 
 Special Notes for builds from source on linux-64:
  * Installs into your .local/lib python site-packages.
