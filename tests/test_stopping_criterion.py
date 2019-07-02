@@ -1,8 +1,8 @@
 import gleipnir.stopping_criterion
-from gleipnir.stopping_criterion import NumberOfIterations, RemainingPriorMass
-from gleipnir.nested_sampling import NestedSampling
+from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations, RemainingPriorMass
+from gleipnir.nestedsampling import NestedSampling
 from gleipnir.sampled_parameter import SampledParameter
-from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
 from scipy.stats import norm
 import numpy as np
 

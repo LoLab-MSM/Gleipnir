@@ -1,5 +1,5 @@
-import gleipnir.samplers
-from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
+import gleipnir.nestedsampling.samplers
+from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
 from gleipnir.sampled_parameter import SampledParameter
 from scipy.stats import norm
 import numpy as np
