@@ -12,9 +12,9 @@ from numpy import exp, log, pi
 from scipy.stats import uniform
 from scipy.special import erf
 from gleipnir.sampled_parameter import SampledParameter
-from gleipnir.nested_sampling import NestedSampling
-from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
-from gleipnir.stopping_criterion import NumberOfIterations
+from gleipnir.nestedsampling import NestedSampling
+from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
 import os
 import glob
 
