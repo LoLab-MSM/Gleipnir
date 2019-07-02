@@ -14,7 +14,7 @@ References:
 import numpy as np
 import pandas as pd
 import warnings
-from .nsbase import NestedSamplingBase
+from ..nsbase import NestedSamplingBase
 from .samplers import MetropolisComponentWiseHardNSRejection
 from .stopping_criterion import NumberOfIterations
 
