@@ -327,10 +327,10 @@ class NestedSampleIt(object):
         else:
             loglikelihood = self.logpdf_loglikelihood
         if ns_version == 'gleipnir-classic':
-            from gleipnir.nested_sampling import NestedSampling
-            from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
+            from gleipnir.nestedsampling import NestedSampling
+            from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
             # from gleipnir.sampled_parameter import SampledParameter
-            from gleipnir.stopping_criterion import NumberOfIterations
+            from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
             # population_size = 100*len(self._sampled_parameters)
             sampler = MetropolisComponentWiseHardNSRejection(iterations=10,
                                                              burn_in=10,
