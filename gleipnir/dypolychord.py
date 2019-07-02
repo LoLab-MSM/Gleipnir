@@ -38,8 +38,6 @@ References:
 """
 
 import numpy as np
-import scipy
-import pandas as pd
 import warnings
 from .nsbase import NestedSamplingBase
 
@@ -226,7 +224,7 @@ class dyPolyChordNestedSampling(NestedSamplingBase):
         self._settings_dict['file_root'] = value
         return
 
-    def posteriors(self):
+    def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
             dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
@@ -247,7 +245,8 @@ class dyPolyChordNestedSampling(NestedSamplingBase):
             # The log posterior weight
             logpw = nestcheck.ns_run_utils.get_logw(self._run)
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(logpw)))
+            if nbins is None:
+                nbins = 2 * int(np.cbrt(len(logpw)))
             self._posteriors = dict()
             for ii,parm in enumerate(parms[0]):
                 marginal, edge = np.histogram(parms[:,ii], weights=logpw, density=True, bins=nbins)

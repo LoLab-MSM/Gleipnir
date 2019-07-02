@@ -13,7 +13,6 @@ References:
 
 import numpy as np
 import pandas as pd
-import scipy
 import warnings
 from .nsbase import NestedSamplingBase
 from .samplers import MetropolisComponentWiseHardNSRejection
@@ -264,7 +263,7 @@ class NestedSampling(NestedSamplingBase):
     def information(self, value):
         warnings.warn("information is not settable")
 
-    def posteriors(self):
+    def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
             dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
@@ -283,7 +282,8 @@ class NestedSampling(NestedSamplingBase):
             gt_mask = norm_weights > 0.0
             parms = self._dead_points.columns[2:]
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(norm_weights[gt_mask])))
+            if nbins is None:
+                nbins = 2 * int(np.cbrt(len(norm_weights[gt_mask])))
             self._posteriors = dict()
             for parm in parms:
                 marginal, edge = np.histogram(self._dead_points[parm][gt_mask], weights=norm_weights[gt_mask], density=True, bins=nbins)

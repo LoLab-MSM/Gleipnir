@@ -18,7 +18,6 @@ References:
 
 import numpy as np
 import pandas as pd
-import scipy
 import warnings
 from .nsbase import NestedSamplingBase
 try:
@@ -261,7 +260,7 @@ class DNest4NestedSampling(NestedSamplingBase):
         self._file_root = value
         return
 
-    def posteriors(self):
+    def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
             dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
@@ -277,7 +276,8 @@ class DNest4NestedSampling(NestedSamplingBase):
             # (i.e. equal weights)
             samples = self._samples
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(samples)))
+            if nbins is None:
+                nbins = 2 * int(np.cbrt(len(samples)))
             nd = samples.shape[1]
             self._posteriors = dict()
             for ii in range(nd):

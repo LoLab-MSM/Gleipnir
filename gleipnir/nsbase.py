@@ -1,6 +1,5 @@
 import numpy as np
 import scipy
-import pandas as pd
 from abc import ABC, abstractmethod
 
 class NestedSamplingBase(ABC):
@@ -53,7 +52,7 @@ class NestedSamplingBase(ABC):
         pass
 
     @abstractmethod
-    def posteriors(self):
+    def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
             dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The

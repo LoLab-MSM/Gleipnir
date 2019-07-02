@@ -19,7 +19,6 @@ References:
 
 import numpy as np
 import scipy
-import pandas as pd
 import warnings
 from .nsbase import NestedSamplingBase
 
@@ -146,7 +145,7 @@ class PolyChordNestedSampling(NestedSamplingBase):
         self._settings.file_root = value
         return
 
-    def posteriors(self):
+    def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
         Returns:
             dict of tuple of (numpy.ndarray, numpy.ndarray, numpy.ndarray): The
@@ -165,7 +164,8 @@ class PolyChordNestedSampling(NestedSamplingBase):
             log_likelihoods = samples['loglike'].to_numpy()
             parms = samples.columns[2:]
             # Rice bin count selection
-            nbins = 2 * int(np.cbrt(len(log_likelihoods)))
+            if nbins is None:
+                nbins = 2 * int(np.cbrt(len(log_likelihoods)))
             self._posteriors = dict()
             for ii,parm in enumerate(parms):
                 marginal, edge = np.histogram(samples[parm], density=True, bins=nbins)
