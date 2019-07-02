@@ -1,4 +1,4 @@
-import gleipnir.stopping_criterion
+import gleipnir.nestedsampling.stopping_criterion
 from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations, RemainingPriorMass
 from gleipnir.nestedsampling import NestedSampling
 from gleipnir.sampled_parameter import SampledParameter
