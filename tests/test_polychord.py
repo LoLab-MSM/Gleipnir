@@ -46,7 +46,7 @@ def test_initialization():
 
 def test_attributes():
     PCNS = shared['PCNS']
-    sp = PCNS.sampled_parameter
+    sp = PCNS.sampled_parameters
     assert sp == sampled_parameters
     lnl = PCNS.loglikelihood
     spv = np.array([5.,5.,5.,5.,5.])
