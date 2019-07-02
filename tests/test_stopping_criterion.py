@@ -21,7 +21,8 @@ def test_numberofiterations_attributes():
 
 def test_numberofiterations_func_call():
     noi = NumberOfIterations(10)
-    NS = NestedSampling(sps, loglikelihood, sampler, 10, noi)
+    NS = NestedSampling(sps, loglikelihood, 10, sampler=sampler,
+                        stopping_criterion=noi)
     fail = noi(NS)
     assert fail == False
 
@@ -35,7 +36,8 @@ def test_remainingpriormass_attributes():
 
 def test_remainingpriormass_func_call():
     rpm = RemainingPriorMass(0.01)
-    NS = NestedSampling(sps, loglikelihood, sampler, 10, rpm)
+    NS = NestedSampling(sps, loglikelihood, 10, sampler=sampler,
+                        stopping_criterion=rpm)
     fail = rpm(NS)
     assert fail == False
 

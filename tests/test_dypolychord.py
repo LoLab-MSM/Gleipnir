@@ -46,7 +46,7 @@ def test_initialization():
 
 def test_attributes():
     dyPCNS = shared['dyPCNS']
-    sp = dyPCNS.sampled_parameter
+    sp = dyPCNS.sampled_parameters
     assert sp == sampled_parameters
     lnl = dyPCNS.loglikelihood
     spv = np.array([5.,5.,5.,5.,5.])
