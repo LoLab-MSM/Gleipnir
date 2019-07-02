@@ -8,7 +8,6 @@ http://johannesbuchner.github.io/pymultinest-tutorial/example1.html
 
 import numpy as np
 from scipy.stats import uniform
-import matplotlib.pyplot as plt
 from gleipnir.sampled_parameter import SampledParameter
 from gleipnir.nestedsampling import NestedSampling
 from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection

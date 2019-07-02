@@ -12,10 +12,10 @@ http://www.nbi.dk/~koskinen/Teaching/AdvancedMethodsInAppliedStatistics2016/Lect
 
 import numpy as np
 from scipy.stats import uniform
-from gleipnir.samplers import MetropolisComponentWiseHardNSRejection
 from gleipnir.sampled_parameter import SampledParameter
-from gleipnir.stopping_criterion import NumberOfIterations
-from gleipnir.nested_sampling import NestedSampling
+from gleipnir.nestedsampling import NestedSampling
+from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
 
 
 # Number of paramters to sample is 2
