@@ -54,20 +54,26 @@ class NestleNestedSampling(NestedSamplingBase):
                     analysis. Default: None -> If neither this nor
                     decline_factor are set, then dlogz will be set to
                     dlogz=0.5.
-
-
+                decline_factor (float): If specified, set a termination
+                    threshold based on the weight (prior mass times likelihood)
+                    of the most recent dead points. Terminates if the weight
+                    has been declining for decline_factor * nsamples iterations.
+                    Nestle documentation suggests a value of 1.0 works well.
+                    Mutually exclusive from dlogz. Default: None -> If neither
+                    this nor dlogz are set, then dlogz will be set to
+                    dlogz=0.5.
 
     References:
         None
     """
 
     def __init__(self, sampled_parameters, loglikelihood, population_size,
-                 **multinest_kwargs):
-        """Initialize the MultiNest Nested Sampler."""
+                 **nestle_kwargs):
+        """Initialize the Nestle Nested Sampler."""
         self.sampled_parameters = sampled_parameters
         self.loglikelihood = loglikelihood
         self.population_size = population_size
-        self.multinest_kwargs = multinest_kwargs
+        self.nestle_kwargs = nestle_kwargs
 
         self._nDims = len(sampled_parameters)
         self._nDerived = 0
@@ -82,7 +88,7 @@ class NestleNestedSampling(NestedSamplingBase):
 
         self._prior_transform = prior_transform
         # multinest settings
-        self._file_root = 'multinest_run_' #string
+        #self._file_root = 'multinest_run_' #string
 
         return
 
@@ -96,7 +102,7 @@ class NestleNestedSampling(NestedSamplingBase):
                                self._nDims,
                                npoints=self.population_size,
                                callback = callback,
-                               **self.multinest_kwargs)
+                               **self.nestle_kwargs)
         if verbose:
             output.summary()
         self._output = output
@@ -144,14 +150,6 @@ class NestleNestedSampling(NestedSamplingBase):
     def information(self, value):
         warnings.warn("information is not settable")
 
-    @property
-    def multinest_file_root(self):
-        """str. The root name used for MultNest output files."""
-        return self._file_root
-    @multinest_file_root.setter
-    def multinest_file_root(self, value):
-        self._file_root = value
-        return
 
     def posteriors(self, nbins=None):
         """Estimates of the posterior marginal probability distributions of each parameter.
