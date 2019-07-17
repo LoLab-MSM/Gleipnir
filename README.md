@@ -368,5 +368,9 @@ https://www.scipy.org/citing.html
         sampling. Statistics and Computing, 21(4), 649-656        
   2. Brewer, B., & Foreman-Mackey, D. (2018). DNest4: Diffusive Nested Sampling in C++ and Python. Journal of Statistical Software, 86(7), 1 - 33. doi:[10.18637/jss.v086.i07](http://dx.doi.org/10.18637/jss.v086.i07)
 
+#### Nestle
+Cite the GitHub repo: https://github.com/kbarbary/nestle
+
+
 #### seaborn
 Reference can be exported from the [seaborn Zeondo DOI entry](https://doi.org/10.5281/zenodo.592845)
