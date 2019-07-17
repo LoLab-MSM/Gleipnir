@@ -10,9 +10,7 @@ http://www.nbi.dk/~koskinen/Teaching/AdvancedMethodsInAppliedStatistics2016/Lect
 
 """
 import numpy as np
-from numpy import exp, log, pi
 from scipy.stats import uniform
-import matplotlib.pyplot as plt
 from gleipnir.sampled_parameter import SampledParameter
 from gleipnir.nestle import NestleNestedSampling
 
