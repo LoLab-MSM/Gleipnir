@@ -2,7 +2,7 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.24.0-orange.svg)
+![version](https://img.shields.io/badge/version-0.25.0-orange.svg)
 [![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
@@ -12,7 +12,7 @@
   <img width="100" height="100" src="./images/gleipnir_logo_2.png">
 </p>
 
-Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, dyPolyChord, and DNest4.
+Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, dyPolyChord, DNest4, and Nestle.
 Although Gleipnir provides a general framework for running Nested Sampling simulations, it was created with biological models in mind. It therefore supplies additional tools for working with biological models in the PySB format (see the PySB Utilities section). Likewise, Gleipnir's API was designed to be familiar to users of [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization), which are primarily used for biological model calibration.
 
 ### What is Nested Sampling?
@@ -177,6 +177,16 @@ conda install -c blakeaw dnest4
 Special Notes for building and installing from source:
  * Requires a c++ compiler with c++11 standard libraries.
  * Requires Cython and numba for python bindings to compile and install
+
+#### Nestle
+If you want to run Nested Sampling simulations using
+[Nestle](https://github.com/kbarbary/nestle) via Gleipnir's interface object, NestleNestedSampling (from the gleipnir.nestle module), then you will need to install Nestle (available on PyPI):
+```
+pip install nestle
+```
+Note that Nestle requires `numpy` to run (also required for gleipnir), and it also optionally requires `scipy`.
+
+For additional information check out the [Nestle documentation](http://kylebarbary.com/nestle/).
 
 ------
 
@@ -357,6 +367,10 @@ https://www.scipy.org/citing.html
   1. Brewer, B. J., Pártay, L. B., & Csányi, G. (2011). Diffusive nested
         sampling. Statistics and Computing, 21(4), 649-656        
   2. Brewer, B., & Foreman-Mackey, D. (2018). DNest4: Diffusive Nested Sampling in C++ and Python. Journal of Statistical Software, 86(7), 1 - 33. doi:[10.18637/jss.v086.i07](http://dx.doi.org/10.18637/jss.v086.i07)
+
+#### Nestle
+Cite the GitHub repo: https://github.com/kbarbary/nestle
+
 
 #### seaborn
 Reference can be exported from the [seaborn Zeondo DOI entry](https://doi.org/10.5281/zenodo.592845)
