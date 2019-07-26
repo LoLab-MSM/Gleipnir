@@ -3,7 +3,7 @@
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
 ![version](https://img.shields.io/badge/version-0.25.0-orange.svg)
-[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.18.0)
+[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.25.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e117a46ae8b241539742ab00f8cd1b38)](https://www.codacy.com/app/blakeaw1102/Gleipnir?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LoLab-VU/Gleipnir&amp;utm_campaign=Badge_Grade)
@@ -13,7 +13,7 @@
 </p>
 
 Gleipnir is a python toolkit that provides an easy to use interface for Bayesian parameter inference and model selection using Nested Sampling. It has a built-in implementation of the Nested Sampling algorithm but also provides a common interface to the Nested Sampling implementations MultiNest, PolyChord, dyPolyChord, DNest4, and Nestle.
-Although Gleipnir provides a general framework for running Nested Sampling simulations, it was created with biological models in mind. It therefore supplies additional tools for working with biological models in the PySB format (see the PySB Utilities section). Likewise, Gleipnir's API was designed to be familiar to users of [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [SimplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization), which are primarily used for biological model calibration.
+Although Gleipnir provides a general framework for running Nested Sampling simulations, it was created with biological models in mind. It therefore supplies additional tools for working with biological models in the PySB format (see the PySB Utilities section). Likewise, Gleipnir's API was designed to be familiar to users of [PyDREAM](https://github.com/LoLab-VU/PyDREAM) and [simplePSO](https://github.com/LoLab-VU/ParticleSwarmOptimization), which are primarily used for biological model calibration.
 
 ### What is Nested Sampling?
 
@@ -44,7 +44,7 @@ The Nested Sampling method was originally developed by John Skilling; see the fo
 
 Gleipnir installs as the `gleipnir` package. It is compatible with Python 3.6.
 
-#### conda install
+### conda install
 Although not absolutely required, we recommend using the [Anaconda](https://www.anaconda.com/) Python distribution and the [conda](https://conda.io/en/latest/) package manager.
 
 `gleipnir` can be installed from the terminal using `conda`:
@@ -76,12 +76,16 @@ and then activate it with:
 conda activate gleipnir
 ```
 
-#### pip install
-You can install the `gleipnir` package using `pip` sourced from the GitHub repo:
+### pip install
+You can `pip` install the `gleipnir` package from its PyPI package using
 ```
-pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.18.0#egg=gleipnir
+pip install gleipnir-ns
 ```
-However, this will not automatically install the core dependencies. You will have to do that separately:
+or it can be directly sourced from the GitHub repo:
+```
+pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.25.0#egg=gleipnir
+```
+However, sourcing from the GitHub repo will not automatically install the core dependencies. You would have to do that separately:
 ```
 pip install numpy scipy pandas
 ```
