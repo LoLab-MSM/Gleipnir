@@ -133,6 +133,42 @@ class NestIt(object):
     def sampled_parameters(self):
         return [SampledParameter(name, self.parm[name]) for name in self.keys()]
 
+    def add_all_kinetic_params(self, pysb_model):
+        for rule in pysb_model.rules:
+            if rule.rate_forward:
+                try:
+                    self.__call__(rule.rate_forward)
+                except:
+                    pass
+            if rule.rate_reverse:
+                try:
+                    self.__call__(rule.rate_reverse)
+                except:
+                    pass
+        return
+
+    def add_all_nonkinetic_params(self, pysb_model):
+        kinetic_params = list()
+        for rule in pysb_model.rules:
+            if rule.rate_forward:
+                 kinetic_params.append(rule.rate_forward)
+            if rule.rate_reverse:
+                 kinetic_params.append(rule.rate_reverse)
+        for param in pysb_model.paramters:
+            if param not in kinetic_params:
+                self.__call__(param)
+        return
+
+    def add_by_name(self, pysb_model, name_or_list):
+        if isinstance(name_or_list, (list, tuple)):
+            for param in pysb_model.parameters:
+                if param.name in name_or_list:
+                    self.__call__(param)
+        else:
+            for param in pysb_model.parameters:
+                if param.name == name_or_list:
+                    self.__call__(param)
+        return
 
 class NestedSampleIt(object):
     """Create instances of Nested Samling objects for PySB models.
