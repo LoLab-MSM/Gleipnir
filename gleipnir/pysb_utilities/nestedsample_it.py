@@ -251,6 +251,7 @@ class NestedSampleIt(object):
             self._rate_mask = rate_mask
 
         self._param_values = np.array([param.value for param in model.parameters])
+        self._custom_loglikelihood = None
         return
 
 
@@ -322,9 +323,30 @@ class NestedSampleIt(object):
             return -np.inf
         return logl
 
+    def custom_loglikelihood(self, position):
+        """Compute the cost using the negative sum of squared errors estimator.
+
+        Args:
+            position (numpy.array): The parameter vector the compute cost
+                of.
+
+        Returns:
+            float: The natural logarithm of the likelihood estimate.
+
+        """
+        Y = np.copy(position)
+        params = self._param_values.copy()
+        params[self._rate_mask] = 10.**Y
+        sim = self._model_solver.run(param_values=[params]).all
+        logl = self._custom_loglikelihood(self.model, sim)
+        if np.isnan(logl):
+            return -np.inf
+        return logl
+
     def __call__(self, ns_version='gleipnir-classic',
                  ns_population_size=1000, ns_kwargs=None,
-                 log_likelihood_type='logpdf'):
+                 log_likelihood_type='logpdf',
+                 custom_loglikelihood=None):
         """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
 
         Args:
@@ -346,6 +368,10 @@ class NestedSampleIt(object):
                     loglikelihood using the negative mean squared error estimator,
                     'sse'=>Compute the loglikelihood using the negative sum of
                      squared errors estimator. Defaults to 'logpdf'.
+                custom_loglikelihood (function): Pass in a custom loglikelihood
+                    function for the NS run, rather than one of the built-in
+                    loglikelihood types. Defaults to None. Takes precedence
+                    over (i.e., overrides) the log_likelihood_type setting.
 
         Returns:
             type: Description of returned object.
@@ -356,12 +382,16 @@ class NestedSampleIt(object):
         # self.ns_version = ns_version
         self._ns_kwargs = ns_kwargs
         population_size = ns_population_size
-        if log_likelihood_type == 'mse':
-            loglikelihood = self.mse_loglikelihood
-        elif log_likelihood_type == 'sse':
-            loglikelihood = self.sse_loglikelihood
+        if custom_loglikelihood is not None:
+            loglikelihood = self.custom_loglikelihood
+            self._custom_loglikelihood = custom_loglikelihood
         else:
-            loglikelihood = self.logpdf_loglikelihood
+            if log_likelihood_type == 'mse':
+                loglikelihood = self.mse_loglikelihood
+            elif log_likelihood_type == 'sse':
+                loglikelihood = self.sse_loglikelihood
+            else:
+                loglikelihood = self.logpdf_loglikelihood
         if ns_version == 'gleipnir-classic':
             from gleipnir.nestedsampling import NestedSampling
             from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
@@ -449,13 +479,21 @@ if __name__ == '__main__':
         print(rule.rate_forward, rule.rate_reverse)
         #print(rule_keys)
         if rule.rate_forward:
-            param = rule.rate_forward
-            #print(param)
-            parameters.append([param,'f'])
+            try:
+                pvalue = rule.rate_forward.value
+                param = rule.rate_forward
+                #print(param)
+                parameters.append([param,'f'])
+            except:
+                pass
         if rule.rate_reverse:
-            param = rule.rate_reverse
-            #print(param)
-            parameters.append([param, 'r'])
+            try:
+                pvalue = rule.rate_reverse.value
+                param = rule.rate_reverse
+                #print(param)
+                parameters.append([param, 'r'])
+            except:
+                pass    
     #print(no_sample)
     parameters = prune_no_samples(parameters, no_sample)
     parameters = update_with_Keq_samples(parameters, Keq_sample)
