@@ -106,7 +106,7 @@ class NestIt(object):
         self.parms[key] = prior
 
     def __delitem__(self, key):
-        del self.parm[key]
+        del self.parms[key]
 
     def __contains__(self, key):
         return (key in self.names)
@@ -137,7 +137,7 @@ class NestIt(object):
         return [self.parm[name] for name in self.parm.keys()]
 
     def sampled_parameters(self):
-        return [SampledParameter(name, self.parm[name]) for name in self.keys()]
+        return [SampledParameter(name, self.parms[name]) for name in self.keys()]
 
     def default_to_norm_prior(self):
         self._default_prior = 'norm'
