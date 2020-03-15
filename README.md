@@ -2,8 +2,8 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.25.0-orange.svg)
-[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.25.0)
+![version](https://img.shields.io/badge/version-0.26.0-orange.svg)
+[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.26.0)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e117a46ae8b241539742ab00f8cd1b38)](https://www.codacy.com/app/blakeaw1102/Gleipnir?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LoLab-VU/Gleipnir&amp;utm_campaign=Badge_Grade)
@@ -83,7 +83,7 @@ pip install gleipnir-ns
 ```
 or it can be directly sourced from the GitHub repo:
 ```
-pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.25.0#egg=gleipnir
+pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.26.0#egg=gleipnir
 ```
 However, sourcing from the GitHub repo will not automatically install the core dependencies. You would have to do that separately:
 ```
@@ -266,24 +266,25 @@ observable_data['my_observable'] = (data, data_sd, time_idxs)
 sample_it = NestedSampleIt(my_model, observable_data, timespan)
 # Now build the NestedSampling object. -- All inputs are
 # optional keyword arguments.
-nested_sampler = sample_it(ns_version='gleipnir-classic',
+nested_sampler = sample_it(ns_version='built-in',
                            ns_population_size=100,
                            ns_kwargs=dict(),
-                           log_likelihood_type='logpdf')
+                           log_likelihood_type='snlpdf')
 # Then you can run the nested sampler.
 log_evidence, log_evidence_error = nested_sampler.run()
 ```
 
 NestedSampleIt constructs the NestedSampling object to sample all of a model's kinetic rate parameters. It assumes that the priors are uniform with size 4 orders of magnitude and centered on the values defined in the model.
 
-In addition, NestedSampleIt crrently has three pre-defined loglikelihood functions with different estimators. They can be specified with the keyword parameter log_likelihood_type:
+In addition, NestedSampleIt currently has three pre-defined loglikelihood functions with different estimators. They can be specified with the keyword parameter log_likelihood_type:
 ```python
 # Now build the NestedSampling object.
-nested_sampler = sample_it(log_likelihood_type='logpdf')
+nested_sampler = sample_it(log_likelihood_type='snlpdf')
 ```
 The options are
-  * 'logpdf'=>Compute the loglikelihood using the
-normal distribution estimator
+  * 'snlpdf'=>Compute the loglikelihood using the
+sum of logpdfs for normal distribution estimators centered
+on data points with error sigma.
   * 'mse'=>Compute the loglikelihood using the
 negative mean squared error estimator
   * 'sse'=>Compute the loglikelihood using
@@ -293,12 +294,12 @@ Each of these functions computes the loglikelihood estimate using the timecourse
 If you want to use a different or more complicated likelihood function with NestedSampleIt then you'll need to subclass it and override one of the existing loglikelihood functions.  
 
 #### NestIt
-The nestedsample_it module has a built-in helper class, NestIt, which can be used in conjunction of with NestedSampleIt class. NestIt can be used at the level of PySB model definition to log which parameters to include in
-a Nested Sampling run. It can be imported from the pysb_utilities module:
+The nestedsample_it module has a built-in helper class, NestIt, which can be used either in conjunction with NestedSampleIt class or on its own to log parameters for sampling. NestIt can be used at the level of PySB model definition to log which parameters to include in
+a Nested Sampling run. It can also be used outside of the model definition. It can be imported from the pysb_utilities module:
 ```python
 from gleipnir.pysb_utilities import NestIt
 ```
-It is passed at instantiation to the NestedSampleIt class, which uses it
+If passed at instantiation to the NestedSampleIt class, the NestedSampleIt object will use it
 to build the sampled parameters list and parameter mask for the likelihood
 function.
 See the following example files:
@@ -306,7 +307,7 @@ See the following example files:
    * [dimerization_model_nestit](./examples/pysb_dimerization_model/dimerization_model_nestit.py) - example model definition using NestIt to flag parameters.
    * [run_NS_NestedSampleIt_NestIt_dimerization_model](./examples/pysb_dimerization_model/run_NS_NestedSampleIt_NestIt_dimerization_model.py) - example use of NestIt with NestedSampleIt.
 
-Note that if you flag a parameter for sampling without setting a prior, NestIt will by default assign the parameter a uniform prior centered on the parameter's value with a width of 4 orders of magnitude.  
+Note that if you flag a parameter for sampling without setting a prior, NestIt will by default assign the parameter a uniform prior centered on the parameter's value with a width of 4 orders of magnitude. You can alter this behavior by calling the `default_to_norm_prior` function before adding parameters to the NestIt instance which will set the default priors to a norm distribution centered on the nominal parameter value with a sigma of 2 orders of magnitude.  
 
 #### Builder class from pysb.builder
 

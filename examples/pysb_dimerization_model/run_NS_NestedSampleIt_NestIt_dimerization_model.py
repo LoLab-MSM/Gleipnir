@@ -26,10 +26,10 @@ if __name__ == '__main__':
     sample_it = NestedSampleIt(model, observable_data, tspan, nest_it=nest_it)
     # Now build the NestedSampling object. -- All inputs are
     # optional keyword arguments.
-    nested_sampler = sample_it(ns_version='gleipnir-classic',
+    nested_sampler = sample_it(ns_version='built-in',
                                ns_population_size=population_size,
                                ns_kwargs=dict(),
-                               log_likelihood_type='logpdf')
+                               log_likelihood_type='snlpdf')
     print(len(nested_sampler.sampled_parameters))
     # Then you can run the nested sampler.
     log_evidence, log_evidence_error = nested_sampler.run(verbose=True)

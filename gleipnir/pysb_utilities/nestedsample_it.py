@@ -1,5 +1,6 @@
 import importlib
 import os.path
+import warnings
 try:
     import pysb
     from pysb.simulator import ScipyOdeSimulator
@@ -75,6 +76,7 @@ class NestIt(object):
 
     def __init__(self):
         self.parms = dict()
+        self._default_prior = 'uniform'
         return
 
     def __call__(self, parameter, prior=None):
@@ -89,7 +91,12 @@ class NestIt(object):
                 is used with a scale 4 orders of magnitude.
         """
         if prior is None:
-            prior = uniform(loc=np.log10(parameter.value)-2.0, scale=4.0)
+            if self._default_prior == 'norm':
+                # Default to norm distribution
+                prior = norm(loc=np.log10(parameter.value), scale=2.0)
+            else:
+                # Default to uniform distribution
+                prior = uniform(loc=np.log10(parameter.value)-2.0, scale=4.0)
         self.parms[parameter.name] = prior
         return parameter
 
@@ -100,7 +107,7 @@ class NestIt(object):
         self.parms[key] = prior
 
     def __delitem__(self, key):
-        del self.parm[key]
+        del self.parms[key]
 
     def __contains__(self, key):
         return (key in self.names)
@@ -131,8 +138,52 @@ class NestIt(object):
         return [self.parm[name] for name in self.parm.keys()]
 
     def sampled_parameters(self):
-        return [SampledParameter(name, self.parm[name]) for name in self.keys()]
+        return [SampledParameter(name, self.parms[name]) for name in self.keys()]
 
+    def default_to_norm_prior(self):
+        self._default_prior = 'norm'
+        return
+
+    def default_to_uniform_prior(self):
+        self._default_prior = 'uniform'
+        return
+
+    def add_all_kinetic_params(self, pysb_model):
+        for rule in pysb_model.rules:
+            if rule.rate_forward:
+                try:
+                    self.__call__(rule.rate_forward)
+                except:
+                    warnings.warn('Ignoring kinetic rate defined as a PySB Expression.')
+            if rule.rate_reverse:
+                try:
+                    self.__call__(rule.rate_reverse)
+                except:
+                    warnings.warn('Ignoring kinetic rate defined as a PySB Expression.')
+        return
+
+    def add_all_nonkinetic_params(self, pysb_model):
+        kinetic_params = list()
+        for rule in pysb_model.rules:
+            if rule.rate_forward:
+                 kinetic_params.append(rule.rate_forward)
+            if rule.rate_reverse:
+                 kinetic_params.append(rule.rate_reverse)
+        for param in pysb_model.paramters:
+            if param not in kinetic_params:
+                self.__call__(param)
+        return
+
+    def add_by_name(self, pysb_model, name_or_list):
+        if isinstance(name_or_list, (list, tuple)):
+            for param in pysb_model.parameters:
+                if param.name in name_or_list:
+                    self.__call__(param)
+        else:
+            for param in pysb_model.parameters:
+                if param.name == name_or_list:
+                    self.__call__(param)
+        return
 
 class NestedSampleIt(object):
     """Create instances of Nested Samling objects for PySB models.
@@ -215,10 +266,11 @@ class NestedSampleIt(object):
             self._rate_mask = rate_mask
 
         self._param_values = np.array([param.value for param in model.parameters])
+        self._custom_loglikelihood = None
         return
 
 
-    def logpdf_loglikelihood(self, position):
+    def sum_norm_logpdfs_loglikelihood(self, position):
         """Compute the loglikelihood using the normal distribution estimator.
 
         Args:
@@ -286,18 +338,39 @@ class NestedSampleIt(object):
             return -np.inf
         return logl
 
-    def __call__(self, ns_version='gleipnir-classic',
+    def custom_loglikelihood(self, position):
+        """Compute the cost using the negative sum of squared errors estimator.
+
+        Args:
+            position (numpy.array): The parameter vector the compute cost
+                of.
+
+        Returns:
+            float: The natural logarithm of the likelihood estimate.
+
+        """
+        Y = np.copy(position)
+        params = self._param_values.copy()
+        params[self._rate_mask] = 10.**Y
+        sim = self._model_solver.run(param_values=[params]).all
+        logl = self._custom_loglikelihood(self.model, sim)
+        if np.isnan(logl):
+            return -np.inf
+        return logl
+
+    def __call__(self, ns_version='built-in',
                  ns_population_size=1000, ns_kwargs=None,
-                 log_likelihood_type='logpdf'):
+                 log_likelihood_type='snlpdf',
+                 custom_loglikelihood=None):
         """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
 
         Args:
                 ns_version (str): Defines which version of Nested Sampling to use.
-                    Options are 'gleipnir-classic'=>Gleipnir's built-in implementation
+                    Options are 'built-in'=>Gleipnir's built-in implementation
                     of the classic Nested Sampling algorithm, 'multinest'=>Use the
                     MultiNest code via Gleipnir, 'polychord'=>Use the PolyChord code
                     via Gleipnir, or 'dnest4'=>Use the DNest4 program via Gleipnir.
-                    Defaults to 'gleipnir-classic'.
+                    Defaults to 'built-in'.
                 ns_population_size (int): Set the size of the active population
                     of sample points to use during Nested Sampling runs.
                     Defaults to 1000.
@@ -305,11 +378,15 @@ class NestedSampleIt(object):
                     arguments to pass to NestedSampling object constructor.
                     Defaults to dict().
                 log_likelihood_type (str): Define the type of loglikelihood estimator
-                    to use. Options are 'logpdf'=>Compute the loglikelihood using
+                    to use. Options are 'snlpdf'=>Compute the loglikelihood using
                     the normal distribution estimator, 'mse'=>Compute the
                     loglikelihood using the negative mean squared error estimator,
                     'sse'=>Compute the loglikelihood using the negative sum of
-                     squared errors estimator. Defaults to 'logpdf'.
+                     squared errors estimator. Defaults to 'snlpdf'.
+                custom_loglikelihood (function): Pass in a custom loglikelihood
+                    function for the NS run, rather than one of the built-in
+                    loglikelihood types. Defaults to None. Takes precedence
+                    over (i.e., overrides) the log_likelihood_type setting.
 
         Returns:
             type: Description of returned object.
@@ -320,13 +397,17 @@ class NestedSampleIt(object):
         # self.ns_version = ns_version
         self._ns_kwargs = ns_kwargs
         population_size = ns_population_size
-        if log_likelihood_type == 'mse':
-            loglikelihood = self.mse_loglikelihood
-        elif log_likelihood_type == 'sse':
-            loglikelihood = self.sse_loglikelihood
+        if custom_loglikelihood is not None:
+            loglikelihood = self.custom_loglikelihood
+            self._custom_loglikelihood = custom_loglikelihood
         else:
-            loglikelihood = self.logpdf_loglikelihood
-        if ns_version == 'gleipnir-classic':
+            if log_likelihood_type == 'mse':
+                loglikelihood = self.mse_loglikelihood
+            elif log_likelihood_type == 'sse':
+                loglikelihood = self.sse_loglikelihood
+            else:
+                loglikelihood = self.sum_norm_logpdfs_loglikelihood
+        if ns_version == 'built-in':
             from gleipnir.nestedsampling import NestedSampling
             from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
             # from gleipnir.sampled_parameter import SampledParameter
@@ -413,13 +494,21 @@ if __name__ == '__main__':
         print(rule.rate_forward, rule.rate_reverse)
         #print(rule_keys)
         if rule.rate_forward:
-            param = rule.rate_forward
-            #print(param)
-            parameters.append([param,'f'])
+            try:
+                pvalue = rule.rate_forward.value
+                param = rule.rate_forward
+                #print(param)
+                parameters.append([param,'f'])
+            except:
+                warnings.warn('Ignoring kinetic rate defined as a PySB Expression.')
         if rule.rate_reverse:
-            param = rule.rate_reverse
-            #print(param)
-            parameters.append([param, 'r'])
+            try:
+                pvalue = rule.rate_reverse.value
+                param = rule.rate_reverse
+                #print(param)
+                parameters.append([param, 'r'])
+            except:
+                warnings.warn('Ignoring kinetic rate defined as a PySB Expression.')
     #print(no_sample)
     parameters = prune_no_samples(parameters, no_sample)
     parameters = update_with_Keq_samples(parameters, Keq_sample)
