@@ -1,4 +1,4 @@
-import importlib
+snlpdfimport importlib
 import os.path
 try:
     import pysb
@@ -75,6 +75,7 @@ class NestIt(object):
 
     def __init__(self):
         self.parms = dict()
+        self._default_prior = 'uniform'
         return
 
     def __call__(self, parameter, prior=None):
@@ -89,7 +90,12 @@ class NestIt(object):
                 is used with a scale 4 orders of magnitude.
         """
         if prior is None:
-            prior = uniform(loc=np.log10(parameter.value)-2.0, scale=4.0)
+            if self._default_prior == 'norm':
+                # Default to norm distribution
+                prior = norm(loc=np.log10(parameter.value), scale=2.0)
+            else:
+                # Default to uniform distribution
+                prior = uniform(loc=np.log10(parameter.value)-2.0, scale=4.0)
         self.parms[parameter.name] = prior
         return parameter
 
@@ -132,6 +138,14 @@ class NestIt(object):
 
     def sampled_parameters(self):
         return [SampledParameter(name, self.parm[name]) for name in self.keys()]
+
+    def default_to_norm_prior(self):
+        self._default_prior = 'norm'
+        return
+
+    def default_to_uniform_prior(self):
+        self._default_prior = 'uniform'
+        return
 
     def add_all_kinetic_params(self, pysb_model):
         for rule in pysb_model.rules:
@@ -255,7 +269,7 @@ class NestedSampleIt(object):
         return
 
 
-    def logpdf_loglikelihood(self, position):
+    def sum_norm_logpdfs_loglikelihood(self, position):
         """Compute the loglikelihood using the normal distribution estimator.
 
         Args:
@@ -343,19 +357,19 @@ class NestedSampleIt(object):
             return -np.inf
         return logl
 
-    def __call__(self, ns_version='gleipnir-classic',
+    def __call__(self, ns_version='built-in',
                  ns_population_size=1000, ns_kwargs=None,
-                 log_likelihood_type='logpdf',
+                 log_likelihood_type='snlpdf',
                  custom_loglikelihood=None):
         """Call the NestedSampleIt instance to construct to instance of the NestedSampling object.
 
         Args:
                 ns_version (str): Defines which version of Nested Sampling to use.
-                    Options are 'gleipnir-classic'=>Gleipnir's built-in implementation
+                    Options are 'built-in'=>Gleipnir's built-in implementation
                     of the classic Nested Sampling algorithm, 'multinest'=>Use the
                     MultiNest code via Gleipnir, 'polychord'=>Use the PolyChord code
                     via Gleipnir, or 'dnest4'=>Use the DNest4 program via Gleipnir.
-                    Defaults to 'gleipnir-classic'.
+                    Defaults to 'built-in'.
                 ns_population_size (int): Set the size of the active population
                     of sample points to use during Nested Sampling runs.
                     Defaults to 1000.
@@ -363,11 +377,11 @@ class NestedSampleIt(object):
                     arguments to pass to NestedSampling object constructor.
                     Defaults to dict().
                 log_likelihood_type (str): Define the type of loglikelihood estimator
-                    to use. Options are 'logpdf'=>Compute the loglikelihood using
+                    to use. Options are 'snlpdf'=>Compute the loglikelihood using
                     the normal distribution estimator, 'mse'=>Compute the
                     loglikelihood using the negative mean squared error estimator,
                     'sse'=>Compute the loglikelihood using the negative sum of
-                     squared errors estimator. Defaults to 'logpdf'.
+                     squared errors estimator. Defaults to 'snlpdf'.
                 custom_loglikelihood (function): Pass in a custom loglikelihood
                     function for the NS run, rather than one of the built-in
                     loglikelihood types. Defaults to None. Takes precedence
@@ -391,8 +405,8 @@ class NestedSampleIt(object):
             elif log_likelihood_type == 'sse':
                 loglikelihood = self.sse_loglikelihood
             else:
-                loglikelihood = self.logpdf_loglikelihood
-        if ns_version == 'gleipnir-classic':
+                loglikelihood = self.sum_norm_logpdfs_loglikelihood
+        if ns_version == 'built-in':
             from gleipnir.nestedsampling import NestedSampling
             from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
             # from gleipnir.sampled_parameter import SampledParameter
@@ -493,7 +507,7 @@ if __name__ == '__main__':
                 #print(param)
                 parameters.append([param, 'r'])
             except:
-                pass    
+                pass
     #print(no_sample)
     parameters = prune_no_samples(parameters, no_sample)
     parameters = update_with_Keq_samples(parameters, Keq_sample)
