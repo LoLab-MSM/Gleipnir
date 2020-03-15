@@ -1,4 +1,4 @@
-snlpdfimport importlib
+import importlib
 import os.path
 try:
     import pysb
