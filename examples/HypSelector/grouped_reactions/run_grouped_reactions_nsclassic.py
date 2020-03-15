@@ -50,14 +50,14 @@ if __name__ == '__main__':
     selector.append_to_models(obs_line)
 
     # Now let's construct the Nested Samplers for the models.
-    # ns_version='gleipnir-classic' will use Gleipnir's built-in implementation
+    # ns_version='built-in' will use Gleipnir's built-in implementation
     # of the classic Nested Sampling algorithm.
     # ns_population_size=100 will set the active population size for the Nested
     # Sampling runs to 100.
     # log_likelihood_type='mse' will use the minus of the Mean Squared Error (mse)
     # as the log_likelihood estimator.
     selector.gen_nested_samplers(tspan, observable_data, solver=solver,
-                                 ns_version='gleipnir-classic',
+                                 ns_version='built-in',
                                  ns_population_size=100,
                                  log_likelihood_type='mse')
 

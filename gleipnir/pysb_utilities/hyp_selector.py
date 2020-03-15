@@ -133,9 +133,9 @@ class HypSelector(object):
 
     def gen_nested_samplers(self, timespan, observable_data,
                         solver=pysb.simulator.ScipyOdeSimulator,
-                        solver_kwargs=None, ns_version='gleipnir-classic',
+                        solver_kwargs=None, ns_version='built-in',
                         ns_population_size=1000, ns_kwargs=None,
-                        log_likelihood_type='logpdf'):
+                        log_likelihood_type='snlpdf'):
         """Generate the Nested Sampling objects for each model.
 
         The Nested Sampling object instances are stored in a list as the
@@ -154,11 +154,11 @@ class HypSelector(object):
             solver_kwargs (dict): Dictionary of optional keyword arguments to
                 pass to the solver when it is initialized. Defaults to dict().
             ns_version (str): Defines which version of Nested Sampling to use.
-                Options are 'gleipnir-classic'=>Gleipnir's built-in implementation
+                Options are 'built-in'=>Gleipnir's built-in implementation
                 of the classic Nested Sampling algorithm, 'multinest'=>Use the
                 MultiNest code via Gleipnir, 'polychord'=>Use the PolyChord code
                 via Gleipnir, or 'dnest4'=>Use the DNest4 program via Gleipnir.
-                Defaults to 'gleipnir-classic'.
+                Defaults to 'built-in'.
             ns_population_size (int): Set the size of the active population
                 of sample points to use during Nested Sampling runs.
                 Defaults to 1000.
@@ -166,11 +166,11 @@ class HypSelector(object):
                 arguments to pass to NestedSampling object constructor.
                 Defaults to dict().
             log_likelihood_type (str): Define the type of loglikelihood estimator
-                to use. Options are 'logpdf'=>Compute the loglikelihood using
+                to use. Options are 'snlpdf'=>Compute the loglikelihood using
                 the normal distribution estimator, 'mse'=>Compute the
                 loglikelihood using the negative mean squared error estimator,
                 'sse'=>Compute the loglikelihood using the negative sum of
-                 squared errors estimator. Defaults to 'logpdf'.
+                 squared errors estimator. Defaults to 'snlpdf'.
 
         Returns:
             None
