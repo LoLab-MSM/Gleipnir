@@ -1,5 +1,6 @@
 import importlib
 import os.path
+import warnings
 try:
     import pysb
     from pysb.simulator import ScipyOdeSimulator
@@ -153,12 +154,12 @@ class NestIt(object):
                 try:
                     self.__call__(rule.rate_forward)
                 except:
-                    pass
+                    warning.warn('Ignoring kinetic rate defined as a PySB Expression.')
             if rule.rate_reverse:
                 try:
                     self.__call__(rule.rate_reverse)
                 except:
-                    pass
+                    warning.warn('Ignoring kinetic rate defined as a PySB Expression.')
         return
 
     def add_all_nonkinetic_params(self, pysb_model):
@@ -499,7 +500,7 @@ if __name__ == '__main__':
                 #print(param)
                 parameters.append([param,'f'])
             except:
-                pass
+                warning.warn('Ignoring kinetic rate defined as a PySB Expression.')
         if rule.rate_reverse:
             try:
                 pvalue = rule.rate_reverse.value
@@ -507,7 +508,7 @@ if __name__ == '__main__':
                 #print(param)
                 parameters.append([param, 'r'])
             except:
-                pass
+                warning.warn('Ignoring kinetic rate defined as a PySB Expression.')
     #print(no_sample)
     parameters = prune_no_samples(parameters, no_sample)
     parameters = update_with_Keq_samples(parameters, Keq_sample)
