@@ -1,4 +1,6 @@
 import warnings
+import pysb
+from pysb.simulator import ScipyOdeSimulator
 from .nestedsample_it import NestedSampleIt, NestIt
 try:
     from .hyp_selector import HypSelector
