@@ -1,15 +1,15 @@
 import importlib
 import os.path
 import warnings
-try:
-    import pysb
-    from pysb.simulator import ScipyOdeSimulator
-except ImportError:
-    pass
-from scipy.stats import norm, uniform
-import numpy as np
-from gleipnir.sampled_parameter import SampledParameter
 
+import numpy as np
+import pysb
+from pysb.simulator import ScipyOdeSimulator
+from scipy.stats import norm, uniform
+
+from ..sampled_parameter import SampledParameter
+
+default_solver = ScipyOdeSimulator
 
 def is_numbers(inputString):
     return all(char.isdigit() for char in inputString)
@@ -222,7 +222,7 @@ class NestedSampleIt(object):
 
     """
     def __init__(self, model, observable_data, timespan,
-                 solver=pysb.simulator.ScipyOdeSimulator,
+                 solver=default_solver,
                  solver_kwargs=None, nest_it=None, builder=None):
         """Inits the NestedSampleIt."""
         if solver_kwargs is None:
