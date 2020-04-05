@@ -2,8 +2,8 @@
 
 ![Python version badge](https://img.shields.io/badge/python-3.6-blue.svg)
 [![license](https://img.shields.io/github/license/LoLab-VU/Gleipnir.svg)](LICENSE)
-![version](https://img.shields.io/badge/version-0.26.0-orange.svg)
-[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.26.0)
+![version](https://img.shields.io/badge/version-0.26.1-orange.svg)
+[![release](https://img.shields.io/github/release-pre/LoLab-VU/Gleipnir.svg)](https://github.com/LoLab-VU/Gleipnir/releases/tag/v0.26.1)
 [![anaconda cloud](https://anaconda.org/blakeaw/gleipnir/badges/version.svg)](https://anaconda.org/blakeaw/gleipnir)
 [![DOI](https://zenodo.org/badge/173688080.svg)](https://zenodo.org/badge/latestdoi/173688080)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e117a46ae8b241539742ab00f8cd1b38)](https://www.codacy.com/app/blakeaw1102/Gleipnir?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LoLab-VU/Gleipnir&amp;utm_campaign=Badge_Grade)
@@ -83,7 +83,7 @@ pip install gleipnir-ns
 ```
 or it can be directly sourced from the GitHub repo:
 ```
-pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.26.0#egg=gleipnir
+pip install -e git+https://github.com/LoLab-VU/Gleipnir@v0.26.1#egg=gleipnir
 ```
 However, sourcing from the GitHub repo will not automatically install the core dependencies. You would have to do that separately:
 ```
