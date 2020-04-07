@@ -76,7 +76,7 @@ class NestedSamplingBase(ABC):
             marginal, edges, centers = post[parm]
             width = edges[1] - edges[0]
             # resample from the distribution
-            samples = np.random.choice(centers, size=1000000, p=marginal/(marginal.sum())) + (width*(np.random.random(10000)-0.5))
+            samples = np.random.choice(centers, size=1000000, p=marginal/(marginal.sum())) + (width*(np.random.random(1000000)-0.5))
             mean = np.mean(samples)
             var = np.var(samples)
             skew = scipy.stats.skew(samples)
