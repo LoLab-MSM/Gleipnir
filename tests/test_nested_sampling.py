@@ -13,7 +13,7 @@ from scipy.stats import uniform
 from scipy.special import erf
 from gleipnir.sampled_parameter import SampledParameter
 from gleipnir.nestedsampling import NestedSampling
-from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.nestedsampling.samplers import MetropolisSampler
 from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
 import os
 import glob
@@ -25,9 +25,9 @@ ndim = 5
 # we are using a fixed uniform prior from scipy.stats
 sampled_parameters = [SampledParameter(name=i, prior=uniform(loc=-5.0,scale=10.0)) for i in range(ndim)]
 # Set the active point population size
-population_size = 20
+population_size = 40
 
-sampler = MetropolisComponentWiseHardNSRejection(iterations=10, tuning_cycles=1)
+sampler = MetropolisSampler(iterations=10, tuning_cycles=1)
 stopping_criterion = NumberOfIterations(120)
 
 # Define the loglikelihood function

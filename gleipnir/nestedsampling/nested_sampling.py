@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import warnings
 from ..nsbase import NestedSamplingBase
-from .samplers import MetropolisComponentWiseHardNSRejection
+from .samplers import MetropolisSampler
 from .stopping_criterion import NumberOfIterations
 
 
@@ -34,7 +34,7 @@ class NestedSampling(NestedSamplingBase):
             Sampling active population.
         sampler (obj from gleipnir.samplers, optional): The sampling scheme to
             be used when updating sample points.
-            Default: MetropolisComponentWiseHardNSRejection(10, tuning_cycles=1)
+            Default: MetropolisSampler(10, tuning_cycles=1)
         stopping_criterion (obj from gleipnir.stopping_criterion, optional):
             The criterion that should be used to determine when to stop the
             Nested Sampling run. Default: NumberOfIterations(1000)
@@ -48,7 +48,7 @@ class NestedSampling(NestedSamplingBase):
     """
 
     def __init__(self, sampled_parameters, loglikelihood, population_size,
-                 sampler=MetropolisComponentWiseHardNSRejection(10, tuning_cycles=1),
+                 sampler=MetropolisSampler(10, tuning_cycles=1),
                  stopping_criterion=NumberOfIterations(1000)):
         """Initialize the Nested Sampler."""
         # stor inputs
@@ -73,6 +73,8 @@ class NestedSampling(NestedSamplingBase):
         self._previous_evidence = 0.0
         self._current_weights = 1.0
         self._previous_weight = 1.0
+        self._current_loglikelihood_level = None
+        self._previous_loglikelihood_level = None
         self._n_iterations = 0
         self._dead_points = list()
         self._live_points = None
@@ -112,25 +114,26 @@ class NestedSampling(NestedSamplingBase):
         self._current_weights = 1.0 - self._alpha**self._n_iterations
 
         # Get the lowest likelihood live point
-        ndx = np.argmin(log_likelihoods)
-        log_l = log_likelihoods[ndx]
-        param_vec = self._live_points.values[ndx]
-        dZ = self._current_weights*np.exp(log_l)
+        lowest_likelihood_ndx = np.argmin(log_likelihoods)
+        self._current_loglikelihood_level = log_likelihoods[lowest_likelihood_ndx]
+        lowest_likelihood_sample = self._live_points.values[lowest_likelihood_ndx]
+        # Accumulate the evidence
+        dZ = self._current_weights*np.exp(self._current_loglikelihood_level)
         self._evidence += dZ
         # Accumulate the information
-        dH = dZ*log_l
-        if np.isnan(dH): dH = 0.0
+        dH = dZ*self._current_loglikelihood_level
+        if np.isnan(dH): dH = 0.
         self._H += dH
-        if self._evidence > 0.0:
+        if self._evidence > 0.:
             self._information = -np.log(self._evidence)+self._H/self._evidence
 
         self._previous_weight = self._current_weights
         # Add the lowest likelihood live point to dead points -- use dict that
         # that can be easily converted to pandas DataFrame.
-        dpd = dict({'log_l': log_l, 'weight':self._current_weights})
-        for k,val in enumerate(param_vec):
-            dpd[self.sampled_parameters[k].name] = val
-        self._dead_points.append(dpd)
+        dead_point_data = dict({'log_l': self._current_loglikelihood_level, 'weight':self._current_weights})
+        for k,val in enumerate(lowest_likelihood_sample):
+            dead_point_data[self.sampled_parameters[k].name] = val
+        self._dead_points.append(dead_point_data)
 
         if verbose:
             print("Iteration: {} Evidence estimate: {} Remaining prior mass: {}".format(self._n_iterations, self._evidence, self._alpha**self._n_iterations))
@@ -144,33 +147,37 @@ class NestedSampling(NestedSamplingBase):
 
             # Replace the dead point with a modified survivor.
             # Choose at random from the survivors.
-            r_p_ndx = int(np.random.random(1)*self.population_size)
-            while r_p_ndx == ndx:
-                r_p_ndx = int(np.random.random(1)*self.population_size)
+            random_survivor_ndx = int(np.random.random(1)*self.population_size)
+            while random_survivor_ndx == lowest_likelihood_ndx:
+                random_survivor_ndx = int(np.random.random(1)*self.population_size)
             # Now make a new point from the survivor via the sampler.
-            r_p_param_vec = self._live_points.values[r_p_ndx]
-            updated_point_param_vec, u_log_l = self.sampler(self.sampled_parameters, self.loglikelihood, r_p_param_vec, log_l)
-            log_likelihoods[ndx] = u_log_l
-            self._live_points.values[ndx] = updated_point_param_vec
+            random_survivor = self._live_points.values[random_survivor_ndx]
+            random_survivor_loglikehood = log_likelihoods[random_survivor_ndx]
+            updated_point, updated_log_likelihood = self._update_sample(random_survivor,
+                                                                        random_survivor_loglikehood)
+            log_likelihoods[lowest_likelihood_ndx] = updated_log_likelihood
+            self._live_points.values[lowest_likelihood_ndx] = updated_point
             # Get the lowest likelihood live point.
-            ndx = np.argmin(log_likelihoods)
-            log_l = log_likelihoods[ndx]
-            param_vec = self._live_points.values[ndx]
+            lowest_likelihood_ndx = np.argmin(log_likelihoods)
+            self._previous_loglikelihood_level = self._current_loglikelihood_level
+            self._current_loglikelihood_level = log_likelihoods[lowest_likelihood_ndx]
+
+            lowest_likelihood_sample = self._live_points.values[lowest_likelihood_ndx]
             # Accumulate the evidence.
-            dZ = self._current_weights*np.exp(log_l)
+            dZ = self._current_weights*np.exp(self._current_loglikelihood_level)
             self._evidence += dZ
             # Accumulate the information.
-            dH = dZ*log_l
+            dH = dZ*self._current_loglikelihood_level
             if np.isnan(dH): dH = 0.0
             self._H += dH
             if self._evidence > 0.0:
                 self._information = -np.log(self._evidence)+self._H/self._evidence
 
             # Add the lowest likelihood live point to dead points
-            dpd = dict({'log_l': log_l, 'weight':self._current_weights})
-            for k,val in enumerate(param_vec):
-                dpd[self.sampled_parameters[k].name] = val
-            self._dead_points.append(dpd)
+            dead_point_data = dict({'log_l': self._current_loglikelihood_level, 'weight':self._current_weights})
+            for k,val in enumerate(lowest_likelihood_sample):
+                dead_point_data[self.sampled_parameters[k].name] = val
+            self._dead_points.append(dead_point_data)
 
             self._previous_weight = self._current_weights
             if verbose and (self._n_iterations%10==0):
@@ -183,8 +190,8 @@ class NestedSampling(NestedSamplingBase):
         # Accumulate the final bit for remaining surviving points.
         weight = self._alpha**(self._n_iterations)
         likelihoods = np.exp(log_likelihoods)
-        likelihoods_surv = np.array([likelihood for i,likelihood in enumerate(likelihoods) if i != ndx])
-        l_m = likelihoods_surv.mean()
+        final_survivors_loglikelihoods = np.array([likelihood for i,likelihood in enumerate(likelihoods) if i != lowest_likelihood_ndx])
+        l_m = final_survivors_loglikelihoods.mean()
         self._evidence += weight*l_m
         # Accumulate the information.
         dH = weight*l_m*np.log(l_m)
@@ -192,15 +199,15 @@ class NestedSampling(NestedSamplingBase):
         self._H += dH
         if self._evidence > 0.0:
             self._information = -np.log(self._evidence)+self._H/self._evidence
-        n_left = len(likelihoods_surv)
+        n_left = len(final_survivors_loglikelihoods)
         a_weight = weight/n_left
         # Add the final survivors to the dead points.
         for i,l_likelihood in enumerate(log_likelihoods):
-            if i != ndx:
-                dpd = dict({'log_l': l_likelihood, 'weight':a_weight})
+            if i != lowest_likelihood_ndx:
+                dead_point_data = dict({'log_l': l_likelihood, 'weight':a_weight})
                 for k,val in enumerate(self._live_points.values[i]):
-                    dpd[self.sampled_parameters[k].name] = val
-                self._dead_points.append(dpd)
+                    dead_point_data[self.sampled_parameters[k].name] = val
+                self._dead_points.append(dead_point_data)
 
         logZ_err = np.sqrt(self._information/self.population_size)
         self._logZ_err = logZ_err
@@ -215,6 +222,10 @@ class NestedSampling(NestedSamplingBase):
     def _stopping_criterion(self):
         """Wrapper function for the stopping criterion."""
         return self.stopping_criterion(self)
+
+    def _update_sample(self, sample_point, sample_loglikelihood):
+        """Wrapper function for the stopping criterion."""
+        return self.sampler(self, sample_point, sample_loglikelihood)
 
     @property
     def evidence(self):

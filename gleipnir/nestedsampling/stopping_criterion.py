@@ -4,6 +4,7 @@ This module defines the classes used by gleinir.nested_sampling.NestedSampling
 instances to define the stopping criterion for the Nested Sampling run.
 
 """
+import numpy as np
 
 
 class NumberOfIterations(object):
@@ -34,15 +35,15 @@ class NumberOfIterations(object):
 class RemainingPriorMass(object):
     """Stop after the remaining amount of prior mass reaches a preset threshold.
     Attributes:
-        cutoff (float): The remaining prior mass threshold that Nested Sampling
+        threshold (float): The remaining prior mass threshold that Nested Sampling
             iterations should reach after which to terminate the run.
     """
-    def __init__(self, cutoff):
+    def __init__(self, threshold):
         """Initialize the RemainingPriorMass stopping criterion.
         Args:
-            cutoff (float): Sets the cutoff Attribute.
+            threshold (float): Sets the threshold Attribute.
         """
-        self.cutoff = cutoff
+        self.threshold = threshold
         return
 
     def __call__(self, nested_sampler):
@@ -54,4 +55,40 @@ class RemainingPriorMass(object):
             bool : Should stop the Nested Sampling run if True, should
                 continue running if False.
         """
-        return nested_sampler._alpha**nested_sampler._n_iterations <= self.cutoff
+        return nested_sampler._alpha**nested_sampler._n_iterations <= self.threshold
+
+class RelativeEvidenceThreshold(object):
+    """
+    Stop when the current relative (or fractional) contribution to the evidence
+    is less than the specified threshold:
+        dZ/Z < threshold
+    Attributes:
+        threshold (float): The remaining prior mass threshold that Nested Sampling
+            iterations should reach after which to terminate the run.
+    """
+    def __init__(self, threshold):
+        """Initialize the RemainingPriorMass stopping criterion.
+        Args:
+            threshold (float): Sets the threshold Attribute.
+        """
+        self.threshold = threshold
+        self._first = True
+        return
+
+    def __call__(self, nested_sampler):
+        """Evaluate the criterion.
+        Args:
+            nested_sampler (:obj:gleipnir.nested_sampler.NestedSampling): The
+                instance of the NestedSampling object to be tested.
+        Return:
+            bool : Should stop the Nested Sampling run if True, should
+                continue running if False.
+        """
+        if self._first:
+            self._first = False
+            return self._first
+        else:
+            current_contribution = nested_sampler._current_weights * \
+                                   np.exp(nested_sampler._current_loglikelihood_level)
+            print(current_contribution, nested_sampler._evidence, self.threshold)                       
+            return (current_contribution/nested_sampler._evidence) < self.threshold
