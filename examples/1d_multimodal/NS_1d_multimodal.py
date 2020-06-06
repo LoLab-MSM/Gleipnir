@@ -10,7 +10,7 @@ import numpy as np
 from scipy.stats import uniform
 from gleipnir.sampled_parameter import SampledParameter
 from gleipnir.nestedsampling import NestedSampling
-from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.nestedsampling.samplers import MetropolisSampler
 from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
 
 # Number of paramters to sample is 1
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     # with component-wise trial moves and augmented acceptance criteria that adds a
     # hard rejection constraint for the NS likelihood boundary.
 
-    sampler = MetropolisComponentWiseHardNSRejection(iterations=50, burn_in=50, tuning_cycles=2)
+    sampler = MetropolisSampler(iterations=50, burn_in=50, tuning_cycles=2)
 
     # Setup the stopping criterion for the NS run -- We'll use a fixed number of
     # iterations: 10*population_size

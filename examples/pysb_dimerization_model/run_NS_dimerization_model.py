@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import norm,uniform
 from gleipnir.sampled_parameter import SampledParameter
 from gleipnir.nestedsampling import NestedSampling
-from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
+from gleipnir.nestedsampling.samplers import MetropolisSampler
 from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
 from dimerization_model import model
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # Here we are using an implementation of the Metropolis Monte Carlo algorithm
     # with component-wise trial moves and augmented acceptance criteria that adds a
     # hard rejection constraint for the NS likelihood boundary.
-    sampler = MetropolisComponentWiseHardNSRejection(iterations=20, tuning_cycles=1)
+    sampler = MetropolisSampler(iterations=20, tuning_cycles=1)
     # Setup the stopping criterion for the NS run -- We'll use a fixed number of
     # iterations: 10*population_size
     stopping_criterion = NumberOfIterations(10*population_size)
