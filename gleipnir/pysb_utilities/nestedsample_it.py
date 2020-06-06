@@ -409,13 +409,13 @@ class NestedSampleIt(object):
                 loglikelihood = self.sum_norm_logpdfs_loglikelihood
         if ns_version == 'built-in':
             from gleipnir.nestedsampling import NestedSampling
-            from gleipnir.nestedsampling.samplers import MetropolisComponentWiseHardNSRejection
+            from gleipnir.nestedsampling.samplers import MetropolisSampler
             # from gleipnir.sampled_parameter import SampledParameter
             from gleipnir.nestedsampling.stopping_criterion import NumberOfIterations
             # population_size = 100*len(self._sampled_parameters)
-            sampler = MetropolisComponentWiseHardNSRejection(iterations=10,
-                                                             burn_in=10,
-                                                             tuning_cycles=1)
+            sampler = MetropolisSampler(iterations=10,
+                                        burn_in=10,
+                                        tuning_cycles=1)
             # Setup the stopping criterion for the NS run -- We'll use a fixed number of
             # iterations: 10*population_size
             stopping_criterion = NumberOfIterations(10*population_size)
@@ -537,7 +537,7 @@ if __name__ == '__main__':
     out_file.write("import numpy as np\n")
     out_file.write("from scipy.stats import norm,uniform\n")
     out_file.write("from gleipnir.nested_sampling import NestedSampling\n")
-    out_file.write("from gleipnir.samplers import MetropolisComponentWiseHardNSRejection\n")
+    out_file.write("from gleipnir.samplers import MetropolisSampler\n")
     out_file.write("from gleipnir.sampled_parameter import SampledParameter\n")
     out_file.write("from gleipnir.stopping_criterion import NumberOfIterations\n")
 
@@ -594,7 +594,7 @@ if __name__ == '__main__':
     out_file.write("# Here we are using an implementation of the Metropolis Monte Carlo algorithm\n")
     out_file.write("# with component-wise trial moves and augmented acceptance criteria that adds a\n")
     out_file.write("# hard rejection constraint for the NS likelihood boundary.\n")
-    out_file.write("sampler = MetropolisComponentWiseHardNSRejection(iterations=500, burn_in=100)\n")
+    out_file.write("sampler = MetropolisSampler(iterations=500, burn_in=100)\n")
     out_file.write("# Setup the stopping criterion for the NS run -- We'll use a fixed number of\n")
     out_file.write("# iterations: 10*population_size\n")
     out_file.write("stopping_criterion = NumberOfIterations(10*population_size)\n")
