@@ -342,9 +342,61 @@ class NestedSampling(NestedSamplingBase):
     @dead_points.setter
     def dead_points(self, value):
             warnings.warn("dead_points is not settable")
+
+    @property
+    def model_internal_energy(self):
+        log_likelihoods = self._dead_points['log_l'].to_numpy()
+        weights = self._dead_points['weight'].to_numpy()
+        likelihoods = np.exp(log_likelihoods)
+        norm_weights = (weights*likelihoods)/self.evidence
+        gt_mask = norm_weights > 0.0
+        potential_energies = -log_likelihoods
+        internal_energy = np.average(potential_energies[gt_mask], weights=norm_weights[gt_mask])
+        return internal_energy
+
+    @property
+    def model_free_energy(self):
+        # F = -lnZ
+        free_energy = -self.log_evidence
+        return free_energy
+
+    #def _lndX(self):
+    #    log_likelihoods = self._dead_points['log_l'].to_numpy()
+    #    weights = self._dead_points['weight'].to_numpy()
+    #    likelihoods = np.exp(log_likelihoods)
+    #    norm_weights = (weights*likelihoods)/self.evidence
+    #    gt_mask = norm_weights > 0.0
+    #    lndX = np.average(np.log(weights[gt_mask]), weights=norm_weights[gt_mask])
+    #    return lndX
+
+    #def model_entropy(self):
+    #    # F
+    #    free_energy = self.thermo_free_energy()
+    #    # U
+    #    internal_energy = self.thermo_internal_energy()
+    #    # S = U - F - <lndX>
+    #    lndX = self._lndX()
+    #    entropy = internal_energy - free_energy - lndX
+    #    return entropy
+
+    @property
+    def model_entropy(self):
+        """Information entropy of the model joint posterior.
+            H = -E[ln(p)]
+        Note that H is also equivalent to:
+            H = U - F - E[ln(dX)],
+        where U is the model internal energy, F is the model free energy, and
+        <ln(dX)> is the expectation value of the logarithm of the nested
+        sampling prior partitions.
+        """
+        log_likelihoods = self._dead_points['log_l'].to_numpy()
+        weights = self._dead_points['weight'].to_numpy()
+        likelihoods = np.exp(log_likelihoods)
+        norm_weights = (weights*likelihoods)/self.evidence
+        gt_mask = norm_weights > 0.0
+        entropy = -np.average(np.log(norm_weights[gt_mask]), weights=norm_weights[gt_mask])
+        return entropy
+
     # @property
     # def samples(self):
     #     return self._dead_points
-    # @samples.setter
-    # def samples(self, value):
-    #     warnings.warn("samples is not settable")
